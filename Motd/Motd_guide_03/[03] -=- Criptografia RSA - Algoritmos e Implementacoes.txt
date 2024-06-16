@@ -1,0 +1,1250 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[03]-=[Criptografia RSA - Algoritmos e Implementações]-=|RoOtLiQuiD|=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+--------------------------------------------------------------------------------
+
+CRIPTOGRAFIA RSA
+ALGORITMOS E IMPLEMENTACOES
+
+By RoOtLiQuiD
+rootliquid@m...
+www.motdlabs.org
+
+--------------------------------------------------------------------------------
+
+
+-------------
+INDICE:
+-------------
+
+1.0 :: INTRODUCAO CHATA QUE NINGUÉM LÊ ............................... LINE 39
+2.0 :: Breve comentário sobre Curvas Elípticas ....................... LINE 100
+3.0 :: Introducao ao RSA ............................................. LINE 128
+4.0 :: Funcionamento do RSA .......................................... LINE 212
+4.1 :: Gerando as chaves ............................................. LINE 220
+4.2 :: Encriptando ................................................... LINE 283
+4.3 :: Desencriptando ................................................ LINE 308
+4.4 :: Resumo do funcionamento do RSA ................................ LINE 325
+5.0 :: Breve Comentário sobre "DELAYED CODES" ........................ LINE 360
+6.0 :: SOURCE CODES .................................................. LINE 403
+6.1 :: Simple RSA in C ............................................... LINE 432
+6.2 :: Simple RSA in LISP ............................................ LINE 720
+6.3 :: COMPLETE RSA IN C USING GNU MP LIBRARY ........................ LINE 907
+
+
+
+
+--------------------------------------------------------------------------------
+1.0 :: INTRODUCAO CHATA QUE NINGUÉM LÊ
+--------------------------------------------------------------------------------
+
+Como vc jah deve saber, a criptografia eh a arte de trasnformar informacoes
+em MULHER, ou seja, algo que vc realmente nao consegue entender.
+
+Existem dois tipos de criptografia, a chamada Criptografia Simétrica, e
+Assimétrica.
+
+
+-------------------------------
+..:: Criptografia Simétrica :
+-------------------------------
+
+Durante a primeira guerra mundial o cientista Gilbert Vernam inventou
+um método para esconder as mensagens enviadas às tropas.
+
+Uma palavra ou frase qualquer aleatoriamente escolhida servia de chave para
+esconder qualquer texto. O método era bem simples, as duas pessoas que queriam
+se comunicar deveriam ter essa mesma chave, e cada vez que uma fosse enviar um
+texto para a outra, deveria ser feita uma operação lógica de XOR da chave com o
+texto, assim os dados do texto ficavam "misturados" com a chave, não sendo
+possível distinguir os dois. Para decifrar o texto, a outra pessoa deveria
+possuir a mesma chave, bastando para isso apenas fazer o XOR novamente no texto
+cifrado fazendo-o virar novamente o texto original.
+
+Esse método é chamado de simétrico porque os dois lados da comunicação
+precisam ter a mesma chave, exatamente igual, tanto para encriptar, quanto para
+desencriptar. Isso é um grande problema pois vc precisa entregar essa chave de
+modo seguro a pessoa certa, pois qualquer um que tiver a mesma chave poderá
+decifrar a mensagem. Apesar disso, ainda hoje ele é usado, pois com esse método
+podemos encriptar dados em O(1), pois basta uma operação (XOR) para cada bit a
+ser encriptado, no método assimétrico a coisa jah eh bem diferente...
+
+Para gerar chaves para criptografia simétrica existem muitos algoritmos como
+o DES, MD5, SHA, etc...
+Particularmente quem se interessar pode dar uma olhada no algoritmo SKIPJACK
+da NSA, veja mais em: http://www.tropsoft.com/strongenc/skipjack.htm
+ou procure no google: Skipjack NSA algorithm
+
+
+
+---------------------------------
+..:: Criptografia Assimétrica :
+---------------------------------
+
+Nela, vc tem duas chaves, uma chamada de chave pública, que eh usada apenas
+para encriptar os dados e com ela não eh possível desencripta-los, e uma chave
+chamada de privada, que eh usada para desencriptar os dados. Nesse método você
+entrega para a outra pessoa a sua chave pública para que ela possa te mandar
+mensagens cifradas com a sua chave.
+
+Para você mandar mensagens cifradas para a outra pessoa você precisa da
+chave pública dela, e vice-versa. Na criptografia assimétrica os dados não são
+encriptados com XOR, mas sim com cálculos matemáticos, e por isso encriptar uma
+grande quantidade de dados com esse método pode ser muito lento.
+
+A criptografia RSA usa o método assimétrico, eu vou explicar como funciona,
+mas antes um breve comentário sobre as Curvas Elípticas (que também usam o
+método assimétrico).
+
+
+
+--------------------------------------------------------------------------------
+2.0 :: Breve comentário sobre Curvas Elípticas
+--------------------------------------------------------------------------------
+
+Atualmente o que há de mais avançado em cifragem de dados eh a criptografia
+baseada em Curvas Elípticas. O único algorimto que conheço que usa isso,
+chama-se ECC.
+
+Para o RSA, o tamanho do problema é o tamanho do módulo que deve ser
+fatorado. Já nas curvas elípticas, o tamanho do problema é o número de pontos N
+no grupo em que se está trabalhando.
+
+A segurança das curvas elípticas se baseia na intratabilidade do problema do
+logaritmo discreto em grupos aritméticos definidos sobre os pontos de uma curva
+elíptica (Caraio! Foda hein!). Oferece o mesmo nível de segurança que os
+sistemas baseados em corpos de inteiros como o RSA, mas com tamanho de chave
+menor.
+
+Um ECC de 160 bits equivale a um sistema RSA de 1024 bits (Putz!!!).
+
+Para mais informações sobre Criptografia baseada em Curvas Elípticas acesse:
+http://www.lockabit.coppe.ufrj.br/downloads/academicos/ECCMono.pdf
+Ou então digite no google Criptografia+Curvas+Elípticas
+
+
+
+
+
+--------------------------------------------------------------------------------
+3.0 :: Introducao ao RSA
+--------------------------------------------------------------------------------
+
+O algoritmo RSA foi inventado pelos professores do MIT: Ronald L. Rivest,
+Adi Shamir, e Leonard Adleman em 1977.
+
+A empresa RSA Security que originalmente era controlada pelos inventores,
+detêm a patente do algoritmo. Mas pelo que eu sei essa bosta de patente soh eh
+válida nos EUA, portanto pode ficar tranquilo que o FBI não vai bater à sua
+porta porque vc fez um programa que usa esse algoritmo!
+
+Leia mais sobre essa patente em:
+http://www.cyberlaw.com/rsa.html
+Ah, eu ouvi dizer que essa patente expirava em junho de 2000, soh que eu
+não consegui achar nada que confirmasse... Se alguem souber ....
+
+
+Como jah foi dito, o RSA usa criptografia assimétrica. Para que haja
+segurança nesse método, devemos ter um algoritmo que gera uma chave pública e
+uma privada de modo que seja impossível (ou quase, hehe) de determinar a chave
+privada mesmo sabendo a chave pública.
+
+Para isso, a chave pública eh gerada através de uma "one-way function", uma
+função matemática onde dado uma certa entrada eh relativamente fácil de
+determinar o resultado, porém sabendo o resultado, eh praticamente impossível
+determinar a entrada.
+
+Matematicamente falando: dado X, computamos F(x) facilmente, porém , dado
+F(x), eh impossível computar X.
+Funções não inversíveis são um exemplo de uma "one-way function".
+
+No caso do RSA, a função usada eh a multiplicação de dois números primos.
+Dae, vc deve estar pensando: "mas essa função eh inversível, se eu fatorar o
+resultado eu acho os dois números primos". Pois eh, isso funciona se tivermos
+números pequenos, como 7 e 13, que dá 91. Se dividirmos 91 por todos os primos
+anteriores vamos acabar descobrindo que 91/13 dah 7 e não sobra resto, o que
+quer dizer que encontramos a entrada (7 e 13).
+
+Apesar dessa função ser inversível, se multiplicarmos números primos muito
+grandes, a quantidade de números que precisaremos testar para descobrir a
+entrada vai ser tão grande, que torna esse trabalho impraticável. Por isso, para
+que essa função seja segura, devemos estar certos de que os dois números
+escolhidos são realmente primos e que sejam números muito grandes.
+
+Por exemplo, quando dizemos que estamos trabalhando com uma chave de 1024
+bits no RSA, isso quer dizer, que a chave pública tem 1024 bits, ou seja,
+precisamos de 1024 bits para representar o número que foi gerado pela
+multiplicação dos dois primos, portanto cada número primo deveria ter 512 bits.
+
+Para se ter uma idéia, um número de 1024 bits é da ordem de 1 x 10^308 na
+representação decimal, imagine quantos números antes desse devemos testar para
+encontrar os dois números primos que o geraram!!! Com o computador que está na
+sua frente agora, você levaria mais tempo do que a idade do universo para
+conseguir fatorar esse número, heheheh que exagero, na verdade eu não sei quanto
+tempo levaria, mas seria tanto tempo que mesmo com os computadores mais modernos
+exitentes, fatorar esse número seria uma tarefa quase impossível. O problema, eh
+que com a computação quântica, o poder computacional seria aumentado muito, pois
+seria possível fazer vários cálculos ao mesmo tempo usando os vários estados que
+podem ter um qbit.
+Certamente a criptografia atual não eh páreo para a computação quântica. Um
+cálculo que no computador comum poderia levar milhares de anos para ser
+concluído, com um processador quântico esse tempo pode ser reduzido para
+algumas horas.
+
+Para tentar driblar esse problema de fatorar uma multiplicação de dois
+números primos existem algoritmos e teoremas que otimizam e diminuem o trabalho,
+não sendo preciso testar o número com todos os primos anteriores, porém ainda
+assim não foi encontrada uma fórmula que consiga fatorar números grandes de
+forma suficientemente eficiente para que ameace a criptografia atual.
+
+
+Na prática para se fazer um sistema de criptografia seguro que usa o RSA,
+você vai enfrentar 3 problemas principais:
+
+o) Como pegar dados verdadeiramente aleatórios, para gerar os
+números primos.
+o) Como saber se um número qualquer eh realmente primo.
+o) Como fazer cálculos numéricos com números de representação
+maior que 32 bits.
+
+Mais a frente isso será eplicado.
+
+
+--------------------------------------------------------------------------------
+4.0 :: Funcionamento do RSA
+--------------------------------------------------------------------------------
+
+O algoritmo RSA eh muito simples, ele usa apenas 3 fórmulas matemáticas, uma
+para gerar as chaves,uma para encriptar, e outra para desencriptar.
+
+
+--------------------------------------------------
+4.1 :: Gerando as chaves
+--------------------------------------------------
+
+Primeiro devemos gerar a chave publica e a privada, essa eh a parte mais
+complicada.
+Para gerar as chaves devemos ter dois números primos aleatórios P e Q.
+
+
+
+-----------------------
+..:: A chave pública:
+-----------------------
+
+A chave pública eh composta por dois números, N e E.
+
+O número N eh a multiplicação dos dois números primos P e Q:
+
+N = P * Q
+
+Para calcular o número E , precisamos ainda calcular outro número que vai
+nos auxiliar, o número PHI. Que eh calculado pela multiplicacao dos dois primos
+menos 1, veja:
+
+PHI = (P-1)*(Q-1)
+
+O número E deve ser calculado de maneira que o MDC (máximo divisor comum)
+entre E e PHI seja 1, ou seja, de maneira que E seja relativamente primo de PHI.
+
+O número E deve satisfazer a condição:
+
+MDC( E, PHI ) == 1
+Para conseguir fazer isso, vamos ter que usar algumas gambiarras
+matemáticas.
+
+OBS: O número E , sempre resulta num número pequeno (com um pequeneo # de
+bits)
+como 3, 17, 50003 e etc..
+
+
+A chave pública são apenas os númeors E e N, o PHI não deve de maneira
+nenhuma ser fornecido, pois com ele geramos o número D que eh a chave privada.
+
+
+-----------------------
+..:: A chave privada:
+-----------------------
+
+A chave privada eh composta pelo número D e o N também.
+
+O número D eh o número que multiplicado por E, módulo PHI, eh igual a 1,
+ou seja:
+O númer D deve satisfazer a condição:
+
+( E*D ) % PHI == 1
+
+O D eh também chamado de o inverso de E módulo PHI.
+No código exemplo eu calculo isso usando o "Bizarre Extended Euclidian
+Algorithm" ;-) Mas eu não sei bem como esse treco funciona, eu soh peguei o
+algoritmo no google e usei! hehehe, eu sou um geek nao um matemático pervertido!
+Veja mais em: http://www.grc.nasa.gov/WWW/price000/pfc/htc/zz_xeuclidalg.html
+
+
+
+
+--------------------------------------------------
+4.2 :: Encriptando
+--------------------------------------------------
+
+Para encriptar qualquer tipo de dados, seja texto, imagem ou o que for, vc
+deverá transformar tudo em números, trabalhando com 32 bits, fica fácil de fazer
+
+isso, basta pegar 4 bytes de cada vez dos dados que vc quer encriptar. O número
+deve ser sempre unsigned long.
+
+Para encriptar uma mensagem qualquer, convertemos ela em um número M, e
+fazemos o seguinte cálculo:
+
+Mensagem encriptada (C) eh igual a (Mensagem Original elevado a E) módulo N:
+
+C = M^E mod N
+
+Devemos fazer isso para todos os pedaços da mensagem. Se dividirmos uma
+mensagem de 20 bytes em 5 partes de 4 bytes, devemos fazer isso 5 vezes e
+guardar separadamente o número encriptado que foi gerado.
+
+Veja que na encriptação usamos os dois números gerados para a chave
+pública, o N e o E.
+
+
+
+--------------------------------------------------
+4.3 :: Desencriptando
+--------------------------------------------------
+
+Para desencriptar a mensagem basta fazer o seguinte cálculo:
+
+Mensagem Original eh igual (Mensagem Encriptada elevada a D) módulo N.
+
+M = C^D mod N
+
+Depois de feito isso vc terá o número M original que faz parte da mensagem.
+
+Veja que para desencriptar precisamos saber o número D gerado para a chave
+pública e o N.
+
+
+
+--------------------------------------------------
+4.4 :: Resumo do que acabou de ser dito
+--------------------------------------------------
+
+Gerando as chaves:
+
+Chave Pública: E e N
+Chave Privada: D e N
+
+N = P * Q
+PHI = (P-1)*(Q-1)
+E satisfaz a condição: MDC( E, PHI ) == 1
+D satisfaz a condição: ( E*D ) % PHI == 1
+
+Encriptando:
+C = M^E mod N
+
+Desencriptando:
+M = C^D mod N
+
+Observe que para desencriptar vc precisa saber o número D, e para saber o
+número D vc precisa saber o número PHI, e para saber o número PHI vc precisa
+saber os primos P e Q.
+Portanto, esses números não devem de forma alguma serem revelados para
+terceiros.
+Obtendo quaisquer um dos números D, PHI, P e Q vc pode desencriptar a
+mensagem.
+
+Na chave pública, eh distribuído apenas os números E e N, o método mais
+comum para se atacar uma criptografia RSA eh tentar fatorar o número N (que eh
+conhecido) nos dois números primos P e Q para que assim se possa gerar a chave
+privada D.
+
+
+
+--------------------------------------------------------------------------------
+5.0 :: Breve Comentário sobre "DELAYED CODES"
+--------------------------------------------------------------------------------
+
+Deve-se notar que o tempo de processamento necessário para encriptar é
+muitas vezes menor do que o tempo necessário para desencriptar. Isso se deve
+por que na desencriptação, elevamos um número grande C ao expoente D que também
+eh um número grande, enquanto na encriptação elevamos um número grande M ao
+expoente E, que como vimos anteriormente, eh um numero pequeno, portanto o
+cálculo eh muito mais rápido. Essa característica do RSA eh pervertidamente
+aproveitada para gerar os chamados "DELAYED CODES".
+
+Quando surge um novo vírus, rapidamente os fabricantes de anti-vírus criam
+um código para detectá-lo e depois de algum período de tempo, todos os
+computadores infectados serão curados, o "DELAYED CODE" é usado para prolongar
+o período de tempo que os computadores ficam infectados.
+
+Para que o anti-vírus não detecte o vírus pode-se mudar partes do código do
+vírus ou alguma característica do vírus após 2 meses por exemplo. Mas nesse caso
+o anti-vírus poderia ter duas versões da vacina, sendo uma com o código
+modificado, aí eh que entra o Delayed Code. Para esconder o código fará a
+modificação basta criptografá-lo de maneira que demore 2 meses (ou qualquer
+período de tempo) para descriptografar.
+
+Usando o RSA, encripta-se n vezes o código a ser escondido, e coloca-se
+a chave privada junto do código original do vírus, usando a chave privada o
+próprio vírus pode descriptografar o código escondido, ou ainda, os próprios
+fabricantes de anti-vírus podem descriptografar, porém, levará 2 meses para
+conseguir isso, pois o código foi encriptado n vezes e terá que ser
+descriptografado o mesmo número de vezes, como o tempo de encriptação eh muitas
+vezes menor do que o de desencriptação, isso torna possível gerar um código
+que leva algumas horas ou dias para criptografar mas leva meses para
+descriptografar. Com isso , consegue-se atrasar a análise do código do vírus
+para que este possa ter mais tempo para infectar computadores.
+
+Essa eh a idéia básica do Delayed Code, para saber mais detalhes leia:
+http://z0mbie.host.sk/dpgn_eng.txt
+
+
+
+
+
+
+--------------------------------------------------------------------------------
+6.0 :: SOURCE CODES
+--------------------------------------------------------------------------------
+
+Os topicos seguintes trazem codigos de programas que eu fiz para implementar
+a criptografia RSA de 3 maneiras.
+
+Na primeira ( 6.1 ) eu fiz de maneira simples usando apenas as funcoes
+aritmeticas padrao do C e sem otimizar nada, por isso eh lento e nao consegue
+gerar chaves RSA maiores que 32 bits, e gera numeros primos aleatorios (devem
+ser definidos com #define antes).
+
+Na segunda ( 6.2 ) eu fiz usando os mesmos algoritmos usandos na 6.1, ou
+seja, sem otimizacao nenhuma, mas eu fiz em LISP e por isso podemos usar a
+aritimetica de precisao infinita que a propria linguagem tem, e portanto podemos
+gerar chaves RSA maiores que 32 bits, mas eu reparei que chaves maiores q 64
+bits deixam os calculos muiiiiiito lerdos.
+
+Na terceira eu fiz em C e usei a biblioteca GNU MP
+( http://www.swox.com/gmp/ )
+Por isso podemos usar chaves de qualquer tamanho e eu usei funcoes da
+biblioteca para gerar os numeros primos aleatorios. Alem disso, por ter todos os
+calculos otimizados pela propria biblioteca, o programa consegue gerar chaves de
+2048 bits por exemplo e encriptar/desencriptar os dados rapidamente.
+
+
+
+
+
+--------------------------------------------------
+6.1 :: Simple RSA in C
+--------------------------------------------------
+
+
+/******************************************************************************/
+/* SIMPLE RSA IN C */
+/* BY RoOtLiQuId */
+/******************************************************************************/
+/* */
+/* NESTA VERSAO EU IMPLEMENTEI O RSA BEM SIMPLES DE MANEIRA QUE FIQUE FACIL */
+/* DE ENTENDER */
+/* NAO USEI NENHUMA BIBLIOTECA, E POR ISSO A MAIOR CHAVE RSA QUE PODEMOS TER */
+/* VAI SER DE 32 BITS DEVIDO A LIMITACAO DA ARITMETICA PADRAO DA LINGUAGEM C */
+/******************************************************************************/
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+
+
+
+
+#define ULONG unsigned long long
+#define LONG long long
+
+
+
+/* como nao ensinei um jeito de achar numeros primos,
+aki vao 2 numeros primos predefinidos*/
+#define PRIMO1 17863
+#define PRIMO2 17851
+
+
+
+
+typedef struct RSA_PublicKEY {
+ULONG N;
+ULONG E;
+} RSA_PublicKEY;
+
+
+typedef struct RSA_KEY {
+
+/* Private Key : */ ULONG D;
+
+RSA_PublicKEY publicKey;
+
+} RSA_KEY;
+
+
+
+
+
+/******************************************************************************/
+/* Aqui se faz o calculo do "modular inverse of an integer when that integer */
+/* is relatively prime to the modulus" */
+/* hehehehe, ou seja: */
+/* Devemos achar D tal que : ( E*D ) % PHI == 1 */
+/* Portanto usamos o Fuckin Bizzarre "Extended Euclidian Algorithm" */
+/*Veja mais em http://www.grc.nasa.gov/WWW/price000/pfc/htc/zz_xeuclidalg.html*/
+/******************************************************************************/
+ULONG RSA_extend(ULONG E, ULONG PHI) {
+LONG q, u2, u3, v2, v3, t2, t3;
+
+u2 = 0;
+u3 = (LONG)PHI;
+v2 = 1;
+v3 = (LONG)E;
+
+while (v3 != 0)
+{
+q = u3/v3 ;
+t2 = u2 - q * v2;
+t3 = u3 - q * v3;
+
+u2 = v2;
+u3 = v3;
+
+v2 = t2;
+v3 = t3;
+}
+printf("u2 = %d u3 = %d\n", u2, u3);
+
+if (u2 < 0)
+return (ULONG)u2 + PHI;
+else
+return (ULONG)u2;
+}
+
+
+
+
+/******************************************************************************/
+/* Calculo do GREATEST COMMON DIVISOR */
+/* ou seja, Maior Divisor Comum ou MDC */
+/******************************************************************************/
+ULONG RSA_GCD( ULONG e, ULONG PHI ) {
+ULONG a, great;
+
+if (e > PHI) {
+while (e%PHI != 0) {
+a = e%PHI;
+e = PHI;
+PHI = a;
+}
+great = PHI;
+} else {
+while (PHI%e != 0) {
+a = PHI%e;
+PHI = e;
+e = a;
+}
+great = e;
+}
+return great;
+}
+
+
+
+
+/******************************************************************************/
+/* Calculo necessario para encontrar o E da formula: */
+/* E satisfaz a condição: MDC( E, PHI ) == 1 */
+/******************************************************************************/
+ULONG RSA_tofindE( ULONG PHI, ULONG P, ULONG Q ) {
+ULONG great;
+ULONG e;
+
+great = 0;
+e = 2;
+
+while (great != 1) {
+e = e + 1;
+great = RSA_GCD(e,PHI);
+}
+return e;
+}
+
+
+
+
+/******************************************************************************/
+/* Aqui vamos usar os numeros primos PRIMO1 e PRIMO2 definidos lah em cima */
+/* para gerar as chaves publicas e privadas */
+/******************************************************************************/
+void RSA_generateKey( RSA_KEY * key ){
+ULONG P, Q, PHI;
+
+P = PRIMO1 ;
+
+Q = PRIMO2 ;
+
+PHI = (P - 1) * (Q - 1);
+key->publicKey.E = RSA_tofindE( PHI, P, Q );
+key->publicKey.N = P * Q;
+key->D = RSA_extend( key->publicKey.E, PHI );
+
+
+printf( "PHI %u ", PHI );
+printf( " N %u ", key->publicKey.N );
+printf( " E %u ",key->publicKey.E );
+printf( " D %u ",key->D );
+printf( "\n\n" );
+}
+
+
+
+
+/******************************************************************************/
+/* Funcao usada para encriptar um numero ULONG data */
+/* precisamos apenas da chave publica */
+/* */
+/* Cripted = Message^E mod N; */
+/******************************************************************************/
+ULONG RSA_PublicEncrypt( ULONG data, RSA_PublicKEY publicKey ){
+ULONG C, F, i;
+
+
+/* Metodo ruin:
+C = (ULONG)pow(data, publicKey.E) % publicKey.N;
+
+Este metodo eh ruin pois vc vai elevar um numero grande a outro muito
+grande e depois com esse resultado vai fazer um modulo pelo numero N
+Ao inves de fazer assim, podemos simplismente fazer um loop onde vamos
+multiplicando o numero por ele mesmo e jah vai fazendo modulo por N
+Assim economizamos precisao, pois nunca teremos um numero super
+gigantesco, ele vai ficar sempre no maximo do tamanho de N
+*/
+
+if ( publicKey.E % 2 == 0) {
+C = 1;
+F = (data*data) % publicKey.N;
+
+for ( i = 1; i <= publicKey.E/2; i++) {
+C = (F*C) % publicKey.N;
+}
+
+} else {
+C = data;
+F = (data*data) % publicKey.N;
+
+for ( i = 1; i <= publicKey.E/2; i++) {
+C = (F*C) % publicKey.N;
+}
+
+}
+
+
+printf( " %u Encripted is:", data );
+printf(" %u \n", C );
+
+return C;
+}
+
+
+
+/******************************************************************************/
+/* funcao usada para desencriptar um numero ULONG C */
+/* Precisaremos da chave privada */
+/* */
+/* Message = Cripted^D mod N */
+/******************************************************************************/
+ULONG RSA_PrivateDecrypt( ULONG C, RSA_KEY key ){
+ULONG G, F;
+ULONG i;
+
+/* metodo Ruin:
+G = (ULONG)(pow( C, key.D )) % key.publicKey.N;
+pelo mesmo motivo anterior
+*/
+
+if ( key.D % 2 == 0) {
+G = 1;
+F = (C*C) % key.publicKey.N;
+for ( i = 1; i <= key.D/2; i++) {
+G = (F*G) % key.publicKey.N;
+}
+} else {
+G = C;
+F = (C*C) % key.publicKey.N;
+for ( i = 1; i <= key.D/2; i++) {
+G = (F*G) % key.publicKey.N;
+}
+}
+
+
+
+
+printf( " %u Decripted is:", C );
+printf( " %u \n\n", G );
+
+}
+
+
+
+/* Fuckin Main Function */
+int main(){
+
+RSA_KEY key; /* declaracao da nossa chave */
+
+printf("\n");
+
+RSA_generateKey( &key ); /* Geramos a chave */
+
+
+/* Encriptamos o numero 123456789 */
+ULONG c = RSA_PublicEncrypt( (ULONG)(123456789), key.publicKey );
+
+
+/* Pegamos o numero encriptado e descriptografamos para ver se fica
+igual ao inicial */
+RSA_PrivateDecrypt( c, key );
+
+printf("\n");
+
+return 0;
+}
+/******************************************************************************/
+/* END OF SIMPLE RSA IN C */
+/******************************************************************************/
+
+
+
+
+
+
+
+
+--------------------------------------------------
+6.2 :: Simple RSA in LISP
+--------------------------------------------------
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; SIMPLE RSA IN LISP ;;
+;; By RoOtLiQuId ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ;;
+;; ESTA VERSAO ESTA IMPLEMENTADA DE FORMA BEM SIMPLES, MAS O LISP USA ;;
+;; ARITMETICA ABITRARIA POR PADRAO, POR ISSO PODEMOS GERAR CHAVES RSA DE ;;
+;; QUAISQUER TAMANHOS DE BITS: 512, 1024, 2048, MAS EU PERCEBI QUE CHAVES ;;
+;; MAIORES QUE 64 BITS FAZEM OS CALCULOS FICAREM MUITO LENTOS, POIS NESSA ;;
+;; IMPLEMENTACAO EU NAO OTIMIZEI NADA ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Esquema do RSA: ;;
+;; Chave P?blica: E e N ;;
+;; Chave Privada: D e N ;;
+;; ;;
+;; N = P * Q ;;
+;; PHI = (P-1)*(Q-1) ;;
+;; E satisfaz a condi??o: MDC( E, PHI ) == 1 ;;
+;; D satisfaz a condi??o: ( E*D ) % PHI == 1 ;;
+;; ;;
+;; Encriptando: ;;
+;; C = M^E mod N ;;
+;; ;;
+;; Desencriptando: ;;
+;; M = C^D mod N ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; findE_helper
+;;; Desc: Funcao auxiliar de findE
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun findE_helper ( phi p q great e )
+(if (= great 1)
+(- e 1)
+(findE_helper phi p q (GCD e phi) (+ e 1) )
+)
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; findE
+;;; Desc: Funcao usada para encontrar o valor de E que satizfaz a
+;;; condicao MDC( E, PHI ) == 1
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun findE ( phi p q )
+(findE_helper phi p q 0 2 )
+)
+
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; extend_helper
+;;; Desc: Funcao auxiliar de extend
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun extend_helper( e phi u2 u3 v2 v3 )
+(let ( (q (floor (/ u3 v3 ) ) ) )
+(let ( (t2 (- u2 (* q v2 ) ) )
+(t3 (- u3 (* q v3 ) ) )
+)
+
+(if (not (= t3 0) )
+(extend_helper e phi v2 v3 t2 t3 )
+(if (< v2 0)
+(+ v2 phi)
+v2
+)
+)
+)
+)
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; extend
+;;; Desc: Funcao baseada no extended euclidian algorithm para
+;;; encontrar D tal que D satisfaz a condi??o: ( E*D ) % PHI == 1
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun extend( e phi )
+(extend_helper e phi 0 phi 1 e )
+)
+
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; expt_mod_helper
+;;; Desc: Funcao auxiliar de expt_mod
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun expt_mod_helper( x y n k )
+(if (= y 1)
+k
+(expt_mod_helper x (- y 1) n (mod (* k x ) n ) )
+)
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; expt_mod
+;;; Desc: Funcao gambiarra matematica usada pra fazer x^y % n
+;;; sem precisar calcular o valor de x^y, pois esse valor poderia
+;;; ser muito alto.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun expt_mod( x y n )
+(expt_mod_helper x y n x )
+)
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; encript
+;;; Desc: Funcao usada para encriptar um dado numero com a chave
+;;; publica E e N previamente calculada
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun encript ( number e n )
+;(mod (expt number e) n)
+(expt_mod number e n )
+)
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; decript
+;;; Desc: Funcao usada para desencriptar um dado numero com a chave
+;;; privada D e N previamente calculada
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun decript ( number d n )
+;(mod (expt number d) n)
+(expt_mod number d n )
+)
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; chamadas e calculos:
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;Numeros Primos definidos
+(setf P 1021 )
+(setf Q 2689 )
+
+
+(setf N (* P Q) )
+
+(setf PHI (* (- P 1 ) (- Q 1 ) ) )
+(setf E (findE PHI P Q ) )
+(setf D (extend E PHI ) )
+
+
+'Encriptando_o_numero_1234567
+(setf enc (encript 1234567 E N ) )
+
+'Decriptando
+(setf dec (decript enc D N ) )
+
+'resultado
+dec
+
+
+
+(quit)
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------
+6.3 :: COMPLETE RSA IN C USING GNU MP LIBRARY
+--------------------------------------------------
+
+
+
+/******************************************************************************/
+/* COMPLETE RSA IN C USING GNU MP LIBRARY */
+/* BY RoOtLiQuId */
+/******************************************************************************/
+/* NESTA VERSAO EU USO A GNU MP LIBRARY PARA FAZER OS CALCULOS COM PRECISAO */
+/* ABITRARIA, OU SEJA, PODEMOS FAZER CALCULOS COM NUMEROS MAIORES QUE 64 BITS */
+/* PORTANTO DAH PRA FAZER RSA COM CHAVES BEM GRANDES, 512, 1024, */
+/* 2048 BITS E MAIORES */
+/* */
+/* PARA SABER MAIS E BAIXAR A GNU MP ENTRE EM: */
+/* http://www.swox.com/gmp/ */
+/******************************************************************************/
+/* */
+/* OBSERVACOES: */
+/* Esse programa pode usar qualquer quantidade de bits para */
+/* gerar as chaves RSA */
+/* Ele apenas encripta e desencripta um numero qualquer com o tamanho maximo */
+/* de bits da chave RSA */
+/* Para encriptar um texto ou um arquivo qualquer voce vai ter que fazer uma */
+/* funcao que quebre o texto ou arquivo em varios pedacos e codifique esses */
+/* pedacos em numeros que serao encriptados, de forma que posteriormente esses*/
+/* numeros possam ser convertidos novamente no texto ou no arquivo original */
+/* */
+/* Se eu tiver tempo, depois vou fazer uma versao completa que pode encriptar */
+/* e descriptar qualquer arquivo ou texto ou outro tipo de dados */
+/******************************************************************************/
+
+
+
+#include <stdio.h>
+#include <gmp.h>
+#include <stdlib.h>
+
+
+typedef struct RSA_PublicKEY {
+mpz_t N;
+mpz_t E;
+} RSA_PublicKEY;
+
+
+typedef struct RSA_KEY {
+
+/* Private Key : */ mpz_t D;
+
+RSA_PublicKEY publicKey;
+
+} RSA_KEY;
+
+
+
+/******************************************************************************/
+/* Gerar os dois numeros primos randonomicos */
+/******************************************************************************/
+void genRandomPrimes( mpz_t* prime1, mpz_t* prime2, char* seed_num,
+unsigned long int seed_tick, unsigned int keySize )
+{
+gmp_randstate_t state;
+mpz_t rand_number;
+mpz_t seed;
+
+
+mpz_init ( rand_number );
+gmp_randinit_default( state );
+
+printf( "%s", seed_num );
+
+if( mpz_init_set_str (seed, seed_num, 10) != 0 ){
+printf( "Erro fazendo mpz_init_set_str \n" );
+exit(0);
+}
+
+if( seed_tick <=0 )
+seed_tick = 1;
+mpz_mul_ui( seed, seed, seed_tick );
+
+
+gmp_randseed( state, seed );
+
+mpz_urandomb( rand_number, state, keySize/2 );
+mpz_nextprime( *prime1, rand_number);
+
+mpz_nextprime( *prime2, *prime1);
+
+
+gmp_randclear( state );
+mpz_clear( seed );
+mpz_clear( rand_number );
+
+}
+
+
+
+/******************************************************************************/
+/* Calcular o E */
+/******************************************************************************/
+void toFindE( mpz_t* PHI, mpz_t* e )
+{
+mpz_t great;
+
+mpz_init_set_ui ( great , 0 );
+mpz_set_ui ( *e, 2 );
+
+
+while ( mpz_cmpabs_ui( great, 1) != 0 ) {
+mpz_add_ui ( *e, *e, 1);
+mpz_gcd ( great, *e , *PHI);
+}
+
+mpz_clear( great );
+}
+
+
+
+
+
+/******************************************************************************/
+/* Calcular o D */
+/******************************************************************************/
+void extend( mpz_t* E, mpz_t* PHI, mpz_t* D) {
+mpz_t q, u2, u3, v2, v3, t2, t3;
+mpz_init( q );
+mpz_init( u2 );
+mpz_init( u3 );
+mpz_init( v2 );
+mpz_init( v3 );
+mpz_init( t2 );
+mpz_init( t3 );
+
+
+mpz_set_ui (u2, 0);
+mpz_set (u3, *PHI);
+mpz_set_ui (v2, 1);
+mpz_set (v3, *E);
+
+
+while ( mpz_sgn( v3 ) != 0 )
+{
+mpz_cdiv_q ( q, u3, v3);
+
+mpz_set (t2, u2);
+mpz_submul (t2, q, v2); /* t2 = t2 - q times v2. */
+
+mpz_set (t3, u3);
+mpz_submul (t3, q, v3); /* t3 = t3 - q times v3. */
+
+mpz_set (u2, v2);
+mpz_set (u3, v3);
+
+mpz_set (v2, t2);
+mpz_set (v3, t3);
+}
+
+
+if ( mpz_sgn( u2 ) < 0)
+mpz_add ( *D, u2, *PHI);
+else
+mpz_set (*D, u2);
+
+mpz_clear( q );
+mpz_clear( u2 );
+mpz_clear( u3 );
+mpz_clear( v2 );
+mpz_clear( v3 );
+mpz_clear( t2 );
+mpz_clear( t3 );
+}
+
+
+
+/******************************************************************************/
+/* Gerar a chave, sem verificar se eh uma chave que funciona */
+/******************************************************************************/
+void makeKey( RSA_KEY* key, char* seed_num,
+unsigned long int seed_tick, unsigned int keySize )
+{
+mpz_t prime1, prime2, prime1b, prime2b;
+mpz_t PHI;
+
+
+mpz_init ( prime1 );
+mpz_init ( prime2 );
+mpz_init ( PHI );
+mpz_init ( key->publicKey.N );
+mpz_init ( key->publicKey.E );
+mpz_init ( key->D );
+
+
+
+genRandomPrimes( &prime1, &prime2, seed_num, seed_tick, keySize );
+
+printf( "Prime1 = %s \n", mpz_get_str (NULL, 10, prime1) );
+printf( "Prime2 = %s \n", mpz_get_str (NULL, 10, prime2) );
+
+
+
+/* N = P * Q */
+mpz_mul ( key->publicKey.N, prime1, prime2);
+printf( "N = %s \n", mpz_get_str (NULL, 10, key->publicKey.N) );
+
+
+
+/* PHI = (P-1)*(Q-1) */
+mpz_init ( prime1b );
+mpz_init ( prime2b );
+mpz_sub_ui( prime1b, prime1, 1);
+mpz_sub_ui( prime2b, prime2, 1);
+mpz_mul ( PHI, prime1b, prime2b );
+mpz_clear( prime1b );
+mpz_clear( prime2b );
+printf( "PHI = %s \n", mpz_get_str (NULL, 10, PHI) );
+
+
+
+
+/* E satisfaz a condição: MDC( E, PHI ) == 1 */
+toFindE( &PHI, &key->publicKey.E );
+printf( "E = %s \n", mpz_get_str (NULL, 10, key->publicKey.E) );
+
+
+
+/* D satisfaz a condição: ( E*D ) % PHI == 1 */
+extend( &key->publicKey.E, &PHI, &key->D );
+
+
+printf( "D = %s \n", mpz_get_str (NULL, 10, key->D) );
+
+
+
+
+mpz_clear( prime1 );
+mpz_clear( prime2 );
+mpz_clear( PHI );
+}
+
+
+
+
+/******************************************************************************/
+/* Encriptar */
+/******************************************************************************/
+void publicEncrypt( mpz_t data, RSA_PublicKEY publicKey, mpz_t cripted )
+{
+mpz_powm ( cripted, data, publicKey.E, publicKey.N);
+}
+
+/******************************************************************************/
+/* Decriptar */
+/******************************************************************************/
+void publicDecrypt( mpz_t cripted, RSA_KEY key, mpz_t data )
+{
+mpz_powm ( data, cripted, key.D, key.publicKey.N);
+}
+
+
+
+
+/******************************************************************************/
+/* Gerar a chave, e verificar se eh uma chave que funciona, se nao for, */
+/* gera outra aumentando o seed_tick */
+/* Eu tive que fazer isso, pois a funcao que gera os dois numeros primos pode */
+/* errar, ela nao eh 100% confiavel, ela pode gerar um numero que nao eh primo*/
+/* e o algoritmo do RSA soh funciona quando os dois numeros sao primos */
+/* verdadeiros, por isso temos que testar se a chave funciona */
+/******************************************************************************/
+void InitAndMakeValidKey( RSA_KEY* key, char* seed_num, unsigned int keySize )
+{
+unsigned long int seed_tick = 1;
+mpz_t data, cripted, decripted;
+
+
+mpz_init( cripted );
+mpz_init( decripted );
+mpz_init_set_str( data, "12345", 10);
+
+do{
+makeKey( key, seed_num, seed_tick, keySize );
+
+publicEncrypt( data, key->publicKey, cripted );
+publicDecrypt( cripted, *key, decripted );
+
+seed_tick++;
+}while( mpz_cmp( data, decripted ) != 0 );
+}
+
+
+
+
+
+
+
+
+
+/* Fuckin Main Function */
+int main()
+{
+/* OBS: a random seed deve ser uma string de um numero bem grande */
+/* O melhor seria pedir pro usuario entrar com um numero aleatorio */
+#define RANDOM_SEED "9423477068029340805793923728080760045047333655414855309485"
+
+/* Tamanho em BITS da chave RSA */
+#define KEY_SIZE 1024
+
+
+RSA_KEY key;
+InitAndMakeValidKey( &key, RANDOM_SEED, KEY_SIZE );
+mpz_t data, cripted, decripted;
+
+mpz_init( cripted );
+mpz_init( decripted );
+
+/* Inicializar os dados que serao encriptados */
+mpz_init_set_str( data, "55555555555555555555555555555555555555555555", 10);
+
+
+printf( "\n\n\n" );
+printf( "N = %s \n", mpz_get_str (NULL, 10, key.publicKey.N) );
+printf( "DATA = %s \n", mpz_get_str (NULL, 10, data) );
+
+/* encriptar */
+publicEncrypt( data, key.publicKey, cripted );
+publicDecrypt( cripted, key, decripted );
+
+/* decriptar */
+printf( "CRIPTED = %s \n", mpz_get_str (NULL, 10, cripted) );
+printf( "DECRIPTED = %s \n", mpz_get_str (NULL, 10, decripted) );
+
+return 0;
+}
+
+
+/******************************************************************************/
+/* END OF COMPLETE RSA IN C USING GNU MP LIBRARY */
+/******************************************************************************/

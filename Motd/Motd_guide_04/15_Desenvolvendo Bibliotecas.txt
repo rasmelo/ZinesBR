@@ -1,0 +1,314 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[15]-=[Desenvolvimento de Bibliotecas]-=|nEuRoMaNcEr|=-=-=-=-=-=-=-=-=-=-=-=-
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+
+01 - Introdução
+02 - Shared libraries
+03 - Nomeclatura e localização
+04 - Como funcionam as shared libs
+05 - ldconfig
+06 - Criando uma shared lib
+07 - Utilizando shared libs
+08 - Utilizando shared libs dinamicamente
+09 - dlopen e sua turma.
+10 - O que está por vir.
+
+
+
+--=[ Introdução
+
+	Saudações pessoas, essa é a minha primeira e humilde contribuição nessa
+zine,  então vamos direto ao ponto. Desenvolvimento de bibliotecas em ambiente 
+linux. Estaremos utilizando ferramentas GNU e talvez alguma parte esquecida dos
+nossos cérebros.
+
+
+
+--=[ Shared libraries
+
+	Para desenvolvermos bibliotecas deste tipo, precisamos ter em mente que
+elas tem nomes especiais e sua localização no sistema de arquivos é importante
+para sua utilização. Shared libs são carregadas na inicialização do programa e
+compartilhada entre programas.
+
+
+
+--=[ Nomeclatura e localização
+
+	Toda shared lib tem três nomes especiais. O primeiro nome chamado "nome
+ SO" ou SONAME. O SONAME é composto pelo prefixo "lib" + nome da biblioteca + o
+sufixo ".so" e um  número de versão que é incrementado a cada nova  release da
+biblioteca.  O segundo nome especial é o "nome real" ou REALNAME. O REALNAME é
+formado pelo SONAME + um número de versão + número de release (opcional). O ter-
+ceiro nome é o nome de link-edição ou LINKERNAME. Este é o nome que o compilador
+usa quando solicita uma biblioteca. Este nome é basicamente o SONAME sem os nú-
+meros de versão.
+
+	Se criássemos agora uma biblioteca chamada "foo",  certamente  seria a
+versão 0.0 e a primeira release. Teríamos então libfoo.so.0 como SONAME. O RE-
+ALNAME seria libfoo.so.0.0.1 e o LINKERNAME seria foo.
+
+	Depois de criada a biblioteca, ela precisa ser instalada em algum lugar,
+certo? O padrão GNU recomenda que sejam instaladas em /ust/local/lib quando dis-
+tribuído junto com código fonte. Porém um outro padrão chamado FHS (Filesystem
+Hierarchy Standard) define o que deve ir onde em uma distribuição linux.  Este 
+padrão diz que as libs devem ser instaladas em /usr/lib ou /lib no caso  de bi-
+bliotecas necessárias para a inicialização do sistema.  Embora aparente que os
+dois padrões se contradigam, isso não acontece, pois o padrão GNU define a loca-
+lização para distribuição de código fonte, e o padrão FHS usa o ponto de vista 
+de distros e onde cada lib deve estar  instalada para ser usada por outros pro-
+gramas.
+
+
+
+--=[ Como funcionam as shared libs
+
+	Para discutirmos o funcionamento das shared libs, temos que estar fami-
+liarizados com o loader. O loader é um programa geralmente localizado em /lib/
+ld-linux.so.? (? é um numero de versão).
+
+	A tarefa do loader é encontrar e carregar todas as libs utilizadas por
+um programa durante a sua inicialização. Para encontrar as libs usadas por um
+programa, ld-linuz.so tem um mapa de diretórios pelos quais ele pode buscar a
+lib que precisa. Este mapa é o arquivo chamado /etc/ld.so.conf.
+
+	O padrão fhs pode ser consultado em http://www.pathname.com/fhs. Uma vez
+que uma lib é carregada na memória,  ela permanece lá até que nenhum outro pro-
+grama utilize símbolos exportados por ela.
+
+
+
+--=[ ldconfig
+
+	Pode ser terrivelmente pouco eficiente procurar por todos os diretórios
+de ld.so.conf durante a inicialização de um  programa,  então é aí que entra o
+ldconfig. Esse carinha mantém um cache de localização de libs criado a partir do
+arquivo /etc/ld.so.conf. Este cache acelera o processo consideravelmente.
+
+Este processo pode ser feito com o comando:
+
+       #ldconfig -n diretorio_com_as_libs
+
+	Além disso, o ldconfig tem outros superpoderes. Sempre que um nova lib é
+instalada no sistema, ldconfig é o responsável por configurar seus nomes (SONAME
+,REALNAME e LINKNAME)  através de links simbólicos e instalá-la no lugar correto
+no sistema de arquivos.
+
+
+
+--=[ Criando uma shared lib
+
+	Ao contrário das DLLs do M$ ruWindows, shared libs em linux não tem um
+modo específico de ser programado. É simplesmente uma função ou funções exporta-
+das como símbolos públicos. Simples assim. O código abaixo é o código completo
+de uma library 100% funcional.
+
+--------------libteste.c-----------------
+<++> sharedlib/libteste.c
+#include <stdio.h>
+
+void say(char *s)
+{
+ printf("You said: %s\n", s);
+}
+<--> sharedlib/libteste.c
+-----------------------------------------
+
+Para compilarmos nossa libteste fazemos:
+
+       #gcc -fPIC -Wall -c libteste.c -o libmarcio.o
+
+O parâmetro -fPIC instrui o compilador a gerar código independente da posição.
+O parâmetro -c já é manjado. Instrui o compilado a só compilar (e não linkar) 
+o código. O Parâmetro -o também já é manjadão, configura o nome do arquivo ge-
+rado pelo gcc.
+
+	Neste ponto temos o nosso código compilado. A única diferença nesta com-
+pilação foi que geramos código independente da posição onde ele é carregado (PIC
+ou position independent code). Agora realmente geramos nossa lib com o comando:
+
+       #gcc -shared -Wl,-soname,libteste.so.0 -o libteste.so.0.0 libteste.o -lc
+
+Percebam que estamos definindo o SONAME,REALNAME e LINKNAME neste ponto. Defini-
+mos o soname com -Wl, -soname libteste.so.0. Definimos o REALNAME com -o libtes-
+te.so.0.0. Este é o nome que o arquivo compilado terá.
+
+	Uma vez criada a nossa lib, temos que instalar no sistema de arquivos e
+criar o cache para ela. Inicialmente copiamos a lib para o diretório /usr/lib
+(padrão GNU, lembram ?)
+
+        #cp libteste.so.0.0 /usr/lib
+
+Configuramos o cache e o SONAME automaticamente com o ldconfig:
+               ldconfig -n /usr/lib/
+
+Configuramos o LINKERNAME na marra:
+               ln -sf /usr/lib/libteste.so.0.0 /usr/lib/libteste.so
+
+TCHANAAAAAMMM! Temos uma shared lib criada e instalada no sistema. Saem lágrimas
+dos meus olhos sempre que passo por estes passos. É um processo tão lindo...
+
+	Bom, mas até agora uma lib instalada não é muito útil se for pra ficar
+perdida lá no disco pegando poeira... Como fazer um programa utilizar o código
+que exportamos na lib? Simples... Olhe o próximo tópico! :)
+
+
+
+--=[ Utilizando shared libs
+
+	Vamos lá cambada, vamos criar um programa que utilize a nossa lib.
+
+--------------------------usalib.c-------------------------
+<++> sharedlib/usalib.c
+#include <stdio.h>
+// se você criou um header com os cabeçalhos das rotinas exportadas na lib, 
+// inclua ele aqui. Isso permite que o compilador te avise se você está 
+// referenciando a rotina de maneira certa.
+
+int main(int argc, char **argv )
+{
+ while ( argc > 1 )     // para cada parâmetro passado ao programa...
+ {
+ argc--;
+ say(argv[argc]);      // esta função está implementada na nossa lib!
+ }
+}
+<--> sharedlib/usalib.c
+-----------------------------------------------------------
+
+Mais fácil que isso só encontrar bug no SO da concorrência $$$!
+
+Durante a compilação, informamos que o nosso código deve ser linkado com a
+libteste.so. Isso é feito com:
+
+       #gcc  usalib.c -lteste usalib.c -o usalib
+
+Para executar o nosso programa faríamos
+       #./usalib wako yako doty
+
+Teríamos então a saída:
+       You said: doty
+       You said: yako
+       You said: wako
+
+
+
+--=[ Utilizando shared libs dinamicamente
+
+	Uma boa vantagem da utilização de libs é a possibilidade de carregamento
+dinâmico. Uma lib pode ser carregada em qualquem momento durante a execução de 
+um programa, não sendo restrito somente a sua inicialização. Plugins e módulos
+não essenciais a execução de um programa podem se beneficiar deste método para
+carregar as libs que necessitam somente no momento em que forem ativados.
+
+	Nenhuma  modificação por parte da lib precisa ser  feita para que este
+seja capaz de ser associada dinamicamente a um programa. Entretanto, o programa
+que utilizará o código exportado na lib precisa especificar explicitamente qual
+símbolo e qual lib deseja acessar. Para essa tarefa temos a libdl.
+
+
+
+--=[ dlopen e sua turma.
+
+	A libdl implementa algumas rotinas que nos possibilitam acessar dinami-
+camente uma lib. As rotinas tem seus cabeçalhos em dlfcn.h como abaixo:
+
+       void *dlopen(const char *filename, int flag);
+       void *dlsym(void *handle, const char *symbol);
+       int dlclose(void *handle);
+
+dlopen() carrega a lib e retorna um "handle" que identifique a lib no contexto
+do programa. dlsym() retorna o endereço em que um determinado símbolo esta car-
+regado na memória. dlclose() decrementa as referências ao handle especificado.
+Se a contagem chegar a zero e nenhuma outra lib utilizar símbolos exportados 
+nesta lib, então ela será descarregada da memória. Para exemplificar, vamos car-
+regar nossa libteste dinamicamente.
+
+-----------------------dinamiclib.c----------------------------
+<++> sharedlib/dinamiclib.c
+#include <stdio.h>
+#include <dlfcn.h> // <----- necessario para carregar dinamicamente a libteste
+#include <stdlib.h>
+
+
+int main(int argc, char **argv)
+{
+
+ int i;
+ void *module;
+ const char *error;
+ /* Descrevemos uma variavel que guarde o endereco
+  de uma funcao que retorna void e recebe um
+  char * como parametro
+*/
+void (*say)(char *);
+
+ if ( argc == 1 )
+ {
+ fprintf(stderr, "Que tal passar um parametro hein ??\n");
+ exit(0);
+ }
+
+ /* CARREGAMOS A LIBTESTE AGORA */
+ module = dlopen("libteste.so", RTLD_LAZY);
+ if ( ! module )
+ {
+ fprintf(stderr,"Erro (%s) ao carregar libteste.so\n",dlerror());
+ exit(1);
+ }
+
+ /* OK, neste ponto a lib foi carregada, vamos ober o endereco da rotina say() desta lib*/
+ say = dlsym(module, "say");
+ if ( (error = dlerror()) )
+ {
+  fprintf(stderr, "Erro (%s) ao carregar rotina say\n", error);
+ exit(1);
+ }
+
+ for (argc-- ; argc > 0; argc-- )
+ {
+ (*say)(argv[argc]);           // chamada a rotina say() da libteste
+ }
+
+
+
+ return 0;
+}
+
+<--> sharedlib/dinamiclib.c
+---------------------------------------------------------------
+
+Para compilar temos que linkar nosso programa com a libdl:
+
+       #gcc -ldl dinamiclib.c -o dinamiclib
+
+A saída é idêntica a saída do programa usando shared lib.
+
+
+
+--=[ O que está por vir
+
+	Senhores, esta introdução é suficiente para iniciar o estudo sobre esse
+assunto, o ORÁCULO (google) tem muita informação sobre este tema, além é claro
+dos manpages. 
+
+	Quaisquer dúvidas, sugestões , correções ou comentários são bem vindos
+e podem ser encaminhados pro meu e-mail ou por msn/icq/sinal de fumaça/telepatia
+/telefone ou pombo correio.
+
+	Aproveito para divulgar aqui nesta zine um projeto que desenvolvo que se
+iniciou com o estudo de libs em linux. Espero estar escrevendo em breve sobre o
+novo protótipo do projeto que possibilita que qualquer linguagem de programação
+interpretada como php, perl ou asp, por exemplo, utilize QUALQUER lib sem a ne-
+cessidade de plugins ou modificações no interpretador da linguagem. A nossa 
+libteste poderia ser chamada em um script php ... que tal ?
+
+
+nEuRoMaNcEr
+mail: marciomanbr[arroba]yahoo.com.br
+msn: marciovmf[arroba]hotmail.com
+icq: 86026760
+
+_EOF_

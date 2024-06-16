@@ -1,0 +1,1546 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[11]-=[Programação em Pascal]-=|d4rwin|-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+                          Programação em Pascal
+                          =========== == ======
+
+E aí galera, blz?  So eu(tio  d4rwin) mais uma  vez, =). Bom,  resolvi  escrever
+sobre pascal,  pq visto  que  o  público alvo  do  e-zine  são newbies(como eu),
+seria  legal  para    pessoas  que    estão començando,     ou  mesmo    os  já
+iniciados, aprender   ou aprimorar    seus  conhecimentos   em  programação.   O
+pascal,  além  de  ser  uma linguagem  de alto    nível, não  é   difícil de  se
+aprender,    basta   dedicação    e   programaçao.    Programação   se   aprende
+programando.  Lógico    que a  parte    teórica é   importante,    mas  praticar
+sempre  foi  e   sempre  será   a  melhor  forma  de  se aprender.  Agora  vamos
+deixar  de blá  blá blá e vamos  ao que interessa...
+
+
+          Index
+          ~~~~~
+
+ 1.0 ..... Introdução
+    1.1     Lógica de Programação
+    1.2     Quem criou o Pascal?
+
+ 2.0 ..... Compiladores
+    2.1     Borlando Pascal 7.0
+    2.2     FreePascal
+    2.3     Outros compiladores
+
+ 3.0 ..... Estrutura do programa em Pascal
+    3.1     Cabeçalho
+    3.2     Comentário
+    3.3     Título
+    3.4     Bibliotecas
+    3.5     Constantes
+    3.6     Tipo
+    3.7     Variáveis
+      3.7.1  Declarando Variáveis
+    3.8     Corpo do Programa
+    3.9     O uso do ;
+
+ 4.0 ..... Sinais
+
+ 5.0 ..... Comandos Básicos
+
+ 6.0 ..... Estruturas
+    6.1     Estruturas de Atribuição
+    6.2     Estruturas Condicionais
+
+ 7.0 ..... Laços
+    7.1     Laço FOR
+    7.2     WHILE
+    7.3     Repeat
+
+ 8.0 ..... Vetores
+
+ 9.0 ..... Matrizes
+
+ 10.0 .... Registros
+
+ 11.0 .... Tratamento de Arquivos
+
+ 12.0 .... Procedimentos e Funções
+
+ 13.0 .... Agenda Eletrônica em Pascal
+
+ 14.0 .... Exercícios
+
+ 15.0 .... Agradecimentos
+
+ 16.0 .... Links
+
+
+
+
+
+
+
+
+
+
+
+ 1.0 - Introdução
+       ~~~~~~~~~~
+
+ Vc deve estar se perguntando: "Porque eu,  em pleno ano 2004, uma época em  que
+ já lançaram   o  Delphi   8, vou   aprender  Pascal,   uma  linguagem antiga  e
+ orientada a eventos?". Aí  eu te respondo meu  amigo, a primeira linguagem  que
+ aprendemos, nós nunca esquecemos. É como andar de bicicleta. Com base nisso,  o
+ Pascal é  uma ótima  linguagem para  se começar. O Pascal daria  uma boa   base
+ pra  vc,  depois, aprender  uma outra  linguagem. E  tem aquela  história, todo
+ conhecimento é bem vindo.
+
+
+ 1.1 - Lógica de Programação
+       ~~~~~~ ~~ ~~~~~~~~~~~
+
+ Entende-se por lógica de programação,  uma seqüência de passos a  serem tomados
+ para resolver determinado problema(no  nosso caso, construir um  programa). Não
+ adianta o cara saber colocar textos e figurinhas na tela, se este não tiver uma
+ boa  lógica  de  programação,  e,  é  isto  que  difere  o  bom  programador do
+ programador  ruim.  Ter  uma  boa  lógica,  significa  conseguir  resolver   os
+ problemas(construir   os  programas),   para  que   o  resultado   final   seja
+ satisfatório. Portanto, vá com calma. Não vá com muita sede ao  pote...primeira
+ aprenda a andar, pra depois correr.(Filosofei bonito agora, hein, =)).
+
+
+ 1.2 - Quem criou o Pascal?
+       ~~~~ ~~~~~ ~ ~~~~~~~
+
+ O Pascal foi  criado por Niklaus  Wirth, em 1972,  em Genebra-Suiça. O  nome da
+ linguagem foi uma homenagem ao matemático e filósogo Blaise Pascal(inventor  da
+ primeira  calculadora  mecânica).  O  objetivo  de  Niklaus  Wirth,  era  o  de
+ desenvolver uma linguagem simples, clara e fácil de programar.
+
+
+
+
+
+
+
+
+
+ 2.0 - Compiladores
+       ~~~~~~~~~~~~
+
+ Não vou entrar em  detalhes sobre o que  são compiladores, pois já  falei sobre
+ eles  na  Zine  MOTD GUIDE  01,  no  texto "Introdução  à  Programação".  O que
+ basicamente os compiladores fazem são transformar o código de alto nível(código
+ em Pascal), para linguagem de máquina.
+
+
+ 2.1 - Borland Pascal 7.0
+       ~~~~~~~ ~~~~~~ ~~~
+
+ O Borlando Pascal ou Turbo Pascal(são os mesmos) surgiu em 1985, com a Borland.
+ Isto provocou um  verdadeiro avanço para  a linguagem. Desde  as suas primeiras
+ versões  o Turbo  Pascal já  possuia ambiente  para digitação  e depuração  do
+ código, e fazia  a compilação  e  linkedição  em um  único processo.  A  última
+ versão  do  Turbo  Pascal   lançado   foi  o   Turbo   Pascal  7.0.   Porém   a
+ Borland  parou o desenvolvimento do Turbo Pascal, fazendo com que ele se  torna
+ -se ultrapassado, mas ainda muito utilizado, para os tempos atuais.
+
+
+ 2.2 - FreePascal
+       ~~~~~~~~~~
+
+  O FPC(FreePascal Compiler)  é um projeto  OpenSource que visa  continuar com o
+  desenvolvimento da linguagem Pascal. Além de ser compatível com o Turbo Pascal
+  7.0, possui vários  projetos em andamentos.  Possui mais recursos  que o Turbo
+  Pascal 7.0,   e ainda   permite interagirmos   com alguns   GUIs(Graphics User
+  Internface) e  APIs. O site  do projeto é: www.freepascal.org |  Em português:
+  http://www.freepascal.eti.br.
+
+
+ 2.3 - Outros Compiladores
+       ~~~~~~ ~~~~~~~~~~~~
+
+ Além  dos  dois  compiladores  citados acima,  tem  outros  que  também merecem
+ respeito. Abaixo segue a lista de alguns, com seus respectivos sites:
+
+   Compilador    |  Site
+   ^^^^^^^^^^       ^^^^
+   ---------------------------------------------------------------------------
+  | Pascaler      |  www.pascaler.hpg.com.br / www.infoxbr.com.br             |
+  |---------------------------------------------------------------------------|
+  | PascalZIM!    |  www.superdownloads.com.br / autor: pascalzim@yahoo.com.br|
+   ---------------------------------------------------------------------------
+ 
+ 
+
+
+
+
+
+
+
+
+
+
+
+ 3.0 - Estrutura do Programa em Pascal
+       ~~~~~~~~~ ~~ ~~~~~~~~ ~~ ~~~~~~
+
+ Um programa em Pascal possui básicamente a seguinte estrutura:
+
+ { Nome do Programa ...............:
+   Função .........................:
+   Plataforma .....................:
+   Linguagem ......................:
+   Data de criação ................:
+   Data de última alteração .......:
+   Autor ..........................:
+ }
+
+ Program Nome_do_Programa;
+ Uses <bibliotecas/units>;
+
+ Const
+  <identificador> = 'valor_da_constante';
+
+ Type
+  <identificador> : <tipo_da_variável>;
+
+ Var
+  <identificador> : <tipo_da_variável>;
+
+  Begin
+    comandos;
+    comandos;
+    comandos;
+       .
+       .
+       .
+    comandos;
+   End.
+
+
+ 3.1 - Cabeçalho
+       ~~~~~~~~~
+
+ O cabeçalho não é uma parte fundamental para o funcionamento do programa. Mas é
+ bom você adotar o costume de utilizá-lo, pois assim terá um melhor controle  de
+ seu programa, e sentirá menos dificuldade na hora de atualizá-lo. Um exemplo de
+ Cabeçalho:
+
+ { Nome do Programa ...............:
+   Função .........................:
+   Plataforma .....................:
+   Linguagem ......................:
+   Data de criação ................:
+   Data de última alteração .......:
+   Autor ..........................:
+ }
+
+
+ 3.2 - Comentário
+       ~~~~~~~~~~
+
+ Comentários  são  frases  ou pequenos  parágrafos  auto-explicativos  que visam
+ deixar mais claro  ao programador o  funcionamento de seu  programa, assim como
+ ajudá-lo na hora de atualizá-lo. Um exemplo de comentário em Pascal:
+
+ { Este  é um  exemplo de  comentário em  Pascal. Tudo  o que  for escrito entre
+ CHAVES,  é  desconsiderado pelo  compilador.  O comentário  pode  continuar por
+ vários linhas, até a segunda chave. }
+
+ (* Este  é outro  exemplo de  comentário em  Pascal. Tanto  este como o exemplo
+ acima são válidos. *)
+
+
+
+ 3.3 - Título
+       ~~~~~~
+
+ Título é o nome que o seu programa vai ter. Não tem segredo, ele é declarado da
+ seguinte forma:
+
+ Program <Titulo>;
+
+
+
+ 3.4 - Bibliotecas
+       ~~~~~~~~~~~
+
+ Em pascal, damos o nome de  Units as Bibliotecas. É nas bibliotecas/units  onde
+ ficam armazenadas as  rotinas e funções  a serem utilizadas  no programa. Assim
+ como em C,  temos a Bibliteca  stdio.h como "padrão",  no Pascal, temos  a unit
+ CRT, utilizado  em quase  todos os  programas feitos  em Pascal.  Um exemplo de
+ declaração de Units:
+
+ Uses <nome_da_unit>;
+
+  por exemplo:
+
+ Uses CRT,DOS,Graph;
+
+
+
+ 3.5 - Constantes
+       ~~~~~~~~~~
+
+ Constantes são "variáveis" que nunca mudam. Uma vez declarado um valor para uma
+ constante, esse valor jamais mudará. Um exemplo de declaração de constantes:
+
+ Const <identificador> = 'valor_da_constante';
+
+   por exemplo:
+
+ Const d4rwin = 'lindao';
+
+
+
+ 3.6 - Tipo
+       ~~~~
+
+ Em Pascal, podemos declarar nossas próprias variáveis, desde que especifiquemos
+ o tipo desta variável. Um exemplo de um declaração de tipo:
+
+ Type <identificador> = <tipo_do_identificador>;
+
+   por exemplo:
+
+ Type d4rwin = string;
+
+
+
+ 3.7 - Variáveis
+       ~~~~~~~~~
+
+ As variáveis em Pascal, são dividas em quatro grupos, sendo elas:
+
+ Numéricas     -> Podem ser números inteiros  ou reias, pelos dígitos de 0  a 9,
+                  sinais + ou - e "." para casas decimais.
+
+ Alfanuméricas -> Podem ser formadas por qualquer caractere da tabela ASCII.
+
+ Lógicas       -> Podem  assumir  apenas  dois  valores:  TRUE(Verdadeiro)   e
+                  FALSE(Falso).
+
+ Ponteiros     -> Podem armazenar apenas endereços de memória.
+
+
+  Tipos de variáveis:
+
+   -----------------------------------------------------------------------------------------
+  |  Classe     |    Tipo      |     Valores Comportados     |   Bytes que Ocupa na Memória |
+  | ------------|--------------|-----------------------------|------------------------------|
+  |  Boolean    |   Lógico     |      TRUE ou FALSE          |          1 byte              |
+  | ----------- |--------------|-----------------------------|------------------------------|
+  |  Byte       | Num. Inteiro |          0 a 255            |          1 byte              |
+  | ----------- |--------------|-----------------------------|------------------------------|
+  |  Char       |  Caracter    |       Tabela ASCII          |          1 byte              |
+  | ----------- |--------------|-----------------------------|------------------------------|
+  |  Comp       | Num. Real    |     -9.2E18 a 9.2E18        |          8 bytes             |
+  | ----------- |--------------|-----------------------------|------------------------------|
+  |  Double     | Num. Real    |     5.0E-324 a 1.7E308      |          8 bytes             |
+  | ----------- |--------------|-----------------------------|------------------------------|
+  |  Extended   | Num. Real    |     3.4E-4932 a 1.1E4932    |         10 bytes             |
+  | ----------- |--------------|-----------------------------|------------------------------|
+  |  Integer    | Num. Inteiro |     -32768 a 32767          |          2 bytes             |
+  | ----------- |--------------|-----------------------------|------------------------------|
+  |  Longint    | Num. Inteiro |  -2147483648 a 2147483647   |          4 bytes             |
+  | ----------- |--------------|-----------------------------|------------------------------|
+  |  Real       | Num. Real    |     2.9E-39 a 1.7E38        |          6 bytes             |
+  | ----------- |--------------|-----------------------------|------------------------------|
+  |  Shortint   | Num. Inteiro |        -128 a 127           |          1 byte              |
+  | ----------- |--------------|-----------------------------|------------------------------|
+  |  Single     | Num. Real    |    1.5E-45 a 3.4E38         |          4 bytes             |
+  | ----------- |--------------|-----------------------------|------------------------------|
+  |  String     |  Caracter    |     Cadeia de Caracteres    |      Varia de 2 a 256        |
+  | ----------- |--------------|-----------------------------|------------------------------|
+  |  Word       | Num. Inteiro |          0 a 65535          |          2 bytes             |
+   -----------------------------------------------------------------------------------------
+
+
+
+
+ 3.7.1 - Declarando Variáveis
+         ~~~~~~~~~~ ~~~~~~~~~
+
+ Bem,  existem  variáveis globais  e  locais. Mas  não  vamos entrar  nisso  por
+ enquanto. A declaração de uma variável em Pascal segue a seguinte sintaxe:
+
+ Var <identificador> : tipo da variável;
+     <identificador> : tipo da variável;
+     <identificador> : tipo da variável;
+
+       por exemplo:
+
+ Var d4rwin     : string[15];
+     num1,num2  : integer;
+     contador   : word
+     Resposta   : char;
+
+ {Repare no string[15]. O número entre parênteses indica que a variável terá  no
+ máximo  15 caracteres.  Quando   não  se coloca  o valor  entre parênteses,  o
+ programa considera a variável com o limita máximo de 256   caracteres.}
+
+
+ 3.8 - Corpo do Programa
+       ~~~~~ ~~ ~~~~~~~~
+
+ Vimos até  agora, Constantes,Tipo  e Variáveis.  Esses três  campos servem para
+ dizermos  ao compilador  quais recursos  iremos utilizar,  para que  assim ele
+ reserve um espaço  na memoria para  tais recursos. Depois  de declarados o  que
+ iremos utilizar no programa, vamos ao  bloco principal ou corpo do programa.  O
+ bloco  principal começa  no momento  em que  digitamos BEGIN,  e acaba  quando
+ digitamos END. Veja um exemplo:
+
+ Begin
+  comandos;
+  comandos;
+  comandos;
+  comandos;
+ End.
+
+
+
+ 3.9 - O uso do ;(ponto-e-vírgula)
+       ~ ~~~ ~~ ~~~~~~~~~~~~~~~~~~
+
+ É importante ressaltar o uso do ";". O ";" é muito importante, pois é ele  quem
+ indica que a  linha terminou. Se  nos esquercermos de  por o ";"  o programa na
+ compilará, por isso sempre preste muita atenção.
+
+
+
+
+
+
+
+
+
+
+
+ 4.0 - Sinais
+       ~~~~~~
+
+ Assim como na  matemática nós utilizamo-nos  de sinais para  efutuar cálculos e
+ operações, em Pascal não podería ser diferente. Abaixo, segue os sinais e  para
+ que servem:
+
+    +    -> Soma
+    -    -> Subtração
+    /    -> Divisão entre números reais
+    *    -> Multiplicação
+    Div  -> Divisão entre números inteiros
+    Mod  -> Retorna o resto de uma divisão entre inteiros
+
+
+
+
+
+
+
+
+
+ 5.0 - Comando Básicos
+       ~~~~~~~ ~~~~~~~
+
+ Agora a coisa está començando  a ficar legal...=). Vamos aprender  agora alguns
+ comandos básicos, que nos auxiliarão na criação do programa, e também  deixá-lo
+ com uma cara mais bonita. São eles:
+
+ Write   -> O comando write é utilizado para imprimir alguam coisa na tela.  Sua
+ sintaxe é:
+
+            write ('Hello World');
+
+            {Observe a aspa simples, tudo o que estiver dentro de aspas simples,
+            é considerados texto pelo compilador }
+
+
+ WriteLN -> Faz a mesma  coisa que o write, mas  depois de impresso o texto  ele
+ posiciona o   cursor na   primeira coluna  da  linha  abaixo.  LN  = Line.  Sua
+ sintaxe é igual a do Write.
+
+
+ Read    -> O  comando read  serve para  lermos dados  vindos do  teclado.   Por
+ exemplo, eu faço  uma pergunta, então   utilizo o  read para ler  a  resposta e
+ armazenar   esta  resposta    numa  variavel(declarada na  área  Var, antes  do
+ bloco principal). Sua sintaxe é:
+
+            read(variável);
+
+            {Sendo variável aonde vai ser armazenado o valor lido}
+
+
+ ReadLN  -> A exemplo  do writeln,  o  readln  lê os  dados e  após a   leitura,
+ posiciona o cursor na primeira coluna da linha abaixo. LN = Line. Sua sintaxe é
+ igual a do read.
+
+
+ ClrScr  -> Este  comando  limpa  a  tela  e  posiciana  o  cursor  na  primeira
+ linha,primeira coluna. Sua sintaxe é:
+
+            ClrScr;
+
+
+ Delay   ->  O comando  delay serve  para pausar  a execução  do programa por um
+ tempo  determinado.   O  tempo    é   determinado  em  milisegundos,   portanto
+ 1000 milisegundos equivalem a 1 segundo. Sua sintaxe é:
+
+             Delay(milisegundos);
+
+
+ Trunc    -> Este comando pega a parte inteira de um cálculo ou número real. Sua
+ sintaxe é:
+
+             Trunc(num_real);
+               por exemplo
+             Trunc(9.5 / 2.2);
+
+            {Pega a parte inteira do resultado da divisão de 9.5 com 2.2}
+
+
+
+ GotoXY   -> Em pascal, a tela é divida em 80 colunas e 25 linhas. Com o comando
+ GotoXY, você  pode ir  para qualquer lugar  que esteja entre essas 80 colunas e
+ 25 linhas. Sua sintaxe é:
+
+             Gotoxy (coluna,linha);
+
+
+
+ UpCase   ->  Este comando  pega caracteres  em letras  minúsculas e os converte
+ para caixa alta. Sua sintaxe é:
+
+              var_do_tipo_string := UpCase(var_do_tipo_string);
+
+
+
+ ReadKey  ->  Este  comando  pausa  o  programa  até  que  alguma  tecla   seja
+ pressionada. Sua sintaxe é:
+
+               Readkey;
+
+                  ou
+
+               var_do_tipo_char := readkey;
+
+
+
+ textbackground -> Este comando defini a cor de fundo. Sua sintaxe é:
+
+                   textbackground(numero_da_cor);
+                             ou
+                   textbackground(nome_da_cor);
+
+
+
+ textcolor      -> Este comando defini a cor da letra. Sua sintaxe é:
+
+                   textcolor(numero_da_cor);
+                             ou
+                   textcolor(nome_da_cor);
+
+      Cores Disponíveis:
+
+         ·BLUE
+         ·GREEN
+         ·CYAN
+         ·RED
+         ·MAGENTA
+         ·BROWN
+         ·LIGHTGRAY
+         ·DARKGRAY
+         ·LIGHTBLUE
+         ·LIGHTGREEN
+         ·LIGHTCYAN
+         ·LIGHRED
+         ·LIGHMAGENTA
+         ·YELLOW
+         ·WHITE
+         ·BLACK
+
+      {Nós podemos  também somar  duas cores,  por exemplo  : "textcolor  (RED +
+      BLUE);".  Adicionando  a  string        "Blink"  a  cor,  temos um  efeito
+      piscante, por exemplo: "textcolor (RED + Blink);" .}
+
+
+
+
+
+
+ 6.0 - Estruturas
+       ~~~~~~~~~~
+
+ Aqui  vamos  estudar  duas  estruturas:  As  estruturas  condicionais  e  as de
+ atribuição.
+
+
+ 6.1 Estruturas de Atribuição
+     ~~~~~~~~~~ ~~ ~~~~~~~~~~
+
+ Bom, como o próprio nome já  diz, estruturas de atribuição são utilizadas  para
+ atribuir  valores  a variáveis.  Por  exemplo, eu  tenho  uma variável  A,  uma
+ variável B e uma variável chamada Resultado. Eu quero que os valores da soma de
+ A + B sejam atribuídos a variável Resultado. Isso ficaria da seguinte forma:
+
+ Resultado := A + B;
+
+   {Note o ":=". Diferente de outras linguagens, o sinal de atribuição em Pascal
+   é dois ponto e um igual. Toda      vez que utilizarmos este sinal, o valor da
+   esquerda recebe o valor da direita.}
+
+
+ 6.2 Estruturas Condicionais
+     ~~~~~~~~~~ ~~~~~~~~~~~~
+
+ As estruturas condicionais são utilizadas quando nos deparamos com determinadas
+ situações em que temos que tomar  decisões. Por exemplo. Estou andando na  rua,
+ mas pode chover, então  se chover, eu devo  pegar um guarda-chuva, senão,  devo
+ continuar andando. O mesmo acontece com programação, por exemplo, estou fazendo
+ um programa que lê duas notas bimestrais, calcula a média e diz se o aluno  foi
+ aprovado ou reprovado. Consideremos a média  como 70. Portanto, SE a média  for
+ menor que 70, imprimir reprovado, SENÃO imprimir aprovado. Veja um exemplo  pra
+ entender melhor:
+
+ media := A + B / 2; {O sinal "/", indica divisao de numeros reais}
+  if media < 70 then
+   writeln ('Reprovado!')
+  else writeln ('Aprovado');
+
+
+ OBS.: IF = Se | THEN = Então | Else = Senão
+
+
+ {No exemplo acima, calculmos a média do  aluno, e de acordo com a média,  maior
+ ou menor que 70, damos o resultado.}
+
+ Sintaxes para IF:
+
+ IF condição THEN      IF condiçao THEN    IF condição THEN    IF condição THEN
+   comandos             Begin               Begin                comando;
+ ELSE comandos;          comandos;           comandos;
+                         comandos;           comandos;
+                           ...                 ...
+                         comandos;           comandos;
+                        End;                End
+                       IF condição THEN     ELSE Begin
+                        Begin                     comandos;
+                         comandos                 comandos;
+                        End;                     End;
+
+
+
+ OBS2.: Quando  temos um  ou mais  IFs dentro  de um estrutura condicional(outro
+ IF), denominamos tal estrutura de  IF Aninhando/Se Aninhando.
+
+ Existe também outra estrutura condicional,  a estrutura CASE. Abaixo segue  sua
+ sintaxe:
+
+ CASE escolha of
+  begin
+   1..100   : begin
+               writeln ('Você digitou um número.');
+              end;
+   'A'..'Z' : begin
+               writeln ('Você digitou uma letra maiúscula');
+              end;
+   'a'..'z' : begin
+               writeln ('Você digitou uma letra minúscula');
+              end;
+              else ;
+
+ {Quando utilizarmos apenas uma writeln,  um readln, ou qualquer outro  comando,
+ não há  a necessidade  de se  usar   o  begin e  end; (eu  usei de tongo mesmo,
+ hehehe).}
+
+
+
+
+
+
+
+
+
+ 7.0 - Laços
+       ~~~~~
+
+ Laços de  repetição são  utilizados quando  queremos que  determina situação se
+ repita até que algo aconteça, fazendo com que a situação pare de ser executada.
+ Por  exemplo, estou  fazendo um  programa que  cadastra clientes.  Para que  o
+ usuário não tenha de abrir mais um vez o programa toda vez que quiser cadastrar
+ um novo cliente, criamos um laço de repetição. O laço ficaria se repetindo  até
+ o momento em que o usuário não desejasse mais cadastrar usuários.
+
+
+ 7.1 - Laço FOR
+       ~~~~ ~~~
+
+ O laço  FOR permite  que determinemos  a quantidade  de vezes  que tal bloco do
+ programa será executado. Sua sintaxe é:
+
+ OBS.: FOR = De | TO = a | DO = Faça
+
+ FOR contador := 1 to <numero_a_definir> do
+  begin
+   comandos;
+   comandos;
+   comandos;
+  end;
+
+   por exemplo:
+
+ FOR contador := 1 to 5 do
+  begin
+   writeln ('MotdLabs');
+   writeln (' by d4rwin');
+  end;
+
+ {Este laço acima repetiria(imprimiria) 5 vezes na tela as frases MotdLabs e  by
+ d4rwin.}
+
+ O  laço  FOR  também  nos  permite  determinar  o  número  de  vezes  de  forma
+ descrescente. Por exemplo:
+
+ FOR contador := 5 downto 3 do
+  begin
+   comandos;
+   comandos;
+   comandos;
+  end;
+
+ {O laço acima executaria 2 vezes,  contando regressivamente de 5 até chegar  em
+ 3, o que está entre begin e end;}
+
+
+
+ 7.2 - WHILE
+
+ Aqui está mais uma  estrutura ou laço de  repetição. Utilizamos o WHILE  quando
+ queremos que determinado  bloco do programa  se repetia até  que algo aconteça.
+ Sua sintexe é:
+
+ OBS.: WHILE = Enquanto | DO = Faça
+
+ WHILE condição DO
+  Begin
+   comandos;
+   comandos;
+   comandos;
+     ...
+  End;
+
+  por exemplo:
+
+ WHILE num > 10 DO
+  Begin
+   writeln ('Eu estou aprendendo Pascal');
+   writeln ;
+   writeln ;
+   writeln ('d4rwin eh l33t0, =)');
+   num := 8;
+  End;
+
+ {No exemplo acima temos a seguinte  condiçao, num > 10. Enquanto essa  condição
+ for verdadeira(maior que 10), o    programa executará aquilo que estiver dentro
+ do bloco de repetiçao. Quando o programa encontra num := 8, ele    sai do laço,
+ pois a condição se tornou falsa.}
+
+
+
+ 7.3 - Repeat
+       ~~~~~~
+
+ Podemos dizer que o Repeat  é o contrário do WHILE.  Ele executa o que está  no
+ bloco de repetição até que a condição seja verdadeira. Enquanto a condição  for
+ falsa, ele executa o bloco de repetição. Sua sintaxe é:
+
+ Repeat
+  comandos;
+  comandos;
+  comandos;
+     ...
+  comandos;
+ Until (condição_for_verdadeira);
+
+ por exemplo
+
+ Repeat
+  write  ('Digite um num: ');
+  readln (num);
+  write  ('Digite outro num: ');
+  readln (num2);
+  result := num + num2;
+  writeln ('Resultador: ',result);
+ Until (result < 0);
+
+ {No  exemplo  acima,  o  programa  fica  somando,somando...somando,  até  que o
+ resultado seja negativo/menor que 0.     Repare que o Repeat dispensa o uso  do
+ Begin e End;}
+
+
+
+
+
+
+
+
+
+
+
+ 8.0 - Vetores
+       ~~~~~~~
+
+ A  partir do  momento em  que precisamos  declarar um  número muito  grande de
+ variáveis,  faz-se  necessário o  uso  de vetores,  denominado  em Pascal  como
+ "array", para que  não tenhamos o  desconforto de declarar  todas as variáveis.
+ Por exemplo,  estou fazendo  um programa  que cadastre  os 300  clientes de  um
+ empresa. Imagina o trabalho que daria  declarar 300 variáveis do mesmo tipo,  e
+ pior, o desconforto que seria criar  a estrutura para ler essas 300  variáveis.
+ Por isso nós utilizamos arrays. Sua sintaxe é:
+
+ Var <identificador> : array [1..n] of integer;
+
+  por exemplo
+
+ Var clientes : array [1..300] of string[15];
+
+ {A estrutra acima é a forma como declaramos arrays em Pascal.}
+
+
+ Para acessar essas  variáveis no programa, utilizamos o nome do array mais  seu
+ indice. Por exemplo: clientes[1], clientes[2], clientes[3] ... cliente[n];
+
+ Mesmo utilizando-se de arrays, o processo de ler os 300 clientes seria  penoso.
+ Por isso,  utilizando-se de  um laço  FOR, podemos  ler todos  os clientes, com
+ apenas algumas linhas. Segue o exemplo:
+
+ FOR contador := 1 to 300 do
+  begin
+   readln (clientes[contador]);
+  end;
+
+ {No Laço acima, o  programa lê do cliente  1 ao 300. Note  que entre parenteses
+ encontra-se  "contador".  Portanto,   o  programa  ficará  lendo  os  nomes dos
+ clientes, até chegar em 300.}
+
+ Para imprimir o nome de um cliente, faríamos assim:
+
+ writeln ('Cliente: ',cliente[76]);
+
+ E se quisessemos imprimir  o nome de todos  os clientes, utilizaríamos mas  uma
+ vez o laço FOR:
+
+ FOR contador := 1 to 300 do
+  begin
+   writeln ('Cliente Numero: ',contador);
+   writeln ('Nome: ',clientes[contador]);
+   writeln ;
+  end;
+
+
+
+
+
+
+
+
+
+
+ 9.0 - Matrizes
+       ~~~~~~~~
+
+ As matrizes  se assemelham  aos vetores,  mas possibilitam  armazenar um número
+ maior de variáveis. Abaixo  segue um desenho de  como seriam mais ou  menos uma
+ matriz:
+
+            1   2    3    4    5
+          ------------------------
+       1 | 1,1| 1,2| 1,3| 1,4| 1,5|
+         |----|----|----|----|----|
+       2 | 2,1| 2,2| 2,3| 2,4| 2,5|
+          ------------------------
+ {Em cada "cazinha" é armazenada uma variável}
+
+ Como você pode observer  no desenho acima, temos  5 colunas e 2  linhas. Quando
+ estamos mechendo com matrizes, sempre nos referimos primeiro a linha, depois  a
+ coluna. Abaixo segue um exemplo de declaração de matrizes:
+
+ <identificador> : array [1..10,1..10] of integer;
+
+ por exemplo:
+
+ numero  : array [1..10,1..10] of integer;
+
+ {No  exemplo   acima, declaramos   uma  matriz  que  possui   10 linhas   e  10
+ colunas. Quando queremos acessar  alguma      variável armazenada numa  matriz,
+ utilizamos um índice com as coordenadas.}
+
+ Por exemplo:
+
+ writeln ('Numero: ',numero[2,6]);
+
+ {No exemplo acima, será impresso na tela  o número que está na linha 2,  coluna
+ 6.}
+
+ Para ler(read) um ou imprimir uma matriz, utilizamos os seguitens laços FOR:
+
+ for linha := 1 to 10 do
+  begin
+   for coluna := 1 to 10 do
+    begin
+     write  ('Digite um numero: ');
+     readln (numero[linha,coluna]);
+    end;
+  end;
+
+ {Vamos analisar o laço acima, o programa pede para o usuário digitar um número.
+ Este número é armazenado  na     linha 1,coluna 1.  Depois o laça se  repetirá,
+ então o próximo número a ser lido  será armazenado na linha 1,     coluna 2,  e
+ assim por diante. Quando a  coluna chega a 10, o  laço passa para a linha  2, e
+ tudo se repete, =)}
+
+
+
+
+
+
+
+
+
+ 10.0 - Registros
+        ~~~~~~~~~
+
+ Registros são utilizados para  armazenas várias variáveis de  tipos diferentes.
+ Por exemplo,  estou criando  um programa  para o  CENSO. Eu  preciso do nome da
+ pessoa,  sua idade,  telefone e  endereço. Nome,idade,telefone  e endereço  são
+ variáveis  de  tipos  diferentes.  Por isso,  veja  como  ficaria  este exemplo
+ utilizando registros:
+
+ Type registro = record
+                  nome     :string[15];
+                  idade    :integer;
+                  telefone :integer;
+                  endereço :string;
+                 end;
+
+ {Analisando a estrutura acima, vemos  que registro é igual a  record. Portanto,
+ toda vez que quisermos nos  referir a um registro que tenha nome,idade,telefone
+ e  endereço,  utilizaremos  : "var  <variavel>  :  registro". Isto   declararia
+ <variavel>  do   tipo   registro,     isto   significa    que   na     variável
+ <variavel> poderíamos gravar nome,idade,telefone e endereço.}
+
+ Como se referenciar a um registro?
+ Para nos referenciar a um registro, utilizamos a seguinte sintaxe:
+
+ <nome_do_registro>.variavel;
+
+   por exemplo:
+
+ registro.nome;
+ registro.idade;
+ registro.telefone;
+ registro.endereço;
+
+ Um exemplo de leitura com o registro seria:
+
+ write  ('Digite um nome: ');
+ readln (registro.nome );
+ write  ('Digite sua idade: ');
+ readln (registro.idade);
+ write  ('Digite seu tel: ');
+ readln (registro.telefone);
+ write  ('Digite seu endereço: ');
+ readln (registro.endereço);
+
+
+
+
+
+
+
+
+
+ 11.0 - Tratamento de Arquivos
+       ~~~~~~~~~~ ~~ ~~~~~~~~
+
+ Em pascal, nós podemos mecher, mesmo que inderetamente, com arquivos binários e
+ .txt.  Para começarmos  a trabalhar  com tratamento  de arquivos,  é necessário
+ declarar a variável-arquivo. Abaixo segue  a sintaxe da declaração de  arquivos
+ binários:
+
+   Type ArqInt = File of Integer;
+   Var Numeros : ArqInt;
+
+        ou
+
+   Var Numeros : File of Integer;
+
+
+ Declaração de arquivos texto:
+
+   Type ArqTexto = Text;
+   Var Texto : ArqTexto;
+
+        ou
+
+   Var Texto : Text
+
+ {Note que só utilizamos "File of" para arquivos binários}
+
+Abaixo segue os comandos e suas sintaxes. No final eu darei um programa-exemplo,
+utilizando tais comandos.
+
+ ASSIGN   -> Este  comando serve para  informar ao programa,  onde localiza-se o
+ arquivo  (binário  ou  texto),  no   HD.  Sempre  que  formos   trabalhar   com
+ tratamento     de    arquivos     em    Pascal,     devemos    utilizar    este
+ comando. Sua sintaxe é:
+
+             Assign(Variavel,'C:\MotdLabs\Texto.txt');
+             Assing(Variavel,'C:\MotdLabs\Numeros.bin');
+
+ RESET    -> Abre o arquivo para somente leitura. Sintaxe:
+
+             Reset(nome_do_arquivo);
+
+ APPEND   -> Abre o arquivo para inserção de mais coisas. Somente para  arquivos
+ texto. Sintaxe:
+
+             Append(nome_do_arquivo);
+
+ REWRITE   -> Este  programa verifica  a existência  do arquivo.  Se o   arquivo
+ existir, ele   apaga tudo   o que   tem  dentro  do  arquivo.  Se o arquivo não
+ existir, ele  cria o  arquivo no  local especificado  pelo Assign. Sintaxe:
+
+             ReWrite(nome_do_arquivo);
+
+ CLOSE    -> Fecha o arquivo. Sintaxe:
+
+             Close(nome_do_arquivo);
+
+ READ     -> Recebe o valor lido. Sintaxe:
+
+             Read(nome_do_arquivo,variável);
+
+ WRITE    -> Escreve no arquivo. Sintaxe:
+
+             Write(nome_do_arquivo,valor_a_ser_escrito);
+
+
+
+ Exemplo  de um  Programa utilizando  tratamento de  arquivos: OBS.:  Execute o
+ programa, e depois verifique o arquivo C:\Arquivo.txt
+
+
+--------------------------------Corte Aqui--------------------------------------
+
+{ Nome do Programa ......................: Tratamento de Arquivos
+   Função ...............................: Programa exemplo usando tratamento de arquivos
+   Plataforma ...........................: Windows / 32 bits
+   Linguagem ............................: Pascal
+   Data de criação ......................: 07/12/2003
+   Data de última alteração .............: 07/12/2003
+   Autor ................................: d4rwin
+}
+
+ Program exemplo_01;
+ Uses CRT,DOS;
+
+ Const Arq_real = 'C:\Arquivo.txt';
+
+ Type ArqTexto = Text;
+
+ Var List      : ArqTexto;
+     nome      : string[15];
+
+  Begin
+   clrscr;
+   textbackground (blue);
+   textcolor (white);
+   clrscr;
+   gotoxy (14,2);
+   writeln ('Programa Exemplo 01'); gotoxy (14,3);
+   writeln ('-------- ------- --');
+   writeln ;
+   writeln ;
+
+   delay (500);
+
+   Assign (List,Arq_real);
+   {$i-}
+    Reset(List);
+   {$i+}
+
+   if IOResult <> 0 then
+     rewrite (List);
+
+
+
+   write  ('Digite seu nome: ');
+   readln (nome);
+
+   write (List,nome);
+   Close(List);
+
+
+   writeln ;
+   writeln ;
+   writeln ('--------------------------EoF--------------------------');
+
+   writeln;
+   writeln;
+   readkey;
+  End.
+
+
+
+
+--------------------------------Corte Aqui--------------------------------------
+
+
+ 12.0 - Procedimentos e Funções
+        ~~~~~~~~~~~~~ ~ ~~~~~~~
+
+ Agora veremos rapidamente o que são procedimentos e funções, e como utilizá-los
+ no programa.
+
+  Procedimentos
+  ^^^^^^^^^^^^^
+
+  Procedimentos  são identificados   em Pascal   como   "procedures". Procedures
+  são programas, iguais ao bloco principal, mas que não faz parte do mesmo.  Não
+  entendeu? Deixa eu explicar  melhor, nos  procedimentos nós  podemos  declarar
+  variáveis,  imprimir, ler,   tudo aquilo  que  fazemos  no bloco  principal. A
+  diferença está que estes são seperados. O procedimentos são declarados entre o
+  Var e o Begin  do bloco principal. Vamos ver um exemplo  de procedimentos:
+
+ Program procedimentos;
+ Uses CRT;
+
+ Var num1,num2  : integer;
+     nome       : string[10];
+
+  Procedure <nome_da_procedure> ;
+            Var var1,var2   : integer
+                var3,var4   : word;
+                aux         : byte;
+             begin
+              clrscr;
+              writeln ('Pascal is rlz!');
+              writeln ('=)');
+             end;
+
+  Begin {Aqui começa o bloco principal}
+   comandos;
+   comandos;
+   comandos;
+     ...
+   comandos;
+  End.
+
+ {Com este exemplo já da pra ter um idéia de como funcionam os procedimentos}
+
+ Acho que chegou a hora de falar de variáveis globais e locais, fundamental para
+ o entendimento  de  procedimentos.  Como vc   pode reparar  no  exemplo  acima,
+ foram  declaradas   variáveis   dentro  do   procedimento   e   variáveis  fora
+ dele, como  fazíamos antes.  Aí é  que está,  todas as  variáveis declaradas no
+ escopo VAR,  são globais,  portanto, podemos  utilizá-las em  qualquer lugar do
+ programa, inclusive dentro  do  procedimento.  Se uma  variável  global  recebe
+ um  valor  dentro  do  procedimento,  ela   ficará  com   o valor  recebido  na
+ procedure.  Já    as  variáveis  locais,  são   aqueles   declaradas dentro  da
+ procedure.   Estas  variáveis  serão   utilizadas   apenas  pelo  procedimento.
+ Portanto, podemos  sim  ter  duas variáveis com o  mesmo  nome em um  programa,
+ desde que uma seja  global  e outra local. Mas daí  você me pergunta: "E se  eu
+ tiver uma variável  global com o  mesmo nome de  uma variável local,  dentro do
+ procedimento, qual vai  ser utilizada?". A  resposta é que  sempre as variáveis
+ locais vão ter preferência sobre as globais.
+
+ Mais uma  coisa a  se dizer  com relação  a procedimentos  é que  dentro de  um
+ procedimento, vc pode chamar  outro. Mas isso só  é possível se o  procedimento
+ chamado estiver em cima do procedimento  que chamou. Mas pq isso? Isso  deve-se
+ ao fato de o Pascal ser linear, isto é, o compilador vai lendo linha por linha,
+ até chegar   no End.   Se vc   chamar um   procedimento dentro  de  outro,  e o
+ procedimento chamado estiver em  baixo dele, quando  o compilador passar   pelo
+ procedimento, não vai reconhecer o comando, pois o procedimento que foi chamado
+ está abaixo e ainda não foi compilado, portanto é desconhecido pelo compilador.
+
+ Para chamar um procedimento utilizamos a seguinte sintaxe:
+
+ <nome_do_procedimento>;
+
+
+
+
+ Funções
+ ^^^^^^^
+
+ Funções são a mesma coisa que os procedimentos, a única diferença entre os dois
+ é que as   funções retornam um   valor. Geralmente, mais   por uma  questão  de
+ organização, a  funções são   declaradas abaixo  dos procedimentos.  Um exemplo
+ de declaração de função:
+
+ Function <nome_da_função> (var1,var1 :tipo) :tipo;
+                           Begin                |
+                            comandos;         Tipo é o tipo de variável que a
+                            comandos;         função irá retornar.
+                            comandos;
+                              ...
+                            comandos;
+                           End;
+
+
+ {Analisando a função acima, podemos concluir o seguinte: utilizaremos na função
+ o  var1 e  var2, que  são do    mesmo tipo.  Também podemos  ver que  a função
+ retornará um valor do tipo a ser definido.}
+
+ Passagem de Parâmetros
+
+ Os procedimentos também  suportam passagem de  parâmetros, mas eu  aproveitei o
+ tópico  funçoes  para  exeplicar   isso.   Para  exemplificar  a   passagem  de
+ parâmetros, abaixo segue um código:
+
+
+
+
+--------------------------------Corte Aqui--------------------------------------
+
+
+{ Nome do Programa ....................... Função
+  Função ................................. Exemplo de passagem de parâmetros
+  Plataforma ............................. Windows / 32 bits
+  Linguagem .............................. Pascal
+  Data de criação ........................ 08/12/2003
+  Data de ultima alteração ............... 08/12/2003
+  Autor .................................. d4rwin
+}
+
+
+
+ Program funcoes;
+ Uses CRT;
+
+ Var num1,num2,result,contador : integer;
+
+ Function funcao (A,B  :integer) : integer;
+            begin
+             Result := A + B;
+            end;
+
+ Begin
+  clrscr;
+  writeln ('Programa Exemplo de Funções');
+  writeln ;
+  writeln;
+  textcolor (white);
+  write  ('Digite um num: ');
+  readln (num1);
+  write  ('Digite outro num: ');
+  readln (num2);
+
+  {Agora nós vamos passar os parâmetros - valores de num1 e num2 - a função}
+
+  funcao(num1,num2); {Aqui os parâmetros são passados nesta ordem. Na função,  A
+                      receberá num1 e B num2}
+
+  writeln ;
+  textcolor (red + blink);
+  delay (400);
+  writeln ('Resultado: ',result);
+  writeln ;
+  textcolor (cyan);
+  writeln (' -----------------------------EoF---------------------------');
+  readkey;
+ End.
+
+
+--------------------------------Corte Aqui--------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+  13.0 - Agenda Eletrônica em Pascal
+         ~~~~~~ ~~~~~~~~~~ ~~ ~~~~~~
+
+ Bom, já  que está  acabando o  txt, eu  coloquei um  agenda eletrônica feita em
+ pascal por mim. Ele permite adicionar, ver e pesquisar amigos. Estou  colocando
+ ela aqui, pois acho que ela seria uma boa alternativa para estudo. Talvez  você
+ não  entenda isso  ou aquilo,  mas é  importante que  você estude  o código,  e
+ principalmente pratique, pratique... pratique.
+
+
+
+
+--------------------------------Corte Aqui--------------------------------------
+
+
+{ Nome do Programa ....................... Agenda
+  Função ................................. Agenda Eletronica
+  Plataforma ............................. Windows
+  Linguagem .............................. Pascal
+  Data de criação ........................ 06/12/2003
+  Data de ultima alteração ............... 08/12/2003
+  Autor .................................. d4rwin          }
+
+  Program Agenda_Eletronica;
+  Uses CRT,DOS;
+
+   Const Arq_real = 'C:\Agenda.txt';
+
+   Type Amigo = record
+                 codigo   : integer;
+                 nome     : string[15];
+                 idade    : integer;
+                 telefone : string[12];
+                end;
+
+   Var  agenda : file of amigo;
+        contador  : integer;
+        opcao     : char;
+
+   Procedure Menu;
+              begin
+               clrscr;
+               writeln ; gotoxy (14,3);
+               writeln ('#################################'); gotoxy (14,4);
+               writeln ('##     Agenda Eletronica       ##'); gotoxy (14,5);
+               writeln ('#################################'); gotoxy (14,6);
+               writeln ('##                             ##'); gotoxy (14,7);
+               writeln ('##  Incluir Amigo   (I)        ##'); gotoxy (14,8);
+               writeln ('##  Listar Amigos   (L)        ##'); gotoxy (14,9);
+               writeln ('##  Pesquisar Amigo (P)        ##'); gotoxy (14,10);
+               writeln ('##  Sair            (S)        ##'); gotoxy (14,11);
+               writeln ('##                             ##'); gotoxy (14,12);
+               writeln ('#################################'); gotoxy (14,13);
+               writeln ;                                      gotoxy (14,14);
+               write   ('Opcao: ');                           gotoxy (21,14);
+               readln  (opcao);
+               opcao := upcase(opcao);
+              end;
+
+   Procedure Incluir_amigos;
+              var X            : amigo;
+                  resposta     : char;
+                  Total_amigos : integer;
+                begin
+                 {$i-}
+                 reset (agenda);
+                 {$i+}
+                 Total_amigos := 0;
+                  if IOResult <> 0 then
+                   rewrite (agenda);
+
+                  while Not EoF(Agenda) do
+                   begin
+                    read (Agenda,X);
+                    Total_amigos := Total_amigos + 1;
+                   end;
+
+                 repeat
+                  clrscr;
+                  Total_amigos := Total_amigos + 1;
+                  gotoxy (14,3);
+                  write  ('Inclusao de Amigo'); gotoxy (14,4);
+                  writeln('^^^^^^^^ ^^ ^^^^^'); gotoxy (14,5);
+                  writeln ;
+                  writeln ;
+                  with X do
+                   begin
+                    gotoxy (14,7);
+                    writeln ('Codigo: ',Total_amigos);       gotoxy (14,8);
+                    codigo := Total_amigos;
+                    write ('Nome: ');     readln (nome);     gotoxy (14,9);
+                    write ('Idade: ');    readln (idade);    gotoxy (14,10);
+                    write ('Telefone: '); readln (telefone); gotoxy (14,11);
+                   end;
+                  write (Agenda,X);
+                  writeln ;                                  gotoxy (14,13);
+                  write ('Inserir outro(S/N): ');
+                  readln (resposta);
+                  resposta := upcase(resposta);
+                 until (resposta = 'N');
+                 close (Agenda);
+                end;
+
+   Procedure Listar_amigos;
+              var X  : amigo;
+               begin
+                clrscr;
+                reset(agenda);  gotoxy (14,3);
+                writeln ('Listagem de Amigo(s)'); gotoxy (14,4);
+                writeln ('^^^^^^^^ ^^ ^^^^^^^^'); gotoxy (14,5);
+                while Not EoF(Agenda) do
+                 begin
+                  read (agenda,X);
+                  with X do
+                   begin
+                    writeln ;
+                    writeln ('             Codigo ..........: ',codigo);
+                    writeln ('             Nome ............: ',nome)  ;
+                    writeln ('             Idade ...........: ',idade) ;
+                    writeln ('             Telefone.........: ',telefone);
+                    writeln ;
+                   end;
+                 end;
+                 readln;
+               end;
+
+   Procedure Pesquisar_amigo;
+              var X          : amigo;
+                  nome_amigo : string[15];
+               begin
+                reset(agenda);
+                clrscr;
+                gotoxy (14,3);
+                writeln ('Pesquisa de Amigo'); gotoxy (14,4);
+                writeln ('^^^^^^^^ ^^ ^^^^^'); gotoxy (14,6);
+                write ('Nome do Amigo: ');
+                readln (nome_amigo);
+                writeln ;
+                while Not EoF(Agenda) do
+                 begin
+                  read (Agenda,X);
+                  with X do
+                   begin
+                    if nome = nome_amigo then
+                     begin
+                      gotoxy (14,8);
+                      writeln ('Codigo ..........: ',codigo)  ; gotoxy (14,9);
+                      writeln ('Nome ............: ',nome)  ; gotoxy (14,10);
+                      writeln ('Idade ...........: ',idade)  ; gotoxy (14,11);
+                      writeln ('Telefone ........: ',telefone); gotoxy (14,12);
+                      writeln ;
+                      readkey;
+                      end;
+                   end;
+                 end;
+               end;
+
+
+   Begin
+     clrscr;
+     textbackground (blue);
+     textcolor      (white);
+     clrscr;
+     gotoxy  (14,3);
+     writeln ('====================================='); gotoxy (14,4);
+     writeln ('=                                   ='); gotoxy (14,5);
+     writeln ('=        Agenda Eletronica          ='); gotoxy (14,6);
+     writeln ('=                                   ='); gotoxy (14,7);
+     writeln ('=   $$$$ #### $$$$                  ='); gotoxy (14,8);
+     writeln ('=   $$$$ #### $$$$      por d4rwin  ='); gotoxy (14,9);
+     writeln ('=                                   ='); gotoxy (14,10);
+     writeln ('====================================='); gotoxy (14,11);
+
+     writeln ;
+     writeln ;
+     gotoxy  (14,12);
+     writeln ('Carregando agenda...');
+
+      for contador := 1 to 100 do
+       begin
+        gotoxy (14,13);
+        writeln (contador,'% concluido');
+        delay (100);
+       end;
+
+      Assign (agenda,Arq_real);
+
+     repeat
+      Menu;
+
+      if opcao = 'I' then
+        Incluir_amigos;
+      if opcao = 'L' then
+        Listar_amigos;
+      if opcao = 'P' then
+        Pesquisar_amigo;
+
+     until (opcao = 'S');
+
+   End.
+
+
+--------------------------------Corte Aqui--------------------------------------
+
+
+
+
+ 14.0 - Exercícios
+        ~~~~~~~~~~
+
+  Exercício 01
+  ^^^^^^^^^ ^^
+
+   Escreva  um  algoritmo/programa  para  ler  2  valores  (se  o  segundo valor
+   informado  for  ZERO,  deve  ser lido  um        novo    valor  até que  seja
+   diferente  de  zero) e  imprimir  o resultado  da  divisão do  primeiro  pelo
+   segundo.        Utilizar a    estrutura REPEAT-UNTIL (Repita - Até).
+
+  Exercício 02
+  ^^^^^^^^^ ^^
+
+   Reescreva   o   exercício   anterior   utilizando   a   estrutura  WHILE...DO
+   (Enquanto...Faça).
+
+  Exercício 03
+  ^^^^^^^^^ ^^
+
+   Escreva um algoritmo/programa para ler as  notas da 1ª e 2ª avaliações  de um
+   aluno, calcule  e imprima  a  média(simples).  Só devem  ser  aceitos valores
+   válidos durante  a leitura  entre 0   e 10  para cada  nota.  Acrescente  uma
+   mensagem 'NOVO CÁLCULO (S/N)?' ao  final do exercício. Se for  respondido 'S'
+   deve retornar e executar um  novo  cálculo, caso contrário deverá  encerrar o
+   algoritmo/programa.
+
+  Exercício 04
+  ^^^^^^^^^ ^^
+
+   Escreva um algoritmo/programa que solicite ao usuário N números. Faça a  soma
+   destes  N números   e imprima  na tela.  Utilize a   estrutura FOR...TO...DO
+   (De...Até...Faça).
+
+
+  Exercício 05
+  ^^^^^^^^^ ^^
+
+   Ler 10 valores e escrever quantos destes valores são NEGATIVOS.
+
+
+
+
+
+ 15.0 - Agradecimentos
+        ~~~~~~~~~~~~~~
+
+ Agradeço primeiramente a Deus, por ter criado o mundo, a meu pai, minha mãe,  o
+ troxa do  meu irmão  e minha  vizinha gata.  Agradeço tbm  a todos  os caras do
+ MotdLabs que  tem me  dado a  maior força.   Espero que  com este  txt eu tenha
+ alcançado meu objetivo, que é ajudar  a dar um ponta-pé inicial no  aprendizado
+ de  programação para newbies. Sei que  o texto não está  lá aquelas coisas, mas
+ acredito que a  partir dele, você  já vai saber  pelo que e  onde procurar(vide
+ seção LINKS). Bom, me despeço aqui, um abraçao a todos e até a próxima...
+
+                                                                   [d4rwin]
+
+
+
+ 16.0 - Links
+        ~~~~~
+
+  http://www.freepascal.org
+  http://www.freepascal.eti.br
+  http://www.pascaler.hpg.com.br
+  http://www.infoxbr.com.br
+  http://www.geocities.com/SiliconValley/Bay/6512/index.htm
+  http://www.pascalhome.cjb.net/
+  http://www.pascaltotal.hpg.ig.com.br/
+  http://www.delphix.com.br
+  http://d4rwin.cjb.net
+
+
+                            -=-d4rwin@bol.org-=-
+ -----------------------------------EoF------------------------------------------

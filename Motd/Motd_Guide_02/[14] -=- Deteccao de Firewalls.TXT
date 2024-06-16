@@ -1,0 +1,127 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[14]-=[Detecção de Firewalls]-=|c4ri0c4|=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Detecção de Firewalls - By C4ri0c4
+
+Embora não seja assunto para Kid, mas invasores mais atentos que busca realmente
+um alvo, com  certeza na enumeração  que antever uma  investida, ele vai  tentar
+mapear os dispositivos de uma rede  alvo, buscando conhecer a real topologia  do
+alvo. Assim sendo, detectar firewall é sem sombra de dúvidas necessário.
+
+Hoje  com um  simples traceroute  em muito  casos contando  o valor  de TTL  que
+retorna de um alvo e verificando o  número de salto em muito caso é  perceptivel
+que houve  a manipulação  do datagrama  durante seu  trajeto o  que notoriamente
+identificar um firewall, mas o objetivo desse artigo é falta das  possibilidades
+ativas, em suma, as técnicas comumente utilizadas para identificar firewalls.
+
+
+Varredura com Datagrama TCP/ACK
+
+Este método avançado é usado identificar firewalls Stateful ou um Packet  Filter
+(firewalls que atuam na camada 3, camada IP denominados filtro de pacotes) .   O
+conceito dessa  técnica é  aproveitar que  um datagrama  TCP/ACK orfão  (que não
+pertença a nenhum  comunicação estabelecida) teria   como resposta RST  tanto em
+uma porta  aberta como  fechada. Dessa  forma se  um RST  voltar as portas estão
+classificados  como  "não filtrados".  Se  nada volta  (ou  se um  ICMP   tipo 3
+unreachable for  retornado), a  porto é  classificado como  "filtrado",  o  Nmap
+envia inicialmente  2 pacote  rebendo como  resposta TCP/RST   ele assume  que a
+porta não esta filtrada, recebendo um  ICMP tipo 3 está filtrada, não  recebendo
+nada ele envia uma sequência com mas 4 pacotes e não tendo resposta mais uma vez
+assume que as portas estão  filtradas. Dentro desse cenário encontramos  algumas
+váriações possíves de detecção de firewall. Seria elas varreduras   TCP/Windows,
+FIN/ACk,  SYN/ACK, sendo  as duas  primeira implementadas  no Nmap  e ultima  é
+facilmente provado seu conceito com o hping2. Irei falar da outras técnicas
+
+# nmap -sA ip.ip.ipp
+
+Usando o Hping
+
+# hping2  ip.ip.ip.ip --ack -p 22 -c 2
+
+Varredura da janela  do interruptor: Esta  varredura avançada é  muito similar à
+varredura  do  ACK,  pois  é  realizada  com  um  pacote  TCP/ACK,   objetivando
+identificar  dessa vez  portas protegidas por sistemas de firewal l e não portas
+abertas.  O Nmap envia inicialmente duas sequências não tendo resposta envia mas
+4,  não  tendo resposta  assume  que existe  firewall,  todavia qdo  o  pacote é
+rejeitado e o sistema de Firewall devolvo um ICMP tipo 3 no inicio da exploração
+fica fácil determinar que a porta  esta filtrada qdo volta um TCP/RST  o scanner
+interpreta que não existe firewall, ou seja a porta não esta filtrada
+
+Exemplicando
+
+# nmap -sW ip.ip.ip.ip
+
+
+
+Varredura FIN/ACK ===============
+
+Enbora tenha o  bi FIN ativo  os pacotes TCP  enviados iram ter  o comportamento
+similar a varredura  TCP/ACK, todavia é mais forma interessante de identificação
+de firewall, tendo ainda a possibilidade de não ser detectado por um sistema que
+esta  condicionado a  detectar varreduras  onde somente  o tenhamos  o flag  ACK
+ativo.
+
+# nmap -sM ip.ip.ip.ip
+
+# hping2 ip.ip.ip.ip  --fin --ack -p <porta aberta  ou fechada> -c  3
+
+
+
+Varreduras SYN/ACK =================
+
+Nessa técnica é utilizada  como  como recurso datragrams TCP como os bitrs SYN e
+ACK ativos que  normalmente são usando  em handshake, O  comportamento similar a
+varreduras   TCP/ACK.,  FIN/ACK,   e  TCP  WINDOWS,   ou  seia   é   mais  forma
+identificação de firewall, tendo ainda a possibilidade de não ser detectado  por
+um sistema  que esta  condicionado a  detectar varreduras  e o  mesmo não esteja
+pronta par tratar a chegada de datagramas TCP SYN/ACK orfãos. Essa técnica não é
+implentada no  NMAP e  nem no  Amap. Todaiva  é fácil  prova seu  conceito com o
+Hping2.Provando o Conceito. utilize o  Hping2 com  a seguinte sintaxe,  Para TCP
+SYN/ACK
+
+# hping2 ip.ip.ip.ip  --syn --ack -p <porta aberta  ou fechada> -c  3
+
+
+
+
+
+
+Usando falso posivito para enganar PortScan
+
+Para os mais desavisados e  menos competentes comumente conhecidos por  nós como
+Script Kiddies é possível gerar  um cenário interessante  onde fácilmente  seria
+possivél enganar um  scanner como Nmap,  mas retormar seu  funcionamento para as
+técnicas de  detecção de  Firewall, o  nmap envia  2 pacotes  se ele  receber um
+TCP/RST  como resposta para os dois pacotes enviados ele assume que a porta  não
+esta filtrada caso ele recebaICMP tipo  3  como resposta ele assume que  a porta
+esta filtrada, pois ele entende como uma ação de um Firewall que rejeita pacotes
+e se ele  não recebe nada  envia mais 4  pacotes, não obtendo  resposta assume a
+porta com   filtrada. Bem  imagine que  venhamos a  definir numa configuração de
+politicas num Firewall que na porta 22 somente aceitaremos conexões de IP´s   já
+pré-definidos  e  qualquer outro  IP  terá seus  pacote  rejeitados, só  que  na
+potilica definimos para o Firewall não  rejeita com ICMP e sim com  TCP/RST, com
+certeza  motivaria  um falso  negativo  no resultdado  do  scanner. Isso  é  uma
+possibilidade interessante  pois hoje  podemos definir  como o  Firewall rejeita
+pacotes , o Iptables que é a ferramenta da familia do Kernel do 2.4 do Linux que
+nós possibilita isso, com certeza outros firewall  inteligentes também.
+
+Um cenário  interessante que  muitos administradores  que usam  esse recurso  de
+gerar falso possitivo  acabam  esquecendo é que quem  responde é o  IPTABLES   e
+não a pilha TCP/IP e distro como  Red Hat por exemplo, ultimamente tem como  TTL
+padrão inicial o valor  64, mas o IPTABLES  ao rejeitar uma pacote  por padrão o
+TTL é  255. Então  um invasor  mais esperto  usando um  montador de  pacote como
+Hping2 por exemplo facilmente percebe que  a porta esta devolver um TCP/RST  não
+está fechada e sim  filttrada com a politica  de rejeitar pacotes definida  para
+rejeita com TCP/RST, desse modo é recomendável quando usar esse artificio  mudar
+o valor de TTL padrão no arquivo /proc/sys/net/ipv4/Ip_default_ttl,.
+
+
+Bem moral da história ter  um firewall é igual ter  cachorro se o bicho latir  o
+ladrão pensa duas vezes  mas o firewall pode  enganar o portscanner meu  pitbull
+não.
+
+
+Espero ter ajudado os leitores dessa zine !!!
+
+até a próxima .. valeu sangue

@@ -1,0 +1,149 @@
+                                               dP         dP
+                                               88         88
+                         88d8b.d8b. .d8888b. d8888P .d888b88
+                         88'`88'`88 88'  `88   88   88'  `88
+                         88  88  88 88.  .88   88   88.  .88
+                         dP  dP  dP `88888P'   dP   `88888P8
+
+                                          oo       dP
+                                                   88
+                        .d8888b. dP    dP dP .d888b88 .d8888b.
+                        88'  `88 88    88 88 88'  `88 88ooood8
+                        88.  .88 88.  .88 88 88.  .88 88.  ...
+                        `8888P88 `88888P' dP `88888P8 `88888P'
+                             .88                    Número 02
+                         d8888P
+
+
+
+
+
+E-zine lançada oficialmente dia 18 de Abril de 2004.
+
+http://www.motdlabs.org
+contato@motdlabs.org
+irc.brasnet.org   /join #motd
+
+
+
+ATENÇÃO: O  MotdLabs adverte  que não  será responsável  por qualquer tolice que
+você venha a fazer.  Estou certo de que  estará consciente que ao  tentar por em
+prática quaisquer técnicas descritas no decorrer desta zine, você poderá se  dar
+mal. Ela foi criada apenas para propósitos educacionais e cabe a você decidir  o
+que  fará com esse poder em suas mãos. Só não venha reclamar que se deu mal  por
+ter   feito  algo  que aprendeu  nesta  mesma.  Obrigado pela  a  atenção  e boa
+leitura!!! :)
+
+
+
+
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=[ Colaboradores ]=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+c4ri0c4....................................................c4ri0c4@motdlabs.org
+
+d4rwin......................................................d4rwin@motdlabs.org
+
+greenhornet............................................greenhornet@motdlabs.org
+
+hallz........................................................hallz@motdlabs.org
+
+Haze..........................................................haze@motdlabs.org
+
+inferninh0..............................................inferninho@motdlabs.org
+
+IP_FIX......................................................ip_fix@motdlabs.org
+
+REPOLHO....................................................repolho@motdlabs.org
+
+SkyNet45..................................................skynet45@motdlabs.org
+
+Stinger....................................................stinger@motdlabs.org
+
+vbKeyDel...................................................vbkeydel@hotmail.com
+
+
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=[Índice]-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+[01] Introdução                                          6,34kb (by IP_FIX)
+[02] O Hacking e as Artes Marciais 			 7,31kb (by greenhornet)
+[03] Programas no FreeBSD (Ports e Packages)             11,2kb (by hallz)
+[04] Primeiros passos para iniciantes			 25,0kb	(by inferninh0)
+[05] Shellcode Sem Segredos Parte I                      73,6kb (by IP_FIX)
+[06] Tutorial Básico de Winsock em VB			 23,4kb (by vbKeyDel)
+[07] Sniffing for Dummies			         22,1kb (by hallz)
+[08] Introdução ao SSH 				         10,4kb (by Haze)
+[09] Usando o NMAP 					 5,48kb (by REPOLHO)
+[10] ASP Security				         13,1kb (by Stinger)
+[11] Programação em Pascal 				 47,4kb (by d4rwin)
+[12] TCP/IP 						 21,3kb (by SkyNet45)
+[13] Inutilitários                                       18,9kb (by MOTDLabs)
+[14] Detecção de Firewalls				 6,43kb (by c4ri0c4)
+							--------
+						       291,96kb
+ 
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[01]-=[Introdução]-=|IP_FIX|=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+	Welcome Back, Newbies! :)
+
+	Estamos devolta com a e-zine MOTD Guide na sua edição 02 que como  podem
+	perceber ela está um pouco diferente da anterior. Mais leve, compacta  e
+	mais fácil de achar os artigos desejado. PHRACK STYLE!!! :D
+
+	Muita  coisa  mudou  nesses  últimos  meses,  coisas  boas  e  ruins tem
+	acontecido para  todos nós.  O grupo  teve tido  problemas  mas tudo tem
+	sido superado, muitos  vieram para nosso  lado e na  medida que possível
+	estamos trabalhando em projetos como construções de ferramentas. A  cena
+	do hacking ético brasileiro vem crescendo espantosamente, impressionante
+	como muitos tem sido fiel a ela e lutado por ideias não só proprios, mas
+	como  um  "todo"  também.  Qual  o  resultado  de  tudo  isso?  Veja em:
+	http://www.h2hc.com.br 
+
+	H2HC - Hackers to Hackers Conference - Será um evento totalmente voltado
+	para o hacking  com a presença  de grandes nomes  conhecidos e cheio  de
+	palestra técnicas. Será a DefCon brasileira! Não percam! :P
+
+	Bom, aproveitem a zine e não deixem de criticá-la na mail-list, qualquer
+	crítica/sugestão/reclamação/discussão dela será bem aceito. Agora a zine
+	tem um site próprio (ela está criando vida! :P) para os interessados  em
+	publicar algo. Esta  edição foi limitada  aos membros privados  devido à
+	problemas que  tivemos na  edição passada  mas nada  impedirá que outros
+	possam   publicar  suas   matérias  daqui   pra  frente.   Confira  em:
+	http://guide.motdlabs.org/
+
+	Não  deixem de  conferir a  seção de  Inutilitários, que  possui alguns
+	programas  feitos  por  alguns membros  daqui,  essa  seção possui  tags
+	especiais (<++>  e <-->)  para serem  extraídas através  do extract.c da
+	PHRACK  que  acompanha  essa edição.  Também  está  incluído o  D-Fymder
+	(http://dfymder.motdlabs.org), que é um  scanner distribuído em PHP.  
+	
+	Sóisso  galera,  aproveitem  e  não deixem  de  particpar  na  mail-list 
+	e principalmente no canal  que é nosso  forte. Dúvidas gerais  mandem um 
+	e-mail para contato@motdlabs.org ou fale pessoalmente no canal #motd. 
+
+	Boa leitura! :)
+
+	Atenciosamente,
+
+	IP_FIX.
+	
+
+Nossos parceiros r0x!
+
+Clube dos Mercenários:
+http://cdm.frontthescene.com.br
+http://br.groups.yahoo.com/group/clube_dos_mercenarios/
+irc.brasnet.org 	/j #mercenaries
+
+Front The Scene:
+http://www.frontthescene.com.br
+http://br.groups.yahoo.com/group/frontthescene/
+irc.brasnet.org		/j #fts

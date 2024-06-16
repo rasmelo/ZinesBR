@@ -1,0 +1,173 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[12]-=[Diferencas entre a sintaxe AT&T e a sintaxe Intel]=-|Narcotic|=-=-=-=-
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+--=[ Introducao
+
+	Aqui vai uma breve introducao sobre a diferenca entre a sintaxe AT&T e a
+Intel. Raro  conhecer  alguem  que aprenda   primeiramente a  sintaxe  AT&T pois
+ela  eh  um tanto   confusa  para um  iniciante.  Mas  para  programadores  mais
+experientes, ela se torna  uma ferramenta muito poderosa, feita  de tal  maneira
+q impossibilita ambiguidades no codigo.
+
+
+
+--=[ Porque aprender a Sintaxe AT&T
+
+	O principal  montador (assembler)  que utiliza  a sintaxe  AT&T eh o GAS
+(GNU  Assembler) Ele  eh usado  em conjunto  com o  GCC (GNU  C Compiler)  para
+escrever grande parte dos softwares que compoem os sistemas operacionais  livres
+atuais. Alem disso, existem outros programas que se baseiam nessa sintaxe,  como
+o GDB e o objdump, todos da familia dos binutils.
+
+
+
+--=[ A Sintaxe
+
+	Primeiramente,  os operandos das instrucoes em AT&T sao invertidos, essa
+ideia eh a que causa mais confusao entre os novatos. Enquanto em  Intel a sintaxe
+eh:
+
+	instrucao	destino, origem
+	
+em AT&T eh:
+	
+	instrucao	origem, destino
+
+
+
+--=[ Registradores
+
+	Todos os nomes dos registradores  devem ser prefixados por '%',  exemplo
+%ax, %bx, %cl, %esp Nao interessa onde voce use eles, por ex.
+
+	mov	%eax, %ebx
+
+	Esse comando  vai mover  o valor  do registrador  eax para o registrador
+ebx.
+
+
+
+--=[ Valores Literais
+
+	Os literais em AT&T devem ser prefixados com '$'. Por exemplo:
+	
+	mov	$123, %ebx
+	push	$ABCD
+	
+	A primeira  instrucao move o valor  123 p/ o registrador ebx, equanto a
+segunda empilha os valores ASCII dos caracteres ABCD.
+
+
+
+--=[ Enderecamento de Memoria
+
+	Na sintaxe AT&T, o enderecamento de memoria eh feito da seguinte forma:
+	
+	segmento:offset(base, indexador, escala)
+	
+Por exemplo, o que em NASM seria
+
+	[es:eax+ebx*4+100]
+	
+em GAS ficaria
+
+	%es:100(%eax, %ebx, 2)
+	
+	Note q no  caso dos offsets  e da escala,  os literais nao  precisam ser
+prefixados por '$'. Alguns exemplos de enderecamentos de memoria:
+
+
+	GAS			NASM
+	---			----
+
+	100			[100]
+	%es:100			[es:100]
+	(%eax)			[eax]
+	(%eax,%ebx)		[eax+ebx]
+	(%ecx,%ebx,2)		[ecx+ebx*2]
+	(,%ebx,2)		[ebx*2]
+	-10(%eax)		[eax-10]
+	%ds:-10(%ebp)		[ds:ebp-10]
+	
+
+	Detalhe: Repare  que o  offset pode  receber valores  negativos tambem e
+valores literais sem '$' sao considerados enderecos de memoria.
+
+
+	
+--=[ Tamanho dos Operandos
+
+	Algumas  vezes,  especialmente  quando estamos  movendo  valores  para a
+memoria, eh necessario q especifiquemos o tamanho dos operandos. Por ex:
+
+	mov	$10, 100
+	
+	Apenas diz q o valor 10 serah movido para o endereco 100, mas nao diz  o
+tamanho  da  transferencia.   Em  NASM voce   pode  especificar  o   tamanho dos
+operandos  usando  as  palavras reservadas  byte/word/dword  etc,  na frente  do
+operando. Jah no GAS voce especifica incluindo os sufixos b/w/l na instrucao. 
+Por ex:
+
+	movb	$10, 100
+	
+vai mover um byte com o valor 10 p/ o endereco 100, enquanto
+
+	movl	$10, 100
+	
+movera um long (4 bytes) com o valor 10 para o endereco 100.
+
+
+
+--=[ Instrucoes de Desvio
+
+	As instrucoes call, jmp e ret  podem desviar a execucao de uma  parte do
+programa para outra. Os valores para  instrucoes call e jmp imediatos recebem  2
+parametros:
+
+	jmp	$segmento, $offset
+	
+Para jumps relativos, o endereco de memoria deve ser prefixado por um '*'. Por ex:
+
+	jmp 	*100
+	
+
+
+Exemplos de instrucoes de desvio: 
+
+	GAS				NASM
+	---				----
+
+Imediato
+
+	jmp	$100, $100		jmp  100:100
+	ljmp	$100, $100		jmp  100:100
+	call	$100, $100		call 100:100
+	lcall	$100, $100		call 100:100
+
+Absoluto
+
+	jmp	100			jmp  100
+	call	100			call 100
+
+Indireto
+
+	jmp	*100			jmp  near [100]
+	call	*100			call near [100]
+	jmp	*(%eax)			jmp  near [eax]
+	call	*(%ebx)			call near [ebx]
+	ljmp	*100			jmp  far  [100]
+	lcall	*100			call far  [100]
+	ljmp	*(%eax)			jmp  far  [eax]
+	lcall	*(%ebx)			call far  [ebx]
+
+Retornos
+
+	ret				retn
+	lret				retf
+	lret $0x100			retf 0x100
+	
+	
+
+_EOF_

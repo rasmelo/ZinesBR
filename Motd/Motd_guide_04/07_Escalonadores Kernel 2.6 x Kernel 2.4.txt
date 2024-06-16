@@ -1,0 +1,319 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[07]-=[Algoritmo de escalonamento: Kernel 2.4 Versus 2.6]=-|Felipe Goldstein|-
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+--=[ Introdução
+
+  O  Algoritmo  de escalonamento  é  o coração  de  um Kernel.  Existem  muitos
+algoritmos e a  eficiência de cada  um deles depende  do tipo de  aplicação que
+será executada. O Linux, por ser voltado para o computador pessoal, executa  em
+sua maioria, tarefas que interagem com o usuário. Portanto o algoritmo volta-se
+principalmente para sistemas interativos.
+
+  Aqui,  discutirei  em  linhas   gerais,  o  funcionamento  do   algoritmo  de
+escalonamento do kernel 2.4 e suas desvantagens em relação ao do kernel 2.6.
+
+
+
+--=[ Kernel 2.4
+
+--=--=[ Breve descrição do funcionamento do algoritmo de escalonamento
+
+  O escalonador do Linux divide o tempo  de CPU em Eras (epochs). Em cada  Era,
+cada processo tem  um time-quantum que  especifica o tempo  que o processo  vai
+adquirir de  CPU durante  a Era  atual. Quando  o time-quantum  de um  processo
+acaba, o escalonador é chamado e outro processo começa a rodar.
+
+  Uma Era  termina quando  todos os  time-quantum dos  processos ativos acabam.
+Então  a  lista ligada  dos  processos é  completamente  varrida, e  para  cada
+processo, é  calculado uma  nova prioridade  e um  novo time-quantum.  Por este
+motivo, o  algoritmo de  escalonamento do  kernel 2.4  tem a  ordem de  O(n) no
+número de processos ativos. O fator linear do algoritmo vem diretamente do fato
+de  que o  acesso à  lista ligada  é linear,   e também  da necessidade   de se
+recalcular a prioridade de cada processo entre cada mudança de Era, porém  como
+veremos  no kernel  2.6 isto  pode ser  feito no  momento em  que se  insere o
+processo na lista.
+
+  Os  processos  ativos   dividem-se  em  duas   listas  ligadas  usadas   pelo
+escalonador. Uma guarda os processos que ainda não extinguiram todo o seu  time
+-quantum designado para a Era  atual e estão esperando para  serem escalonados,
+chamada run-queue enquanto a outra guarda os processos que já extinguiram o seu
+time-quantum e estão esperando para  serem escalonados na próxima era,  chamada
+expired-queue.
+
+
+--=--=[ Tipos de Processos
+
+  Existem 2 tipos básicos de processos: Processos de Tempo Real e os  processos
+convencionais. Os processos de Tempo Real são processos que requerem  respostas
+em tempos  determinados. Para  isso eles  precisam de  um maior determinismo do
+sistema e portanto recebem maior  prioridade. Estes tipos de processos  recebem
+uma prioridade que é  sempre maior que a  dos outros processos convencionais  e
+esta prioridade não muda depois que o processo começa a rodar.
+
+  Os  processos  convencionais  recebem  uma  prioridade  que  muda  conforme a
+necessidade e no caso do kernel 2.4 , basicamente a prioridade muda conforme  a
+quantidade de time-quantum não usada pelo processo em seu último escalonamento,
+o que faz com que processos IO-Boud recebam maior prioridade (pois este tipo de
+processo deixa sempre sobrando  algum time-quantum quando vai  dormir esperando
+um evento de IO).
+
+
+--=--=[ Quem deve executar primeiro ?
+
+  Uma  das  principais tarefas  do  escalonador é  fazer  a escolha  dentre  os
+processos na lista  run-queue de qual  processo executar primeiro.  A escolha é
+feita pegando da lista  run-queue o processo com  o maior fator Goodness  que é
+calculado da seguinte maneira:
+
+    * Goodness = 0
+      Se o processo acabou o seu time-quantum.
+      A menos que este processo seja o primeiro processo na lista run-queue e
+      todos os outros processos tenham também acabado seu time-quantum , este
+      processo não será selecionado agora.
+
+    * 0 < Goodness < 1000
+      Se o processo eh convencional e ainda não acabou com seu time-quantum,
+      Goodness é a soma da prioridade do  processo com  o que resta  do seu
+      time-quantum somado com 1.
+
+    * Goodness >= 1000
+      Se o processo é de Tempo Real,  seu Goodness é  a soma de 1000 com sua
+      prioridade.
+
+  Perceba que para fazer esta escolha,  todos os processos são percorridos e  é
+calculado o fator Goodness de cada um,  o que também implica uma ordem de  O(n)
+ao algoritmo de escalonamento.
+
+
+--=--=[ Sistemas Multiprocessados
+
+  Além da escolha de qual processo rodar primeiro, o escalonador deve  escolher
+também (num  sistema multiprocessado)  em qual  CPU o  processo vai rodar. Para
+melhor utilizar a memória  Cache, o kernel 2.4  tenta escolher a CPU  no qual o
+processo  já  estava rodando.  Mas  isso pode  causar  um overload  de  uma CPU
+enquanto outras estão ociosas. Então essa  escolha é feita usando um fator  que
+leva em  conta o  tamanho da  memória cache  do processador  e sua  freqüência.
+Baseado  nesse fator  o escalonador  decide se  vale ou  não a  pena colocar  o
+processo no  mesmo processador.  Porém ainda  assim, no  Kernel 2.4, existe uma
+situação  em  que  um processo  pode  ficar  'pulando' de  uma  CPU  para outra
+constantemente, desperdiçando a memória cache.  Este já era um bug  conhecido a
+tempos.
+
+
+--=--=[ Performance do Kernel 2.4: Desvantagens
+
+    * O Algoritmo não é escalável :
+         Conforme aumenta o número de processos ativos,  aumenta o overhead no
+         escalonamento.  O kernel leva  mais tempo  pra decidir  qual processo
+         rodar, diminuindo o desempenho do sistema.
+
+
+    * Estratégia adotada para processos do tipo IO-Bound não é ótima:
+         Dar preferência aos processos do  tipo IO-Bound é uma boa  estratégia,
+         mas ela não é perfeita.  Imagine que você tenha um processo rodando em
+         background como um banco de dados que a todo momento precisa ler dados
+         do HD, porém ele não precisa ter um tempo de resposta rápido. Com este
+         algoritmo,  este tipo de processo  vai levar vantagem sobre  os outros
+         que não são IO-Bound.
+
+         Outro  problema  acontece quando um processo  que é CPU-Bound  precisa
+         também interagir rapidamente com o usuário,  este tipo de processo vai
+         ter menos prioridade por ser CPU-Bound.
+
+
+    * Kernel não é preemptivo:
+         No kernel 2.4 e  anteriores,   para cada  operação de  escalonamento e
+         context-switch um  mutex-lock global  precisa ser  adquirido  antes de
+         entrar na seção crítica do código.  Esta seção crítica  é na verdade o
+         código completo do escalonador.  Assim,  num sistema  multiprocessado,
+         apenas um processador podia executar o escalonador por vez.
+
+         O mutex-lock global  impede que dois ou mais processadores  executem o
+         escalonador ao mesmo  tempo e isso pode  representar perda de tempo de
+         processamento,  pois os processadores  que  estão tentando  adquirir o
+         mutex vão ter que esperar até o mutex ser liberado. Além disso, durante
+         a execução do escalonador as interrupções são desligadas, e portanto o
+         kernel não é  preemptivo.  Durante  uma chamada  de sistema,  o código
+         executado no espaço de kernel não pode ser interrompido.  Por exemplo,
+         por um processo de alta prioridade (pode ser de Tempo Real) que acabou
+         de acordar  e precisa  executar  na frente de  qualquer outro  tipo de
+         processamento.
+
+         Tudo isso traz péssimas implicações para processos de Tempo Real, pois
+         diminui  o determinismo da  prioridade de  execução de um processo  de
+         Tempo Real.
+
+
+
+--=[ Kernel 2.6 - Mudanças
+
+--=--=[ Objetivos
+
+  Ao se projetar um novo escalonador  para o kernel do linux, mantendo  as boas
+características que o kernel 2.4  trazia e adicionando novas e  interessantes,
+os objetivos principais foram os seguintes:
+
+    * Boa performance de interatividade ,  mesmo durante uma  sobrecarga de uso
+      de CPU: Se o usuário clica então o sistema deve reagir instantaneamente e
+      executar a tarefa do usuário de forma suave.
+
+    * Justiça:  Nenhum processo deixa de receber ao menos um  pequeno pedaço de
+      tempo da CPU e nenhum  processo  recebe injustamente  um grande pedaço de
+      tempo da CPU. Respeitando as prioridades de cada processo.
+
+    * Prioridades:   Tarefas menos  importantes  recebem prioridades  menores,
+      tarefas mais importantes recebem prioridades altas.
+
+    * Eficiência em ambiente multiprocessado:  Nenhuma CPU deve ficar ociosa se
+      existe trabalho a fazer.
+
+    * Afinidade de CPU em ambiente multiprocessado:  Processos que rodaram numa
+      CPU têm afinidade a ela, e assim que  possível,  permanecer executando na
+      CPU em que já foi executada.  Nenhum  processo deve ficar trocando de CPU
+      muito freqüentemente.
+
+  As novas características que chamam mais atenção são as seguintes:
+
+    * Escalonamento  completo  usando um algoritmo O(1):  Sistema  muito  mais
+      escalável.  O número de processos  executando não  afeta o desempenho do
+      kernel.
+
+    * Kernel Preemptivo: Escalabilidade perfeita num ambiente multiprocessado.
+      Não existe mais nenhum mutex-lock global para proteger a área de  código
+      do escalonador. Existe agora 1 lista de processos ativos (run-queue) por
+      CPU, permitindo o acesso em paralelo às run-queues  sem a necessidade de
+      mutex.
+
+    * Escalonamento tipo Batch:  Uma grande  porção dos processos CPU-Bound se
+      beneficiam da maneira  Batch de escalonamento,  onde os time-quantum são
+      grandes  e os processos  são escalonados por  round-robin.  O novo esca-
+      lonador designa este tipo de escalonamento (Batch) para os processos com
+      baixa prioridade,   e a nova  política de  prioridade  dinâmica  designa
+      menores prioridades quanto mais CPU-Bound for o processo.
+
+    * Sistema mais confiável para processos Real Time:  O fato  do kernel  ser
+      Preemptivo e o algoritmo de escalonamento ser O(1)  melhora o  comporta-
+      mento do sistema em relação à dar prioridade às tarefas Real Time,  pois
+      agora uma  chamada de sistema feita por uma tarefa  de prioridade  menor
+      pode ser interrompida por uma  tarefa de maior  prioridade para  que ela
+      entre em execução imediatamente.
+
+
+--=--=[ Vetor de Prioridades
+
+  Ao invés de usar só uma  lista ligada gigante com todos os  processos ativos,
+foi usado  uma outra  abordagem na  qual temos  um vetor  de tamanho  fixo cujo
+tamanho é o número de níveis de prioridades. Cada elemento do vetor aponta para
+uma lista ligada de processos que tem a mesma prioridade.
+
+  Essa é a estrutura básica do novo escalonador:
+  A lista run-queue, agora  é um vetor de  prioridades ordenado e cada  CPU têm
+sua própria run-queue.  O vetor de  run-queue contém todas  as tarefas que  têm
+afinidade com a CPU e ainda têm time-quantum para executar, enquanto o vetor de
+expired-queue contêm as tarefas que tem afinidade com a CPU e que expiraram seu
+time-quantum, de maneira que este vetor expired-queue (assim como o  run-queue)
+também é mantido ordenado.
+
+A estrutura do array de prioridades é descrita como:
+
+
+   struct prio_array {
+       int nr_active;                       /* number of tasks */
+       unsigned long  bitmap[BITMAP_SIZE];  /* priority bitmap */
+       struct list_head queue[MAX_PRIO];    /* priority queues */
+   };
+
+
+  MAX_PRIO é número de níveis de prioridades do sistema. Para cada prioridade é
+mantida  uma  lista  ligada  dos  processos  que  estão  naquela  prioridade. O
+escalonador escolhe para executar primeiro a lista dos processos no maior nível
+de prioridade e executa-os em Round-Robin.
+
+  Existe um  número fixo  de níveis  de prioridades,  e para  escolher um  novo
+processo basta pegar  o próximo elemento  do vetor de  prioridades, portanto, o
+algoritmo neste caso é  O(1), pois temos um  tempo constante executado em  cada
+escolha de qual processo executar.
+
+
+--=--=[ Recalculando os time-quantum
+
+  No 2.4  , cada  vez que  terminava uma  Era, percorria-se  todos os processos
+recalculando os  time-quantum de  cada um.  No kernel  2.6, o  calculo do  time
+-quantum ocorre quando o processo  termina todo seu time-quantum da  Era atual.
+Assim, antes de ser passado para  o vetor de expired-queue, seu time-quantum  e
+também sua  prioridade são  recalculados. O  vetor de  expired-queue é  mantido
+ordenado e contém os processo com os time-quantum já calculados da próxima Era.
+Quando a Era atual termina, basta trocar os ponteiros do vetor de run-queue por
+expired-queue  e  o  novo  vetor  de  processos  ativos  está  pronto  para ser
+executado.
+
+  A  abordagem  do  kernel  2.6  é uma  mistura  de  lista  de  prioridades com
+escalonamento  por  Round  Robin.  Os processos  de  uma  mesma  prioridade são
+escalonados  por  Round-Robin,  mas  as  prioridades  maiores  são  escalonadas
+primeiro.
+
+
+--=--=[ Resposta Rápida
+
+  Uma das coisas que mais deixam  os usuários do sistema irritados, é  a demora
+no tempo de resposta  de um comando. No  kernel 2.6 este problema  é evitado da
+seguinte  maneira: ao  invés de  aumentar a  prioridade de  processos IO-Bound,
+diminui-se a prioridade  dos processos que  querem consumir muito  tempo de CPU
+quando tempo de CPU está escasso.
+
+
+
+--=[ Conclusão
+
+  Essas foram as principais mudanças do  kernel 2.4 para o 2.6. O  Linux sempre
+foi um sistema operacional voltado para  o usuário de Computador Pessoal e  por
+isso conceitos como processamento de  tarefas de Tempo Real, escalabilidade  no
+número  de  CPUs e  no  número de  processos  ativos não  foram  prioridades no
+desenvolvimento do seu Kernel.
+
+  Um usuário de PC rodando o kernel 2.4 não vai notar a menor diferença  quando
+fizer o upgrade para o 2.6, visto que seu PC só tem 1 processador e ele só roda
+no máximo, digamos, 100  processos em paralelo. Além  disso não se usa  o linux
+como um Sistema Operacional  para controlar um sistema  de Tempo Real, como  um
+piloto automático de um avião ou  um sistema de controle de temperatura  de uma
+usina nuclear. O Linux não foi projetado para esse tipo de coisa, mas com essas
+mudanças se consegue chegar mais perto do que seria um sistema mais escalável e
+confiável.
+
+  Segundo Theodore Tso (um dos desenvolvedores do kernel), na conversa que teve
+hoje com os alunos da computação no IC (Instituto de Computação - Unicamp),  as
+futuras versões  do kernel  caminham em  direção a  se ter  mais robustez  para
+aplicações de Tempo  Real, adicionando mais  predictabilidade e determinismo  à
+execução de tarefas que exigem alta prioridade.
+
+
+
+--=[ Fontes
+
+    1) Livro: Understanding the Linux Kernel ,
+              By Daniel P. Bovet & Marco Cesati ,
+              Editora O'Reilly
+
+    2) Livro: Linux Kernel Development ,
+              By Robert Love ,
+              Editora Sams
+
+    3) Email:
+	      From: Ingo Molnar
+	      To: linux-kernel-mailing-list
+	      Subject: [announce] [patch] ultra-scalable O(1) SMP and UP scheduler
+	      Date: Fri, 4 Jan 2002 03:19:10 +0100 (CET)
+
+	      Este email pode ser encontrado em:
+	      http://kerneltrap.org/node/341
+
+    4) web:   http://www.hpl.hp.com/research/linux/kernel/o1.php
+
+    5) web:   http://www.linuxgazette.com/node/9746
+
+    6) web:   http://www.faqs.org/docs/kernel_2_4/lki-2.html
+
+
+_EOF_

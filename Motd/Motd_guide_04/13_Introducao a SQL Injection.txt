@@ -1,0 +1,250 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[13]-=[Introducao a SQL Injection]=-|Inseto Verde|=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+
+=-=-=-=-=-=-=-=-= Sumario
+
+-=
+        Introducao
+-=
+        Linguagem "foderosa"
+-=
+        Entendendo a linguagem
+-=
+        Entendendo o ataque
+-=
+        Mais comandos
+-=
+        Existe jeito?
+-=
+        Consideracoes finais
+-=
+        Conheca um pouco mais
+-=
+        Finished
+-=
+
+
+
+--=[ Introducao
+
+	Neste artigo serah abordado apenas o mini-basico do tao extenso e pode-
+roso SQL Injection. Mesmo por motivos de minhas limitacoes de conhecimento, nao
+serah abordado neste artigo o SQL injection profundamente.
+
+	Um artigo super-newbie,  por isso se voce se considera elite, favor nao
+prossiga a leitura do texto pois serah perda de seu valioso tempo. E com certeza
+nao irah te acrescentar nada. Este artigo visa ajudar os iniciantes.
+-Igualmente a mim.
+
+
+
+--=[ Linguagem "foderosa"
+
+	A linguagem SQL eh muito usada atualmente, pois ela facilita o trabalho
+e o acesso ao banco de dados. Com ela o programador pode inserir dados no banco,
+extrair, deletar... enfim, tem total controle sobre o banco.
+
+	Mas como jah eh conhecido de todos os forenses: tudo que eh usado para o
+bem, pode tambem ser usado para o mal! Eh aproveitando dessa natureza que surge
+o SQL injection.
+
+
+
+--=[ Entendendo a linguagem
+
+	Para entendermos um pouco de como  implementar um ataque ao banco via
+injecao de SQL, vamos montar uma sintaxe SQL para a conhecer:
+
+SELECT user FROM tab_user WHERE user = '& sUser &' AND pass = '& sPass &'
+
+
+	Well, acima temos uma simples sintaxe em SQL,  mas o que ela esta' fa-
+zendo? Essa sintaxe esta' enviando ao banco a requisicao de todos os usuarios 
+que sejam iguais a user '& sUser &' e tenham pass = '& sPass &'. Onde as strin-
+gs sUser e sPass conteem os valores digitados pelo usuario.
+
+	Ah! e nessa sintaxe, apos o SELECT, o "user" e' o nome do campo dentro
+da tabela "tab_user". Assim a sintaxe manda para o banco a requisicao jah defi-
+nida:  "Quero tal coisa de tal lugar se isso for igual a isso e isso  igual a
+isso".
+
+	Assim se os valores encontrados na tabela correspondem aos valores con-
+tidos na sintaxe o usuario tera a permissao de continuar a execucao requisitada,
+tal como por exemplo, acessar uma determinada sessao, pagina pessoal e bla bla 
+bla... Caso os valores da sintaxe sejam incompativeis com os contidos no Banco
+de Dados, uma mensagem sera exibida (na grande maioria das vezes).
+
+
+
+--=[ Entendendo o ataque
+
+	Agora que entendemos como, basicamente, funciona o SQL podemos ver algu-
+mas formas de implementar um ataque via  SQL injection...  Usando o exemplo da
+sintaxe construida acima, nos poderiamos passar direto para a execucao de pagi-
+nas privadas, mesmo sem ter a senha e usuario valido. Isso e' muito simples.
+
+Vamos usar a imaginacao: O que aconteceria se o usuario digitasse na caixa de 
+usuario e senha o seguinte:
+
+' or '1' = '1
+
+Voce consegue dizer como ficaria a sintaxe SQL? Caso nao, la vai:
+
+SELECT user FROM tab_user WHERE user =' ' or '1' = '1' AND pass =' ' or '1'='1'
+
+	E dai??? O que tem demais nisso? Se observarmos a instrucao SQL esta'
+dizendo ao banco o seguinte: Selecione tudo da tabela tab_user que tiver user
+ = vazio ou 1 igual a 1 e pass = vazio ou 1 igual a 1... Bem, no minimo o nume-
+ro 1 sempre sera igual a 1, entao "Tamo Dentro".
+
+Pra piorar a situacao pra uns e facilitar pra outros, poderemos fazer ainda de
+uma forma mais simples:
+
+ ' = '
+
+Quando esse codigo se juntar com a sintaxe SQL ja existente na pagina, ele fica-
+ra assim:
+
+SELECT user FROM tab_user WHERE user = ' '=' ' AND pass = ' '=' '
+
+Pra variar, um campo vazio sempre sera = a vazio, assim, o resultado da sintaxe
+SQL sera verdadeiro, permitindo a passagem.:)
+
+
+
+--=[ Mais comandos ...
+
+	Bem, vamos conhecer mais alguns comandos de SQL, assim voce pode usar a
+malicia e criar sintaxes diferentes. Caso voce nao conheca bem a linguagem SQL,
+nem precisa dizer que sera' necessario estuda-la nao e'?!
+
+La' vai entao:
+
+INSERT INTO tab_user (User, pass) VALUES ('eu_mesmo', 123456)
+
+No exemplo acima eu inseri na tabela tab_user um usuario chamado eu_mesmo, com a
+senha 123456.
+
+DELETE FROM tab_user WHERE user = 'eu_mesmo'
+
+Pelo comando na sintaxe ja' da' pra saber o que ela faz... Apaga do banco o usu-
+ario chamado eu_mesmo!
+
+	Uma coisa bem interessante e'  que nos podemos comentar os codigos que
+vierem posteriormente ao nosso, com um simples comando, o -- exatamente assim.
+Caso o banco seja um ORACLE, antes do -- teremos de separa-lo da sintaxe com
+um ; entao no ORACLE ficaria assim ;--. Com isso podemos anular todo o resto da
+sintaxe que estiver inserida do lado direito apos o codigo injetado por nos.
+
+Uma outra coisa bastante interessante e' a concatenacao, podemos fazer isso com
+um simples + por exemplo...
+
+'bo' + 'ok' = book
+
+Se o banco for um ORACLE ficaria assim:
+
+'bo' || 'ok' = book
+
+Entendido ne'? Muito simples, o basico.
+
+OBS.: Caso quando voce injete um codigo SQL, abra uma pagina de erro 500.100,
+saiba que o servidor e' um Windows 2000. Este erro e' padrao do Windows, e ne-
+nhum outro sistema o exibe!
+
+
+
+--=[ Existe jeito?
+
+	Para evitar esse tipo de ataque e' necessario fazer um tratamento no co-
+digo para que toda vez que um comando SQL for inserido nos campos, eles sejam
+ignorados. Segue abaixo um script de uma função chamada anti_injection. Ela foi
+escrita por Fabyo do imaster...
+
+   1. <?
+   2.
+   3. function anti_injection($sql)
+   4. {
+   5. // remove palavras que contenham sintaxe sql
+   6. $sql = preg_replace(sql_regcase("/(from|select|insert|delete|where|drop
+table|show tables|#|\*|--|\\\\)/"),"",$sql);
+   7. $sql = trim($sql);//limpa espaços vazio
+   8. $sql = strip_tags($sql);//tira tags html e php
+   9. $sql = addslashes($sql);//Adiciona barras invertidas a uma string
+  10. return $sql;
+  11. }
+  12.
+  13. //modo de usar pegando dados vindos do formulario
+  14. $nome = anti_injection($_POST["nome"]);
+  15. $senha = anti_injection($_POST["senha"]);
+  16.
+  17. ?>
+
+	Com essas poucas linhas ja torna possivel previnir-se contra esse tipo
+de ataque. Claro que nada e' 100% seguro. Mas ja torna mais dificil de se apli-
+car uma injecao de SQL no teu codigo.
+
+
+
+--=[ Consideracoes Finais
+
+	Quando essa falha foi descoberta, ateh o tao poderoso PHPnuke estava 
+vulneravel, e o que deveria ja ser extinto, ainda nao o e', ao dar uma olhada
+na internet a dentro, nota-se que muitas paginas ainda sao vulneraveis a SQL
+injection. Muito mais paginas do que se imagina, e ainda paginas de shopping
+on-line, essas que garantem ao usuario uma compra "segura", segundo eles.
+
+	Com um avanco nos conhecimentos de SQL injection e' possivel capiturar
+dados do banco e exibi-los sem grandes dificuldades. Muitas vezes com um simples:
+
+http://www.paginavulneravel.com/../../etc/passwd
+
+O arquivo que contem as senhas e' exibido.  Fica mais uma vez confirmado, nao
+provado, que nao existe NADA absolutamente seguro... e que a seguranca e' um
+sonho sem fundamentos.
+
+	Aconselho aos interessados em se proteger desse tipo humilhante de ata-
+que a se aprofundarem mais no assunto. Pois para entender como se proteger, e'
+preciso se conhecer como e' executado o ataque.
+
+
+
+--=[ Conheca um pouco mais
+
+http://www.w3schools.com/sql/sql_intro.asp
+
+http://www.1keydata.com/sql/sql.html
+
+http://www2.packetstormsecurity.org/cgi-bin/search/search.cgi?searchvalue=sql+
+injection&type=archives&%5Bsearch%5D.0&%5Bsearch%5D.y=0
+
+Nos links acima voce podera conseguir mais conhecimento sobre o SQL injection e
+do proprio SQL em si.
+
+
+
+--=[  Finished
+
+	Espero poder ter ajudado a dar uma luz, mesmo que minima, na mente dos
+interessados... Se voce e' elite e leu o texto ate' aqui, lamento muito por vo-
+ce nao ter seguido meu conselho.  So me resta dizer: Da proxima vez escute con-
+selhos.
+
+	Quero lembrar que hacking acima de tecnica e' pura etica, por isso nao
+use o conhecimento que possui para maus objetivos. Nao existe satisfacao melhor
+que ajudar outros, "há mais felicidade em dar do que há em receber." Por isso,
+use de bom senso caso encontre uma pagina vulneravel.
+
+	E de coracao eu gostaria de agradecer a todos os que me dao forca,  em
+especial o SkyNet45 e o Assuero Grandes mentes lutando pela liberdade da infor-
+macao...
+
+/* Disciplina e' liberdade */
+
+Um abraco a todos,
+Inseto Verde
+                if.undef [at] gmail [dot] com
+
+_EOF_

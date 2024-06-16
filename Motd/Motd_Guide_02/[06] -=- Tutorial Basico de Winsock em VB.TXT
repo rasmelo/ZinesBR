@@ -1,0 +1,630 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[06]-=[Tutorial Básico de Winsock em VB]-=|vbKeyDel|=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+Índice:
+1 > Introdução
+2 > Adicionando e conhecendo um Winsock
+3 > Conectando
+4 > CHAT - Toda a comunicação é um Chat
+5 > Idéia de Túnel
+6 > Contato
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+-= 1: Introdução =-
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Pré-requisitos básicos:
+- Para se entender é preciso que haja um mínimo de entendimento de Visual Basic
+6...
+- É obvio que se tenha-o(Visual Basic) para poder praticar
+- MSWINSCK.OCX em %windir%\system32\
+- Também seria interessante  ter-se um Sniffer, e  com ele "fuçar" e  fazer seus
+próprios testes!, é  bem interessante "fuçá-los",  com eles é  possível fixar de
+melhor forma os aprendizados aqui citados...
+
+Atualmente,  a  internet   vem  revolucionando  a   comunicação  de  uma   forma
+incrivelmente rápida, prática, eficiente...
+
+Creio que quem  lê este tutorial  espera conter um  conhecimento básico para  se
+criar uma comunicação entre computadores, visando inúmeras atividades, como  por
+exemplo:
+
+- Criação de programas Proxies
+- Burlamento de Firewalls
+- Burlamento de Proxies
+- Criação de WebBrowser
+- Criação de Worms
+- Criação de Vírus
+- Criação de Chats
+- Criação de FireWalls
+- Inúmeras idéias podem surgir de acordo com a criatividade do programador...
+
+Mas Querer não é preciso, é Preciso fazer...
+- "Mas é um 'bicho de 7 cabeças' isso! como faço?"
+Se você pensa dessa forma, passe  a pensar assim: "Um conjunto de  simplicidades
+formam uma complexidade..."
+
+Pronto!...Agora confirme e veja como é tão simples!
+
+========================== Observações iniciais ===============================
+
+Sempre que eu  utilizar este sinal(#),  saiba que estou  usando ele apenas  para
+separar o código do texto...
+
+Sempre que eu  utilizar este sinal(-),  saiba que estou  usando ele apenas  para
+indicar algo que você tenha que fazer...
+
+Sempre que eu utilizar este sinal(>>>),  saiba que estou usando ele apenas  para
+indicar Atualização de código
+
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+-= 2: Adicionando e conhecendo um Winsock =-
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+- Abra o VB e crie um formulário!(FORM)
+- Click com o botão direito do mouse sobre a barra de ferramentas
+- Click em Components...
+- Selecione a caixa de checagem: Microsoft Winsock Control 6.0 (no nosso caso)
+- Aplique
+- Adicione  o novo  controle no  form, agora  ele deve  aparecer como  o tamanho
+indimensionável do Controle Timer...
+
+Pronto... o Winsock já pode ser utilizado
+
+Agora vamos conhecê-lo
+
+-------------------------------------------------------------------------------
+OBS: Colocarei apenas os itens mais básicos e suficiente para se fazer que
+quiser
+-------------------------------------------------------------------------------
+
+Funções:
+Accept -> Aceita uma conecção esperada
+Close -> Prepara ou reprepara o Winsock para ser utilizado novamente
+Connect -> Tenta se conectar com um computador que estaja esperando uma conexão
+GetData -> Armazena em uma determinada memória o valor atual recebido
+Listen -> "Escuta", isto é...abre uma porta e espera uma conecção
+SendData -> Envia uma determinada Mensagem para o Host Conectado
+
+Propriedades:
+Protocol -> pode ser (0 ou sckTCPProtocol) ou (1 ou sckUDPProtocol)
+LocalHostName -> Nome do seu Host(você)
+LocalIP -> Seu IP
+LocalPort -> Sua Porta de escuta
+RemoteHost -> Host Remoto
+RemoteHostIP -> IP do Host Remoto
+RemotePort -> Porta do Host Remoto na qual está sendo usada
+State -> Estado atual do Componente, que varia de 0 a 9, Listado abaixo os estados
+
+Constante -> Valor -> Descrição
+sckClosed -> 0 -> Padrão, Fechado, preparado para o que precisar
+sckOpen -> 1 -> Aberto
+sckListening -> 2 -> Escutando
+sckConnectionPending -> 3 -> Esperando pronto para Conexão
+sckResolvingHost -> 4 -> Resolvendo Host
+sckHostResolved -> 5 -> Host Resolvido
+sckConnecting -> 6 -> Conectando
+sckConnected -> 7 -> Conectado
+sckClosing -> 8 -> Fechando conexão("preparando para preparar conexão")
+sckError -> 9 -> Erro
+
+Eventos:
+Close -> É Executado toda vez que  a conecção fechada, não é executado quando  a
+função close é utilizada...
+Connect -> É Executado toda vez que uma conexão é estabelecida
+ConnectionRequest ->  É Executado  toda vez  que tentam  se conectar  com o  seu
+controle, apenas  se o  seu controle  estiver "escutando"(state  = 2  ou state =
+sckListening)
+DataArrival -> É executado Toda vez que (quando conectado) receber alguma 
+informação
+
+Bom...Agora que já o conhecemo-lo, vamos ao projeto!!!
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+-= 3: Conectando =-
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Agora  que  já temos  o  controle em  nosso  formulário vamos  fazer  um pequeno
+WebBrowser que é capaz de exibir apenas o código fonte!
+
+- Adicione a este formulário um Textbox!
+- Arrume a propriedade "Name" dele como: "Text1"
+- Arrume a propriedade "MultLine" para: "True"
+- Arrume a propriedade "ScrollBars" para: 2
+- Arrume a propriedade "Text" para estar vasio
+
+- Adicione 1 botão ao formulário
+- Arrume a propriedade "Name" para: "Command1"
+- Arrume a propriedade "Caption" para: "&Baixar"
+
+- Deixe o Winsock com a propriedade "Name" como "Winsock1" mesmo...
+
+Agora arrume o código do botão de tal forma que fique como o mostrado abaixo:
+
+# Private Sub Command1_Click()
+# Winsock1.Connect "home.uol.com.br", 80
+# End Sub
+
+Bom...Agora click 2 vezes sobre o winsock...Agora Arrume o Evento Connect para
+ficar como abaixo:
+
+
+# Private Sub Winsock1_Connect()
+# Dim DadoAEnviar As String
+# DadoAEnviar = "GET / HTTP/1.1" & vbCrLf
+# DadoAEnviar = DadoAEnviar & "HOST: home.uol.com.br" & vbCrLf
+# DadoAEnviar = DadoAEnviar & "Accept: */*" & vbCrLf
+# DadoAEnviar = DadoAEnviar & vbCrLf
+# Winsock1.SendData DadoAEnviar
+# End Sub
+
+Agora arrume o Evento DataArrival do winsock1 para ficar como abaixo:
+
+# Private Sub Winsock1_DataArrival(ByVal bytesTotal As Long)
+# Dim X As String
+# Winsock1.GetData X
+# Text1.Text = Text1.Text & X
+# End Sub
+
+Como Isso funciona:
+Bom...
+
+# Private Sub Command1_Click()
+# Winsock1.Connect "home.uol.com.br", 80
+# End Sub
+
+Como Já foi dito a função Connect serve para tentar se conectar...
+Ela funciona da seguinte forma: Connect(Host, Porta)
+No   nosso  caso,   "pedimos"  para   o  winsock1   tentar  se   connectar  com
+"home.uol.com.br" pela porta 80
+Esta porta 80 serve para comunicação do protocolo HTTP, mas como queremos ver  a
+página temos  que fazer  nosso pedido  após acabarmos  de nos conectar... porém,
+como sabemos que conseguimos nos conectar com sucesso?
+
+O Evento Connect do winsock é executado toda vez que conseguimos nos conectar...
+Graças a isso podemos fazer nosso pedido quando nos conectar da seguinte forma:
+
+# Private Sub Winsock1_Connect()
+# Dim DadoAEnviar As String
+# DadoAEnviar = "GET / HTTP/1.1" & vbCrLf
+# DadoAEnviar = DadoAEnviar & "HOST: home.uol.com.br" & vbCrLf
+# DadoAEnviar = DadoAEnviar & "Accept: */*" & vbCrLf
+# DadoAEnviar = DadoAEnviar & vbCrLf
+# Winsock1.SendData DadoAEnviar
+# End Sub
+
+Nosso pedido é um Dado  que temos que enviar para  o servidor HTTP para ele  nos
+enviar a página...
+
+Bom...o Nosso pedido foi o seguinte:
+(OBS: vbCrLF = Constante equivalente a "Enter")
+
+"GET / HTTP/1.1
+HOST: home.uol.com.br
+Accept: */*
+
+"
+OBS: a 1ª Linha pede para o servidor a página inicial de acordo com o protocolo
+HTTP Versão 1.1
+, a 2ª linha confirma o servidor host que contem o nosso pedido
+, a 3ª linha diz para o servidor que aceitamos qualquer tipo de arquivo...
+, a 4ª  linha, isso  mesmo, o  enter, é  necessário para  que o  pedido esteja
+pronto...(exigido pelo protocolo HTTP versão 1.1)
+
+Bom...assim  que terminamos  de colocar  todo esse  conteúdo na  nossa variável
+DadoAEnvar podemos fazer o pedido: Winsock1.SendData DadoAEnviar
+Esta função funciona da forma a seguir: SendData(mensagem a enviar)
+
+E por fim, agora temos que "saber" receber os dados do nosso Host Remoto(que  em
+nosso caso: home.uol.com.br)
+
+Toda vez que recebemos  dados do nosso Host  Remoto um Evento é  executado, este
+evento é o DataArrival...
+
+# Private Sub Winsock1_DataArrival(ByVal bytesTotal As Long)
+# Dim X As String
+# Winsock1.GetData X
+# Text1.Text = Text1.Text & X
+# End Sub
+
+Para "pegarmos" a informação corrente é preciso que usemos o código a seguir,
+que armazenará a informação corrente em X:
+
+# Winsock1.GetData X
+
+Esta função funciona da seguinte forma: GetData (onde será aramazenado o valor
+corrente)  assim  que  temos  a informação  temos  que  concatená-la  ao que  já
+"pegamos", para isso concatenamos-la como exibido logo a baixo:
+
+# Text1.Text = Text1.Text & X
+
+Agora que já entendemos como funciona em código de alto nível, vamos saber  como
+funciona teóricamente essa comunicação pelo  winsock em Visual Basic 6;  ficaria
+como mostra abaixo...:
+
+1º Passo:
+#---------------------------------------------------------#
+|"Eu"-------------------->  Host Remoto                   |
+|---------------------------------------------------------|
+|Mensagem de "Eu" para "Host Temoto": "Posso me conectar?"|
+#---------------------------------------------------------#
+
+2º Passo(Conectando):
+#-----------------------------------------------------------------#
+|"Eu"<--------------------  Host Remoto                           |
+|-----------------------------------------------------------------|
+|Mensagem de "Host Temoto" para "Eu": "Sim, Você pode se conectar"|
+#-----------------------------------------------------------------#
+
+3º Passo(Fazendo requisição da página):
+#--------------------------------------------------------------#
+|"Eu"-------------------->  Host Remoto                        |
+|--------------------------------------------------------------|
+|Mensagem de "EU" para "Host Temoto": "Me manda a página então"|
+#--------------------------------------------------------------#
+
+4º Passo(Espácie de Chat):
+#---------------------------------------------------------#
+|"Eu"<--------------------  Host Remoto                   |
+|---------------------------------------------------------|
+|Mensagem de "Host Temoto" para "Eu": "Está aqui a página"|
+#---------------------------------------------------------#
+
+Como assim Chat?!?!
+
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+-= 4: CHAT - Toda a comunicação é um Chat =-
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Como veremos agora, você entenderá o porque desta comparação que parece-te muito
+"esquisita"...
+Imagina se por acaso...você  quisesse se conectar, ao  invez de um servidor,  um
+computador de algum amigo  teu? Como você não  precisa de protocolo nenhum  para
+enviar ou receber alguma mensagem, você precisará apenas se conectar...e  depois
+como queremos dar uma utilidade ao enviar uma mensagem, que no caso queremos que
+ele veja a mensagem, então vamos ao projeto.
+
+Mas antes vejamos como o projeto deverá estar...
+- 1 programa deverá estar rodando em teu computador
+- 1 programa deverá estar rodando no computador de seu amigo
+
+Vamos começar pelo programa que deverá estar rodando em teu computador:
+- Abra o visual Basic, e etc...
+- adicione um winsock
+- adicione 3 botões
+- adicione 1 timer
+- adicione 3 textbox
+- adicione 1 label
+
+- Não mude o nome de nenhum controle adicionado, para melhor entendimento de
+nossos códigos...
+
+- Mova o Text3 para ficar próximo do Command1
+- Mova o Text1 para ficar próximo do Command2
+- Mova o Text2 para ficar de forma maior que os outros controles, pois nele
+veremos as conversas
+
+- Arrume a propriedade "Caption" do Command2 para: "&Enviar"
+- Arrume a propriedade "Default" dele para: "True"
+
+- Arrume a propriedade "Caption" do Command1 para: "&Conectar"
+
+- Arrume as propriedades "Text" do Text1, Text2 e Text3 para estarem vazios
+
+- Arrume a propriedade "MultiLine" do Text2 para: "True"
+- Arrume a propriedade "ScollBars" dele para "2 - Vertical"
+
+- Arrume a propriedade "Caption" do Label1 para: "Status:"
+- Deixe-o de tal forma a ser o último item do formulário, estando abaixo de
+todos os outros controles
+
+- Arrume a propriedade "Interval" do Timer1 para "500"(é o mesmo que 1/2
+segundo)
+
+- Arrume o Command3 para estar próximo ao command1
+- Arrume a propriedade "Caption" dele para "&Desconectar"
+
+
+Agora vamos ao Código deste programa
+
+>>> No evento Timer do Timer1 atualize o código para que fique como abaixo:
+
+# Private Sub Timer1_Timer()
+# Label1.Caption = "Status: " & Winsock1.State
+# End Sub
+
+>>> No Evento Click do Command1 atualize o código para que fique como abaixo:
+
+# Private Sub Command1_Click()
+# On Error GoTo erro
+# Winsock1.Connect Text3.Text, 120
+# Exit Sub
+# erro:
+# MsgBox "Não conssegui me conectar", vbCritical, "Erro ao tentar conectar"
+# End Sub
+
+>>> No Evento Click do Command2 atualize o código para que fique como abaixo:
+
+# Private Sub Command2_Click()
+# On Error GoTo erro
+# Winsock1.SendData Text1.Text
+# Text2.Text = Text2.Text & "Eu Disse: " & Text1.Text & vbCrLf
+# Exit Sub
+# erro:
+# MsgBox "Não conssegui enviar o código!", vbCritical, "Erro ao tentar
+conectar"
+# End Sub
+
+>>> No Evento Click do Command3 atualize o código para que fique como abaixo:
+
+# Private Sub Command3_Click()
+# Winsock1.Close
+# End Sub
+
+>>> No Evento Connect do Winsock1 atualize o código para que fique como abaixo:
+
+# Private Sub Winsock1_Connect()
+# Winsock1.SendData Winsock1.LocalIP & " está conectado!"
+# Text2.Text = Text2.Text & "Eu Disse:" & Winsock1.LocalIP & " está conectado!"
+& vbCrLf
+# End Sub
+
+>>> No Evento DataArrival do Winsock1 atualize o código para que fique como
+abaixo:
+
+# Private Sub Winsock1_DataArrival(ByVal bytesTotal As Long)
+# Dim X As String
+# Winsock1.GetData X
+# Text2.Text = Text2.Text & "Ele disse: " & X & vbCrLf
+# End Sub
+
+Agora vamos ao código do programa que deverá estar rodando na casa de seu 
+amigo...
+
+- Arrume a propriedade "LocalPort" e "RemotePort" do Winsock1 para "120"
+
+- Faça este novo programa exatamente igual a este anterior...porém sem o
+command1 e sem o Text3
+
+>>> No Evento ConnectionRequest do Winsock1 atualize o código para que fique
+como abaixo:
+
+# Private Sub Winsock1_ConnectionRequest(ByVal requestID As Long)
+# Winsock1.Close
+# Winsock1.Accept requestID
+# End Sub
+
+>>> No Evento Load do Form1 atualize o código para que fique como abaixo:
+
+# Private Sub Form_Load()
+# Winsock1.Listen
+# End Sub
+
+
+
+Como tudo isso funciona?
+--------------------------------------------------------
+# Arrume a propriedade "Default" dele para: "True"
+
+Toda vez que num Textbox for precionado a tecla 'Enter' será o mesmo que  clicar
+no  botão  com  esta propriedade  (OBS:  apenas  1 botão  por  form  pode ter  a
+propriedade Default como True)
+--------------------------------------------------------
+
+# Arrume a propriedade "MultiLine" do Text2 para: "True"
+
+Toda vez que esta propriedade for arrumada para true em um textbox, este poderá
+ter várias linhas.
+--------------------------------------------------------
+# Arrume a propriedade "ScollBars" dele para "2 - Vertical"
+Toda vez que esta propriedade for setada para 2 aparecerá uma barra de rolagem
+no textbox
+--------------------------------------------------------
+# Arrume a propriedade "Interval" do Timer1 para "500"(é o mesmo que 1/2 segundo)
+Esta  propriedade arruma  o tempo,  de que  em tempo  em tempo  o Evento  Timer
+ocorrerá no Timer1 Saiba que 1000(na Propriedade Interval) equivale a 1 segundo,
+logo 500 é 1/2 segundo...
+--------------------------------------------------------
+# Private Sub Timer1_Timer()
+# Label1.Caption = "Status: " & Winsock1.State
+# End Sub
+Mantém sempre ativo e verdadeiro o valor atual do Winsock1.state exibido em
+Label1.Caption
+--------------------------------------------------------
+# Private Sub Command1_Click()
+# On Error GoTo erro
+# Winsock1.Connect Text3.Text, 120
+# Exit Sub
+# erro:
+# MsgBox "Não conssegui me conectar", vbCritical, "Erro ao tentar conectar"
+# End Sub
+On error goto erro >>> significa que se houver algum erro ao tentar executar
+alguma das linhas abaixo, quer que exiba uma mensagem de erro no nosso caso...
+
+Winsock1.Connect Text3.Text, 120 >>> quer dizer para o winsock se conectar com
+o Host que foi predeterminado pelo usuário em Text3.Text, pela porta 120...
+
+OBS: O Host pode ser também um número IP
+--------------------------------------------------------
+# Private Sub Command2_Click()
+# On Error GoTo erro
+# Winsock1.SendData Text1.Text
+# Text2.Text = Text2.Text & "Eu Disse: " & Text1.Text & vbCrLf
+# Exit Sub
+# erro:
+# MsgBox "Não conssegui enviar o código!", vbCritical, "Erro ao tentar
+conectar"
+# End Sub
+Tenta enviar a informação presente em Text1.Text para o Host Remoto e adicionar
+o que acabou de escrever em Text2.Text, caso não conssiga ele deverá exibir uma 
+mensagem de erro...
+--------------------------------------------------------
+# Private Sub Command3_Click()
+# Winsock1.Close
+# End Sub
+Prepara ou Reprepara o Winsock para uma nova conexão...
+--------------------------------------------------------
+# Private Sub Winsock1_Connect()
+# Winsock1.SendData Winsock1.LocalIP & " está conectado!"
+# Text2.Text = Text2.Text & "Eu Disse:" & Winsock1.LocalIP & " está conectado!"
+& vbCrLf
+# End Sub
+Caso consiga se conectar ele envia a mensagem: "<IP> está conectado!", e exibe
+oque acabou de enviar em Text2.Text
+--------------------------------------------------------
+# Private Sub Winsock1_DataArrival(ByVal bytesTotal As Long)
+# Dim X As String
+# Winsock1.GetData X
+# Text2.Text = Text2.Text & "Ele disse: " & X & vbCrLf
+# End Sub
+Armazena oque acabou de receber em X e salva o valor atual de X, concatenando
+em Text2.Text
+--------------------------------------------------------
+# Private Sub Winsock1_ConnectionRequest(ByVal requestID As Long)
+# Winsock1.Close
+# Winsock1.Accept requestID
+# End Sub
+winsock1.close >>> Reprepara o winsock pra parar de "escutar" e ficar preparado
+para esta nova conexão...
+Winsock1.Accept requestID >>> Aceita conexão
+--------------------------------------------------------
+# Private Sub Form_Load()
+# Winsock1.Listen
+# End Sub
+Prepara o winsock1 para aceitar conecções pela porta 120, como já pré
+determinado pela
+propriedade LocalPort e RemotePort...
+--------------------------------------------------------
+Colocando pra rodar:
+
+- Coloque o 1º programa em seu computador pra rodar...
+- Coloque o 2º programa no computador do seu amigo pra rodar...
+- Pegue o IP do teu amigo...
+- Coloque este IP no campo de texto ao lado do botão conectar...
+- Click em conectar...e inicie o bate papo...
+
+
+Agora...Repare...Quase todos os aplicativos e programas do windows voltados  pra
+internet  utilizam  essa  DLL  (em   alguma  vezes,  e  como  nestes   exemplos:
+OCX)...Bom...agora  que  você já  entende...  Imagine, o  que  faz os  programas
+"conversarem" entre si é este componente, isso não parece um "CHAT"?
+
+Por isso que digo e confirmo a minha idéia neste próximo capítulo...
+
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+-= 5: Aperfeiçoando uma idéia... =-
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Agora... imagine se o programa envia uma certa informação, e o programa receptor
+recebe esta e analisa o conteúdo,  quando ele analisa o conteúdo (sem  mostrar a
+informação  ao  usuário), verifica  que  sempre sem  mostrar  ao usuário  deverá
+executar uma tal instrução.... agora imagine  se este usuário (o que está  com o
+programa receptor) não souber que está  rodando em seu PC o programa...  e agora
+imagine que  esta tal  instrução seja  de apagar  algum arquivo,  ou exibir  pro
+usuário uma mensagem de um suposto "vírus"...
+
+Pegue aquele programa que deveria rodar na  casa do seu visinho do capítulo 4  e
+vamos fazer algumas modificação nele...
+
+>>> No Evento Load do Form1 atualize o código para que fique como abaixo:
+
+# Private Sub Form_Load()
+# Me.Visible = False
+# Winsock1.Close
+# Winsock1.Listen
+# End Sub
+
+>>> No Evento DataArrival do Winsock1 atualize o código para que fique como
+abaixo:
+
+# Private Sub Winsock1_DataArrival(ByVal bytesTotal As Long)
+# Dim X As String
+# Winsock1.GetData X
+# Select Case X
+# Case "#EXIT#"
+# End
+# Case "#MSG1#"
+# MsgBox "Isto é um Vírus! esteja preparado para as conssequencias",
+vbCritical, "É o teu fim!"
+# Case "#MSG2#"
+# MsgBox "Eu sou Munrra!" & vbCrLf & "Espíritos do Além! torne esta forma
+decadente em Munrra!!!", _
+# vbInformation, "Munrra domina novamente!"
+# Case "#MSG3#"
+# MsgBox "Ha!!!!!!!!!!!! o mundo vai acabar! salve-se quem puder!!!!!!",
+vbCritical, "É o fim do mundo!"
+# Case Else
+# MsgBox "Teu amigo ta querendo te encher o saco....vai lá na casa dele bater
+nele!", vbCritical, _
+# "Teu amigo é um safado!"
+# End Select
+# End Sub
+Como isso funciona:
+--------------------------------------------------------
+# Private Sub Form_Load()
+# Me.Visible = False
+# Winsock1.Close
+# Winsock1.Listen
+# End Sub
+
+Me.Visibled = False >>> quer dizer para o formulário ficar invisível
+--------------------------------------------------------
+# Private Sub Winsock1_DataArrival(ByVal bytesTotal As Long)
+# Dim X As String
+# Winsock1.GetData X
+# Select Case X
+# Case "#EXIT#"
+# End
+# Case "#MSG1#"
+# MsgBox "Isto é um Vírus! esteja preparado para as conseqüência", vbCritical,
+"É o teu fim!"
+# Case "#MSG2#"
+# MsgBox "Eu sou Munrra!" & vbCrLf & "Espíritos do Além! torne esta forma
+decadente em Munrra!!!", _
+# vbInformation, "Munrra domina novamente!"
+# Case "#MSG3#"
+# MsgBox "Ha!!!!!!!!!!!! o mundo vai acabar! salve-se quem puder!!!!!!",
+vbCritical, "É o fim do mundo!"
+# Case Else
+# MsgBox "Teu amigo ta querendo te encher o saco....vai lá na casa dele bater
+nele!", vbCritical, _
+# "Teu amigo é um safado!"
+# End Select
+# End Sub
+
+Verifica O valor de X (que é  a variável que armazena a informação que  chegou),
+ao verificar  ele "Vê"  se o  valor é  #EXIT#, ou  #MSG1# ou  #MSG2#, quando ele
+"descobre" qual que é ele executa sua referente função.
+--------------------------------------------------------
+
+Dica: Aconselho-te estudar BEM o código fonte antes de simplesmente compilá-lo
+e enviar ao teu amigo...eheh
+
+O  que  você fez  foi  enviar comandos(#EXIT#,  #MSG1#...)  ao invés  de  enviar
+mensagens...de certa forma você ainda enviou  mensagens, que é algo comum em  um
+CHAT.... Agora imagina se o seu programa começasse a enviar comandos para  saber
+se ainda  está conectado  com teu  amigo, mas  não é  você que  está enviando os
+"comandos". Que conclusão é possível se tirar disso?
+R: Ainda há um CHAT! um Chat de programa pra programa...e não mais de Usuário
+para usuário.
+Explicado, agora que você entende isso repare uma coisa: TODOS OS PROGRAMAS  QUE
+UTILIZAM REDE ESTÃO NESTA ESPÉCIE DE CHAT!!!!
+Logo podemos dizer que "toda comunicação é um chat"!
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+-= 6: Contato =-
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Se você não entendeu algo... ou tem alguma dúvida sobre algo que foi explicado
+aqui,  ou sobre winsock ou qualquer coisa mesmo...  pode me perguntar,  se eu 
+souber, eu respondo.
+
+vbkeydel@hotmai.com
+139112482 
+
+-=| EOF |=-

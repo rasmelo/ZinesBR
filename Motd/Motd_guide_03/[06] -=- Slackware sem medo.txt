@@ -1,0 +1,372 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[06]-=[Slackware sem medo]-=|_tzlord_|=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////// Linux - Slackware sem medo ///////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+-------------------------------------------------------------------------------
+INTRODUÇÃO:
+-------------------------------------------------------------------------------
+
+Este artigo tem por objetivo compartilhar com os leitores newbies dúvidas e
+soluções para pequenos problemas enfrentados durante o uso do Linux/Slackware.
+Se você procura encontrar grandes soluções para seus problemas, esqueça este
+artigo pois só irá encontrar pequenas dicas a respeito do uso do Slackware e
+algumas configurações bem básicas, porém úteis. Boa leitura. :)
+
+Quantas vezes você ja ouviu falar: "O Slackware é o mais fodão de
+instalar,configurar e usar" ? Sem dúvida alguma, você ja ouviu milhões de vezes.
+Mas não é bem por aí... Há pouco tempo passei por isto também e agora estou aqui
+para provar que não é bem assim que funciona as coisas e após instalar e usar
+essa incrível distribuição acabei tirando minhas próprias conclusões sobre o que
+falam por aí. Não tem segredo, o que você tem quer ter em mente é: Você não está
+usando Windows, ou seja, é tudo bem diferente (e com certeza melhor). Não é tão
+complicado o quanto parece nem o quanto falam, por isso selecionei algumas
+dúvidas e problemas que passei durante essa "migração" para o Slackware (9.1)
+para poder compartilhar com vocês leitores newbies ou medrosos como eu que tive
+medo de instalar o Slackware e garanto que não me arrependi nenhum pouco após
+ter instalado.
+
+-------------------------------------------------------------------------------
+INICIANDO:
+-------------------------------------------------------------------------------
+
+Você deve ter uma partição ReiserFS, EXT3 ou EXT2 para poder instalar o seu
+Linux/Slackware. (Recomendo ReiserFS). Você pode criar uma partição EXT3, por
+exemplo, muito facilmente usando uma ferramente chamada "Partition Magic". No
+meu ponto de vista, está é a ferramenta mais indicada para iniciantes pois é
+bastante facil de usar e criar a sua partição sem problemas.
+
+-Ta, criei a minha partição! E agora?
+
+Bem, agora que você ja tem a sua partição criada você deve reiniciar o
+computador e entrar na sua BIOS (normalmente apertando a tecla DEL enquanto o PC
+estiver sendo iniciado) e modificar a opção de BOOT para CDROM como primária.
+Insira o seu CD do drive e espere carregar o instalador :)
+
+Como disse anteriormente, a instalação é bastante intuitiva e meu objetivo
+aqui não é o aprofundamento na instalação, até porque vocês podem encontrar
+diversos manuais pela internet muito bons e completos para se guiar durante o
+processo de instalação. Este artigo serve apenas para um apoio para você
+aprender a resolver pequenos problemas. ;)
+
+-------------------------------------------------------------------------------
+FUÇANDO:
+-------------------------------------------------------------------------------
+
+Você instalou os pacotes que queria, escolheu o seu gerenciador de janelas
+padrão, escolheu a senha do root e outras coisas mais.
+
+DICAS:
+
+xf86cfg -textmode =====> comando para configurar mouse, teclado, monitor,
+placa de video,etc. (recomendado)
+xfree86setup =====> identifica placa de video e outros periféricos
+automaticamente.
+startx =====> inicia o X (ambiente gráfico)
+xwmconfig =====> caso queira alterar o gerenciador de janelas mais
+tarde.
+
+Caso ocorra algum problema na hora de iniciar o X, provavelmente sua
+configuração de video está incorreta. Altere até encontrar a solução correta. :)
+
+Finalmente você está dentro do X, provavelmente no KDE. E agora, o que fazer?
+No meu caso como tenho acesso a Banda Larga, a primeira coisa que fiz foi
+aprender a instalar/configurar meu modem ADSL US Robotics 9001. Demorei um bom
+tempo para aprender mas é bem simples. A seguir estão os passos que usei para
+configurar o meu modem:
+
+-----[Adsl no Linux/Slackware]-------------------------------------------------
+
+O adsl-setup é usado para configurar a sua conexão adsl. Execute-o
+(como usuario root).
+* Na 1ª opção ele pede o seu UserName. Ta esperando o que? Coloca ali. :)
+* Em seguida ele pergunta em qual interface de rede está instalado o seu modem
+adsl, no meu caso está na eth0.
+* Na próxima opção, coloque "no" (é a opção default).
+* Depois ele pede o DNS. Na 1ª vez que eu tentei configurar eu estava colocando
+o DNS do meu provedor BRTURBO mas estava dando problemas, então para evitar
+isto coloque "server" (sem aspas). Isso faz com que o DNS seja buscado
+automaticamente.
+* Será solicitada a senha. Coloque.
+* O próximo passo é o firewall. Eu uso a opção 1 (STANDALONE) mas caso tenha
+problemas use a opção 0 (NONE).
+Aperte "y" para confirmar as configurações setadas.
+*Pronto. Digite adsl-start e é só curtir a internet! ;)
+
+Você deve estar pensando: "pootz, cada vez q eu iniciar o meu Slack vou ter
+que digitar "adsl-start" para usar a internet". Claro que não. Para isso coloque
+o comando "adsl-start" (sem aspas) dentro do /etc/rc.d/rc.local . Use um editor
+de textos, o emacs por exemplo. (deve estar como root)
+
+emacs /etc/rc.d/rc.local
+
+Insira o "adsl-start" ali dentro e pronto! Não precisará mais digitar adsl
+-start toda hora que iniciar o seu Slack e você quiser acessar a internet.
+
+Agora que você ja está com seu Slack e sua internet funcionando direitinho,
+você com certeza deve estar querendo escutar música, usar a impressora para
+fazer seus trabalhos da escola, acessar seus arquivos da sua partição do
+windows, falar com seus amigos no IRC,... Bem, vamos por partes:
+
+-------------------------------------------------------------------------------
+
+-----[Áudio]-------------------------------------------------------------------
+
+No meu caso, não tive nenhum problema com o áudio. Apenas executei o
+"alsaconf" (utilitario de configuração de áudio) e em seguida o "alsamixer"
+(utilitario para ajustes de volumes) e estava pronto para ouvir minhas músicas
+no Xmms (utilitario com a mesma função do Winamp).
+
+-------------------------------------------------------------------------------
+
+-----[Instalando/Configurando a sua impressora - CUPS]-------------------------
+
+Instalei a minha impressora (Epson Stylus C43SX) a pouco tempo usando o CUPS,
+não tive problemas e acredito que vocês também não terão. Se você não tem o CUPS
+instalado, trate de instalar. Você pode usar alguma ferramaneta de atualização,
+exitem várias... o swaret, o slackpkg, o slapt-get... Usaremos o Swaret!
+
+Após você instalar o Swaret, recomendo que leia este artigo para você aprender
+os comandos principais e como tudo funciona.
+
+http://www.vivaolinux.com.br/artigos/verArtigo.php?codigo=573&pagina=4
+
+Agora que você ja sabe os principais comandos, atualize a lista de pacotes mas
+caso tenha ficado com preguiça de ler o link acima aí vai: "swaret --update"
+
+Para confirmar se o CUPS está instalado você pode usar o comando "swaret -
+-search cups" que além de ser usado para procurar um pacote, também te mostra se
+ele ja está instalado. :)
+
+Para instalar: "swaret --install cups" ou "swaret --upgrade cups" para
+atualizar caso você ja o tenha instalado. Pronto, CUPS instalado.
+
+Agora você precisa instalar também um pacote auxiliar chamado "gimp-print"
+Então: "swaret --install gimp-print"
+Instale o "ghostscript" do CUPS: "swaret --install espgs"
+Agora bastar ir ao "Control Center" (se estiver usando o KDE) clicke em
+"Peripherals" no menu à esquerda e em seguida "Printers". Certifique-se se está
+selecionado "CUPS (Common UNIX Print System)" onde diz "Print system currently
+used"
+
+Você deve rodar o daemon do CUPS para que você possa iniciar a configuração.
+Para isso, digite no konsole "cupsd" (como root).
+
+Agora que já estamos com tudo instalado e o daemon rodando, vá no seu browser
+e digite: http://localhost:631 para abrir as configurações do CUPS. Vá em
+"Manage Printers" e em seguida, "Add Printer" (será solicitado sua senha de
+usuario root). Ali você coloca um nome para a impressora ("Epson" por exemplo),
+em Location coloque /dev/lp0 e em seguida apete no botão "Continue".
+
+Em "Device", selecione Parallel Port #1 "Marca da sua impressora". Aperte
+"Continue"
+Selecione a marca da sua impressora e aperte "Continue" novamente.
+Para finalizar, selecione o driver, exemplo: "Modelo da sua impressora"
+- CUPS+Gimp - Print e dê "Continue" Pronto! Agora basta você ir em algum editor
+de texto e imprimir algo para testar!
+
+DICA: Eu tive um pequeno probleminha ao imprimir, pois a minha impressora
+estava usando muita tinta na folha, a folha estava pesada e muito úmida de tanta
+tinta! hehehehe. Para diminuir a quantidade de tinta na impressão (ou
+aumentar... a não ser que você seje louco) vá nas configurações do CUPS:
+http://localhost:631 , "Configure Printer" e onde diz "Resolution" sugiro que
+selecione a opção "360x240 DPI Draft" para que você não gaste tanta tinta. ;)
+Não esqueça que sempre que quiser usar a impressora deve rodar o daemon dela, o
+"cupsd", a não ser que você queira colocá-lo no /etc/rc.d/rc.local .
+
+Esta é uma configuração básica, para maiores informações procure algum manual
+mais detalhado! ;)
+
+-------------------------------------------------------------------------------
+
+-----[Acessando arquivos da partição Windows com usuário comum]----------------
+
+Depois de um tempo usando o seu SlacK, você provavelmente sentirá a
+necessidade de utilizar seus arquivos da sua partição do Windows. É um porre
+cada vez que você quiser acessar seus arquivos ter que acessar com o usuario
+root. Para acessar sua partição do Windows com o usuario comum você deve editar
+o /etc/fstab e colocar a seguinte linha abaixo:
+
+/dev/hda1 /mnt/windows vfat gid=100,umask=002,users 0 0
+
+OBS: Neste exemplo, a hda1 foi considerada como a partição do Windows, se a
+sua partição do windows está na hda2 por exemplo, substitua. Antes disso você
+deverá criar o diretorio "windows" (ou outro nome que desejar) usando "mkdir
+windows".
+
+-------------------------------------------------------------------------------
+
+-----[Problemas com acentuação no Xchat]---------------------------------------
+
+Existem diversos clientes de IRC para Linux. No Slackware a princípio, você
+pode usar o Xchat, o BitchX ou o KSirc. O Xchat tem uma aparência digamos que
+mais "bonita" e intuitiva. É bem provável que seu primeiro contato com o IRC
+seja por ele. Pois bem, muitos usuários tem problemas com a acentuação no XChat.
+Eu também tive. É totalmente simples e banal a forma de resolver isto:
+
+Abra o Xchat. Será mostrada a "Lista de Servidores", caso não abra aperte
+Ctrl+S Na opção "Caracteres:" (provavelmente está System Default), então mude
+para "ISO-8859-1 (Western Europe)". Caso não funcione essa opção, tente UTF-8 ou
+alguma outra. Mas no meu caso, eu uso ISO-8859-1 (Western Europe) e funciona
+corretamente.
+
+-------------------------------------------------------------------------------
+
+-----[Corrigindo acentuação no OpenOffice]-------------------------------------
+
+O OpenOffice na minha opinião é o melhor aplicativo para escritório no mundo do
+Software Livre. Recomendo que façam o download dele em www.openoffice.org.br e
+instale. Após a instalação do OpenOffice você perceberá que sua acentuação não
+estará funcionando corretamente. Para arrumar isto, você deve editar o seu
+/etc/profile e adicionar as seguintes linhas abaixo:
+
+export LC_ALL=pt_BR
+export LANG=pt_BR
+
+Salve e faça logout e login novamente que sua acentuação irá funcionar
+corretamente.
+
+-------------------------------------------------------------------------------
+
+-----[Liberando o shutdown para usuários comuns]-------------------------------
+
+Quando você instala o Slackware cada vez que você deseja desligar ou reiniciar
+o PC tem que entrar como root, pois o seu usuario não tem acesso ao shutdown.
+Para seu usuario comum ter acesso ao shutdown siga os passos abaixo:
+
+Primeiramente você deve estar como root. (basta digitar "su" e em seguida
+digitar
+a sua senha)
+Agora vamos criar o grupo "shutdown", para isso: "groupadd shutdown"
+Coloque o /sbin/shutdown no grupo shutdown: "chown root.shutdown /sbin/shutdown"
+Dê a seguinte permissão: "chmod 4754 /sbin/shutdown"
+E agora faça um link em /bin: "ln -s /sbin/shutdown /bin/shutdown"
+
+Agora, para que o comando shutdown fique disponivel sempre que um usuario
+fizer login, abra o arquivo /etc/login.defs (como root) com seu editor
+preferido. (exemplo: emacs /etc/login.defs)
+
+Perto do final deste arquivo tem uma linha que diz: #CONSOLE_GROUPS
+floppy:audio:cdrom
+Descomente esta linha (basta remover o #) e no final da linha adicione
+":shutdown",
+ficando assim:
+
+CONSOLE_GROUPS floppy:audio:cdrom:shutdown
+
+Pronto. Seguindo as instruções acima qualquer usuário poderá desligar/reiniciar
+o computador.
+
+Reiniciar: shutdown -r now
+Desligar: shutdown -h now
+
+OBS: É necessário reiniciar o X para que tudo funcione corretamente! ;)
+
+-------------------------------------------------------------------------------
+
+-----[Colocando diretórios no PATH]--------------------------------------------
+
+Muitas vezes você instala um programa e tem de ir até a pasta onde está o
+arquivo binário dele para poder executá-lo. Isso realmente é um saco. Para você
+poder executar o programa de qualquer diretório, você deve especificar o caminho
+do programa no PATH. Para isso, edite o arquivo /etc/profile com o seu editor
+preferido (como root, é claro).
+
+Exemplo: emacs /etc/profile
+
+Logo no inicio veja a linha que diz: # Set the default system $PATH
+Veja o exemplo do PATH:
+PATH="/usr/local/bin:/usr/bin:/bin:/usr/X11R6/bin:/usr/games"
+Então, digamos que instalou um programa com o nome "motd" e seu binário está
+dentro do /usr/guide
+Você deve colocar no PATH apenas o caminho /usr/guide , ficando assim:
+PATH="/user/local/bin:/usr/bin:/bin:/usr/X11R6/bin:/usr/games:/usr/guide"
+
+Salve. Está pronto, você ja pode executar o programa "motd" a partir de qualquer
+diretório. :)
+
+-------------------------------------------------------------------------------
+
+-----[Desativando resposta ao comando ping (recomendado)]----------------------
+
+Para você desativar a resposta ao comando ping, digite:
+iptables -A INPUT -p icmp -j DROP
+
+Você deve salvar, para isso digite:
+iptables-save
+
+Caso queira desfazer tudo que fez, apenas mude o -A para -D e salve novamente:
+iptables -D INPUT -p icmp -j DROP
+iptables-save
+
+-------------------------------------------------------------------------------
+
+-----[Checagem de portas em uma máquina]---------------------------------------
+
+Nmap é uma ferramenta de exploração de rede e scanner de segurança. Ele possui
+inúmeras opções e se todas fossem listadas aqui, ficaria extremamente grande o
+artigo (hehehe). Então aí vai um comandinho bastante útil para você checar
+portas abertas em uma máquina, bastante util para você descobrir portas abertas
+na máquina de seus amigos e orientá-los quanto a segurança. Maiores duvidas: man
+nmap :)
+
+Para fazer a verificação de portas em uma máquina, digite:
+nmap -sS -v -v -P0 -O IP
+Onde "IP", é o número IP da maquina a ser checada.
+
+O nmap não é recomendado para fazer checagens em sua própria máquina. Para isso
+você pode usar o netstat:
+netstat -na |grep LIST
+
+-------------------------------------------------------------------------------
+
+-----[Tirando screenshots]-----------------------------------------------------
+
+Para você tirar um screenshot de sua máquina use:
+
+import -w root motd.jpg
+
+Isso pode parecer inútil, mas é legal quando você quiser enviar para algum
+amigo um screenshot do seu Slack bem bonito para ele perceber como o Windows
+dele é feio. ;)
+
+-------------------------------------------------------------------------------
+
+-----[Compilando com o gcc]----------------------------------------------------
+
+O GCC é o compilador de C/C++ mais usado no Linux. Por ser usado na base de
+comandos, pode parecer um pouco compliaco no inicio mas depois você acaba se
+acostumando.
+
+Primeiramente você deve criar o seu programa. Use seu editor de texto
+preferido. (exemplo: "vi motd.c") Agora que você ja criou o arquivo e codou o
+seu programinha é hora de compilar:
+
+Exemplo:
+
+gcc -o motd motd.c
+
+OBS: O GCC possui inúmeras opções e se você quer saber mais detalhes dê uma
+olhada no manual dele: "man gcc"
+
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+CONCLUINDO:
+-------------------------------------------------------------------------------
+
+Bom, é isso ae! Finalmente chegamos ao fim deste pequeno artigo e espero que
+de alguma forma ele tenha sido útil. Tentei colocar aqui algumas dúvidas comuns
+de usuários iniciantes e principalmente as minhas. Hehehe! Agradeço ao pessoal
+do MOTDLabs pelo auxílio e pelo espaço cedido e espero poder escrever outros
+artigos para o grupo. Abraços. :)
+
+-------------------------------------------------------------------------------
+tzlord to motdlabs.org
+
+
+"Não existe trabalho ruim. O ruim é ter que trabalhar" (by Seu
+Madruga)

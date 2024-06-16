@@ -1,0 +1,442 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[12]-=[TCP/IP]-=|SkyNet45|=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+******************
+Introducao:::... *
+******************
+
+Como prometido estou  dando continuidade a  materia abordada no  primeiro numero
+dazine, o topico  mudou mas o  assunto ainda eh  o mesmo, se  vc ainda lembra da
+materia  passada  sobre  hardware  de  rede  irah  ajudar  bastante  pois   para
+compreensao desse topico se faz util o material passado, como jah havia falado.
+
+Irei  procurar abordar  topicos bases  da arquitetura  tcp/ip, mostrando  coisas
+realmente basicas sobre esta suite de protocolos.
+Obs1.: Se vc acha que vai apartir de agora dominar este assunto feche o  arquivo
+pois o intuito  do mesmo eh  dar a introducao  basica aos que  se interessam por
+redes, e aqueles que estao atras de conhecimento verdadeiro e etico.
+
+****************
+CONCEITO:::... *
+****************
+
+Imagine duas pessoas no mesmo  lugar tentando conversar, uma delas  fala ingles,
+a outra  fala portugues, sera que elas  iriam  se entender  de forma  clara? Com
+certeza nao. Seria o mesmo que voce ligar dois computadores  com um fio e querer
+que eles  troquem   informacoes entre  si   e facam  tudo   bem bunitinho,  isso
+seria  impossivel,  daih   surgiu  a   ideia  de   `protocolo`,  eu   gosto  de
+fazer essa comparacao "o  protocolo eh   como a  voz", vc  soh se   comunica com
+alguem se vc  falar a lingua  dessa pessoa, o   `protocolo` ou a  voz facilita a
+comunicao entre duas pessoas ou as duas coisas se preferir assim, entao  podemos
+concluir dai que sem `voz` nao se tem conversa.
+
+Os computadores  tambem sao  assim, eles  precisam de  protocolos de conversacao
+para se comunicarem, sem eles  isso tambem seria impossivel! Para  resolver esse
+problema  foram desenvolvidas  algumas `linguas`  para fazerem  os computadores
+conversarem entre si, entre essas `linguas` ou protocolos encontra-se o  tcp/ip,
+que eh sem duvida a base da  nossa amada internet, tudo nela eh baseado  nele, o
+tcp/ip nao eh  um protocolo soh  conforme muitos pensam,  mas eh uma  gama ou um
+conjunto de protocolos juntos,  tais como o: snmp,  icmp, udp,ip e etc...  estes
+formam uma arquitetura que sem duvida eh muito apreciada por existir.
+
+O tcp/ip com seus muitos protocolos tem um papel muito significativo numa  rede,
+por  exemplo  podemos  citar o  ftp  que  eh um  protocolo  de  transporte muito
+utilizado na  atualizacao de  sites na  internet, por  meio deste pode-mos fazer
+tranferencia de arquivos e trabalhar com manipulacao de arquivos na integra.
+
+*************************************
+A ARQUITETURA INTERNET(TCP/IP):::...*
+*************************************
+
+Os padroes  do tcp/ip  nao sao  estabelecidos por  nenhum orgao internacional de
+qualidade, as definicoes do protocolo sao feitas por documentos denominados  RFC
+(request for comments), que sao  elaborados pelo IAB (Internet Activies  Board).
+Se pararmos para analisar estes documentos, que trazem todas as  caracteristicas
+do tcp/ip veremos que  ele eh um protocolo  simples e que tem  uma facilidade de
+implementacao muito grande, e ao mesmo tempo atendem as necessidades da  maioria
+dos sistemas de redes.
+
+A arquitetura tcp/ip eh  organizada em camadas assim  como um bolo muito  grande
+tambem tem suas  camadas, chocolate, glace,  doce de leite(aih  q fome!!!), pois
+eh, na nossa arquitetura temos protocolos distintos para cada camada do  tcp/ip,
+temos tambem  protocolos para  a comunicacao  e comunicacao  entre duas  camadas
+separadas, observem o rabisco abaixo:
+
+		 --------------------------------------
+		|         |	   | 	      |        |
+1ºAplicacoes -->|   ftp   |  smtp  |  telnet  |  snmp  |
+  		|--------------------------------------|
+		|         |  	   |	      |	       |
+2ºTransporte -->|	  |   TCP  |   UDP    |	       |
+		|	  |----------------------------|
+		|	  |		      |        |
+3ºRede -------->|  	  |ip, icmp, arp, rarp|        |
+		|	  |----------------------------|
+		| 	  |		      |        |
+4ºacesso ------>|	  |sub-rede de acesso |        |
+		 --------------------------------------
+
+Vamos ver  as camadas  de baixo  pra cima,  pra podermos  entender mais  facil e
+rapido:
+Camada por camada entao...
+
+
+******************************
+4º Camada - Sub-rede (acesso)*
+******************************
+
+A arquitetura  tcp/ip nao  padroniza o  tipo de  redes que  poderao ter acesso a
+redes tcp/ip,  ao contrario  permite que  qualquer tipo  de tecnologia possa ser
+empregada, bastando somente desenvolver suas interfaces de comunicacao  umas com
+as outras. Podemos  encontrar muitas tecnologias  de redes sendo  usadas juntas,
+tais como: ppp,  ethernet, wireless, etc,  sendo que cada  tecnologia dessas tem
+seus proprios protocolos, meios de conexao e taxas de transmissao, mas se  torna
+necessario  que essas  sejam vistas  pelas redes  tcp/ip; isso  eh feito  pelos
+roteadores que  fazem com  que essas  redes de  protocolos diferentes  trabalhem
+juntas,  os  roteadores  enxergam  de  um  lado  as  sub-redes  com  tecnologias
+diferentes e do outro suas redes tcp/ip,  e em ambas se comportam como se  fosse
+um componente fisico das duas redes distintas.
+
+Segue rabisco aih....
+
+	 -------	 -------
+	| 	|	|	|
+	| HOST1 |	| HOST2	|
+	 -------	 -------
+		\	/
+		 \     /
+                   \ /
+             --------------- 		   ------	       ---------------
+            |  Tecnologia   | ----------- |Rotea-|----------- |               |
+            |      ATM	    |		  | dor	 |	      |		      |
+            |		    |		   ------	      |		      |
+	     ---------------				      |   INTERNET    |
+							      |		      |
+							      |		      |
+                                           ------	      |		      |
+         -------------------------------- |Rotea-| ---------- |	  	      |
+	| HOST3	|	| HOST4	|	  | dor	 |	      |		      |
+	|------- 	 -------           ------	       ---------------
+	|   Tecnologia Ethernet
+	|-------	 -------
+	| HOST5	|	| HOST6	|
+	 -----------------------
+
+oBS1.: Se vc percebeu bem, os roteadores que fazem a conexao da rede com  outras
+redes como a internet fazem o  trabalho de compatibilizar as operacoes entre  os
+protocolos, tais como tcp/ip e outros.
+
+
+******************
+3º Camada - Rede *
+******************
+
+A camada de rede eh formada por varios protocolos, o principal eh o IP que eh  o
+responsavel pelo  transporte dos  pacotes pela  rede ou  por outras sub-redes, o
+protocolo IP  nao trabalha  no modo datagrama, ou  seja ele  nao eh  orientado a
+conexao,  assim nao  sao estabelecidas  ligacoes virtuais  entre a  origem e  o
+destino do pacote.  Esses pacotes  soh contem  informacoes necessarias  sobre  o
+seu transporte na rede e controle nas sub-redes utilizadas.
+
+Os pacotes podem ser fragmentados durante a comunicaçao na rede. Por funcionarem
+no modo datagrama, cada pacote pode ir  por um lugar na rede, ou seja  quando se
+emite uma sequencia de  pacotes para determinado alvo,  ele pode chegar lah  por
+varios lugares, pois os  pacotes  originais podem  ser fragmentados. Eles  podem
+tambem   ser dividos(fragmentados)   quando chegarem   a um   roteador e  lah o
+tamanho do datagrama suportado pela rede  seja menor, aih tambem serah divido  e
+mais tarde remontado com base em informacoes no cabecalho IP.
+
+Segue Rabisco de um pacote(datagrama):
+
+Formado por 32 bits(IPv4)
+0	3 4    7 8	     15 16                          32
+ ------------------------------------------------------------
+| versao |  IHL | tipo servico |       compri. total         |
+|-------- ------------------- --------- ---------------------|
+| 	identificacao          | flags | offset de fragmento |
+|------------------------------------------------------------|
+| tempo de vida |   protocolo  |    checksum do cabecalho    |
+|------------------------------------------------------------|
+|		    endereco de origem 			     |
+|------------------------------------------------------------|
+|		    endereco de destino 		     |
+|------------------------------------------------------------|
+|		         opcoes 	      |   padding    |
+|------------------------------------------------------------|
+|			DADOS 				     |
+ ------------------------------------------------------------
+
+Versao - versao do IP (Ex. IPv4, IPv6), 4 bits
+IHL - comprimento do cabecalho, 4 bits
+tipo servico - qualidade do servico, 8 bits
+comprimento total - comprimento do datagram medido em octetos, 16 bits
+identificacao - eh necessario pra  montagem dos outros fragmentos do  datagrama,16 bits
+flags - indica se houve ou nao fragmentacao, 3 bits
+offset de fragmento - indica a posicao de montagem no datagrama original, 13 bits
+tempo de vida - tempo maximo que um datagrama(pacote) pode andar na rede, 8 bits
+protocolo - indica o protocolo usado para transportar os dados, 8 bits
+checksum  do  cabecalho  -  identifica  erros por  meio  de  um  calculo  que eh
+verificado quando o pacote chega, 16 bits
+endereco de  origem &  endereco de  destino -  sao os  enderecos IP do emissor e
+destinatario, 32 bits
+opcoes - contem opcoes de verificacao de erros, medicao ou testes, tendo tamanho
+variavel
+padding -  garante q  o comprimento  do cabecalho(IHL)  seja sempre  multiplo de
+32(bits), tamanho variavel.
+
+Para tais pacotes poderem circular  na rede eh necessario um  endereçamento, por
+exemplo: quando uma estacao numa rede quer passar um pacote pra outra estacao em
+outra rede o roteador  toma suas acoes baseado  nos enderecos IP das  estacoes e
+das redes, esses enderecos sao palavras(chaves) de 32 bits ou seja tem 4 octetos
+de 8 bits, e sao separados por classes para facilitar o enderecamento da estacao
+e da rede em questao, a questao das classes eh um assunto muito mal interpretado
+pelas pessoas,  podemos de  uma maneira  bem simples  determinar a  classe de um
+endereco IP;
+
+Ex.:
+Para  entender  completamente  esse  assunto  eh  necessario  saber  transformar
+numerosdecimais   em  binarios   (para  isso   tem  um   txt  no   meu  site   >
+skynet45.motdlabs.org/dicas.html que ensina passo a passo a fazer isso).
+
+Temos o IP: 200.125.68.102
+Levamos em consideracao o primeiro octeto de bits, ou seja o primeiro numero  do
+endereco IP, no nosso caso eh "200", entao seguimos um padrao:
+
+Classe A = 1 - 127
+Classe B = 128 - 191
+Classe c = 192 - 223
+
+Estas são as mais conhecidas, tem tambem as classe D que eh usada pra  multicast
+como radios on-line, e a classe E q eh usada pra pesquisas.
+
+Explicacao Geral:
+
+			Endereco IP
+
+			  32bits
+
+		       / |      | \
+		      /  |      |  \
+		     /	 |	|   \
+		  8bits+8bits+8bits+8bits
+
+		    |     |     |     |
+
+		   256 + 256 + 256 + 256
+
+ 		    |     |     |     |
+
+Endereco IP --->   200 . 125 . 68  . 102
+
+Quando temos enderecos de classe C, pode-se variar na determinacao de IP para as
+estacoes, apenas o ultimo octeto de numeros, podendo variar entre 1-254.
+Ex.: 192.168.1.*
+	       |_> 1-254
+Classe B
+182.168.*.*
+        | |_> 1-254
+	|
+	|_> 1-254
+Classe A
+10.*.*.*
+   | | |
+   | | |_> 1-254
+   | |_> 1-254
+   |_> 1-254
+
+Agora voce se pergunta, se eu posso variar com um  numero de 8 bits por  que nao
+ateh  255?   Simples,  por  padrao  o primeiro  e  ultimo  endereco  dos  IP sao
+determinados especialmente, o primeiro que eh  o 0(zero) determina a rede que  o
+IP estah, e o ultimo 255 serve pra acoes de broadcast(significa toda a rede), se
+voce pingar o endereco: 192.168.1.255 vc ira verificar quais as maquinas q estao
+ativas na rede 192.168.1.0, visto que o 0(zero) determina o IP da  rede.  Talvez
+nao tenha ficado claro, mas com o tempo se pega a pratica. Para mais tarde  quem
+sabe em  outro texto  entendermos profundamente  o processo  de roteamento serah
+muito necessario aprender com clareza essas classes e como funcionam :).
+
+Existe tambem uma diferenca entre endereco fisico e endereco IP das maquinas  na
+rede. O endereco fisico da estacao  eh chamada de MAC, endereco este  armazenado
+pelo fabricante da placa,  jah o endereco IP  da estacao eh setado  pelo proprio
+usuario ou pelo administrador da rede  em questao; A diferenca quanto ao  MAC eh
+que este nao pode ser mudado, jah o IP sim, mas existem alguns documentos soltos
+poraih  que  provam que  existem  enderecos MACs  iguais  e que  eles  podem ser
+mudados. Para  numa rede  a conversacao  das maquinas  ocorrer elas  tem ter uma
+tabela com enderecos MAC e IP das outras, para haver esse mapeamente  utiliza-se
+o protocolo  ARP (Adress  Resoluiton Protocol),  muitos confudem  ARP com  RARP,
+existe diferencas, o ARP eh quando a estacao tem o endereco IP de seu destino  e
+quer obter o endereco MAC  do destino, jah o RARP  eh quando ela tem o  endereco
+MAC de uma estacao e quer obter o endereco IP dessa maquina destino.
+OBs.:Todas essas mensagens sao feitas em broadcast.
+
+
+***********************
+2º Camada - Transporte*
+***********************
+
+Dentro  da  arquitetura que  estamos  estudando temos  dois  protocolos que  sao
+destinados a transporte de dados, que sao: o TCP (Transmition Control  Protocol)
+e o UDP (User Datagram Protocol) ambos se encontram na mesma camada (tranporte),
+todos  os  dois sao  destinados  a transferencia  de  dados p2p  (ponto-a-ponto)
+dependendo da qualidade do servico requerido pela camada inferior(aplicacao).
+
+Apesar do TCP e o UDP terem a mesma funcao, eles tem casos distintos para  serem
+utilizados, visto o TCP ser  orientado a conexao, estabelece uma  conexao direta
+com o  destino, ele  se destina  a conexoes  que exigem  uma maior  qualidade do
+servico, sem  perda de  pacotes e  sem nenhum  erro, jah  o UDP  eh um protocolo
+extremamente rapido mas nao oferece a confianca do TCP, o UDP eh muito usado  em
+VPNs onde se precisa muito de velocidade. Uma coisa bem interesante eh que o TCP
+e o UDP utilizam  um metodo de transporte  em conjunto com o  protocolo IP, eles
+utilizam um tipo  de multiplexacao com  o IP, as  mensagem a serem  transmitidas
+pelos  protocolos  de  transporte  sao   enviadas  ao  protocolo  IP  onde   sao
+transmitidas pela rede.
+
+Um ponto tambem  muito importante que  faz parte da  camada de rede  eh o uso de
+portas(ports) na comunicao  entre estacoes, essas  portas sao representadas  por
+numeros  inteiros  que  significam  as  aplicacoes  correspondetes  no   sistema
+operacional, essas portas existem tanto no  TCP como no UDP e toda  comunicao eh
+feita atraves dessas portas.  Exemplos de portas sao:  22 - SSH, 25  - SMTP, 80
+- HTTP, etc.
+
+Tem uma figurinha aih pra enteder melhor a multiplexacao do TCP e do UDP sobre o IP:
+
+
+		     Aplicacoes
+
+	 -------      -------	    -------
+	|Porta 1|    |Porta 2|     |Porta n|
+     	 -------      -------       -------
+	  \		 |		/
+	   \		 |	       /
+ 	    \		 |	      /
+	     \		 |   	     /
+              \		 |          /
+	       \	 |         /
+	       ---------------------
+	      |    Multiplexacao    |
+	      |       TCP/IP        |
+	       ---------------------
+			 |
+	            -----------
+		   |  	       |
+		   |	IP     |
+		   |	       |
+		    -----------
+			 |		< Rede >
+			  ------------------------------------------>
+
+OBS.: Ao pacote multiplexado chegar ao destino, ele sofre o processo inverso, ou
+seja uma desmultiplexacao.
+
+Com certeza  o TCP  eh bem  abragente, mas  ainda tem  umas caracteristicas  bem
+interesantes que podemos destacar no  todo. Alem da multiplexacao de  dados, ele
+tambem  trabalha de  forma em  que recebe  e manda  dados ao  mesmo tempo  (full
+-duplex), tambem  tem prioridade  em dados  urgentes setando  uma indicativa  de
+urgencia no pacote; para fins de seguranca na entrega ele posui uma  segmentacao
+que eh  utilizada na  montagem do  pacote; Caso  ele tenha  sido desfragmentado,
+existe tambem o checksum que eh  um calculo matematico feito com base  nos dados
+enviados e eh checado a cada entrega, podemos destacar ainda o estabelicemento e
+liberacao da conexao feita  por ele, o conhecido  handshake, ou aperto de  maos,
+(three-way handshake) antes  de enviar qualquer  dado pela rede,  ele estabelece
+uma conexao direta com o destino (por isso chamado de orientado a conexao), e eh
+liberada apenas quando se termina a transferencia.
+
+Obs.  apesar  do handshake  ser  bem simples,  mas  para entender  mais  sobre o
+handshake tem uns  txts muito bons,  como um do  Jerry Slater, acho  q tem um do
+REPOLHO tambem falando sobre o nmap que aborda isso.
+
+O UDP  nao tem  tantas boas  'qualidades' como  o TCP,  por nao  ser orientado a
+conexao ele se torna entao um  mecanismo de entrega de dados, provido  apenas da
+multiplexacao feita com  o IP, ele  nao oferece nenhuma  garantia de entrega  de
+dados ou seja os pacotes podem  ser perdidos, dulpicados ou ateh entregues  fora
+da ordem, um datagrama UDP pode ou nao ter o campo de checksum, tendo ele  todos
+os datagramas recebidos com erro sao jogados fora. (descartados)
+
+
+************************
+1º Camada - Aplicacoes *
+************************
+
+As aplicacoes numa  rede tcp/ip nao  tem nenhum tipo  de padronizacao em  comum,
+cada aplicacao tem seu proprio  padrao dentro da arquitetura e  essas aplicacoes
+acessam  diretamente  a  sua  camada  superior.  Lembra  qual  eh?  A  camada de
+transporte pelo TCP ou pelo UDP!  A unica coisa importante eh a  compatibilidade
+no formato dos dados usados nestas aplicacoes com os varios sistemas  diferentes
+presentes em  redes tcp/ip.  Vimos aih  em cima  na camada  de transporte  que o
+tcp/ip utiliza o conceito de portas, essas portas sao definidas de acordo com  a
+aplicacao em questao, TCP ou UDP,  essas portas tem o mesmo numero  independente
+da estacao onde esta sendo executada. Concluimos aih que se voce tiver o  numero
+da porta e  o IP da  maquina em questao  voce pode localizar  qualquer aplicacao
+dentro de uma rede tcp/ip! Sei que isso parece horrivel mas eh assim q se comeca
+;).
+
+Pra  podermos  desenvolver  aplicacoes pro  tcp/ip  temos  que entender  algumas
+primitivas de acesso, gosto  de chamalos de 'comandos',  mas como sempre que  eu
+digo algo vem alguem e diz que eh  outra coisa, entao vc chama do que vc  quiser
+:).  Voltando,  quando  qualquer  aplicacao  quer  estabelecer  uma  conexao,  a
+aplicacao executa um primitiva dessas,  chamadas de 'sockets'. O objetivo  disso
+eh criar um estado de espera no sistema local, tambem eh executada uma primitiva
+'bind', essa grava o numero da porta associada a aplicacao em questao.
+
+Temos primitivas diferentes  no TCP e  no UDP. No  TCP, por exemplo,  quando uma
+aplicacao  tem  funcao  de  servir algo,  (servidora)  ela  executa  a primitiva
+'listen' na  qual tem  funcao de  colocar o  sistema em  condicao de  espera por
+conexoes, a aplicacao  cliente executa outra  primitiva, 'connect,' na  qual tem
+funcao  de solicitar  e estabelecer  a conexao  com a  aplicacao servidora,  na
+sequencia   a   aplicacao   servidora   executa   'accept'   para   finalizar  o
+estabelecimento  da  conexao, durante  a  transmissao dos  dados  ambas usam  as
+primitivas 'send' 'receive', estebelecida essa conexao nao eh mais necessario  o
+uso do endereco IP e o numero da porta destino, visto que as mensagens  trafegam
+sempre pela conexao estabelecida entre esse 'caminho' criado, isso acontece  por
+que o TCP eh orientado a conexao, lembra? :)
+
+Jah  no UDP  que um  protocolo que  nao eh  orientado a  conexao as  primitivas
+'listen', 'accept', 'connect'  NAO EXISTEM. Sendo  assim, uma vez  executadas as
+primitivas 'socket' e 'bind' as aplicacoes passam a trocar informacoes entre  si
+usando as primitivas 'sendto' 'recvfrom', nessas estah incluso o endereco IP dos
+destino, visto nao haver nenhuma ligacao direta entre os destinos.
+
+Dentro dessas aplicacoes existentes pra facilitar o uso das redes tcp/ip estao:
+
+RPC, XDR, SMTP, FTP, NFS, TELNET, SNMP, DNS.
+
+Se o  meu texto  nao tive-se  ficado tao  grande ainda  abordaria um  pouco mais
+sobreessas aplicacoes mas isso pode ser feito vide outros textos como:
+
+NL_snmp_hacking.pdf --> SNMP pras Massas (NashLeon)
+TELNET --> http://hallz.motdlabs.org/textos/telnet.txt (hallucination)
+e etc......
+
+O  estudo  dessas  aplicacoes  eh  muito  importante,  na  minha  opiniao  o DNS
+principalmente, a importancia dele eh tanta que ao configurar um servidor, se  o
+DNS nao estiver corretamente configurado  NADA funciona! Pretendo mais a  frente
+escrever algo sobre ele.
+
+
+*********************
+Finalizando:::..... *
+*********************
+
+Bom! O  objetivo desse  humilde texto  foi poder  dar uma  visao geral  da coisa
+heheh. Ou seja, poder familiariza-lo com o que rola no tcp/ip. Com certeza  voce
+pode aprender algo aqui, pois o  maior incetivo que tive pra escrever  txts foi:
+"nao importa o que  vc escreve, alguem sempre  aprende algo disso". Se  voce jah
+conhecia um pouco  da arquitetura da  nossa amada internet,  deve ter visto  que
+muitos por ai quando vao falar de tcp/ip, misturam OSI no meio. Aqui eu procurei
+abordar somente o tcp/ip,  agora se vc quiser  aprender de OSI procure  em outro
+lugar.  Ficaria  muito  grato  se criticas  fossem  feitas,  afinal  nao podemos
+melhorar sem criticas "construtivas". Agradeco a galera do grupo por manter vivo
+o que aprendi a pouco tempo mas tambem pretendo manter vivo pra alguem,  hacking
+etico!
+
+That's All Folks People!!!
+
+Referencias:
+
+Arquiteturas de Redes de Computadores - Makron Books ( Patrocinio EMBRATEL)
+MUITO BOM!
+
+TCP/IP Tutorial and Technical Overview - IBM ( IBM RedBooks)
+
+E dicas de amigos.......................

@@ -1,0 +1,135 @@
+                                               dP         dP
+                                               88         88
+                         88d8b.d8b. .d8888b. d8888P .d888b88
+                         88'`88'`88 88'  `88   88   88'  `88
+                         88  88  88 88.  .88   88   88.  .88
+                         dP  dP  dP `88888P'   dP   `88888P8
+
+                                          oo       dP
+                                                   88
+                        .d8888b. dP    dP dP .d888b88 .d8888b.
+                        88'  `88 88    88 88 88'  `88 88ooood8
+                        88.  .88 88.  .88 88 88.  .88 88.  ...
+                        `8888P88 `88888P' dP `88888P8 `88888P'
+                             .88                    Número 03
+                         d8888P
+
+
+
+
+
+E-zine lançada oficialmente dia 12 de Outubro de 2004.
+
+http://www.motdlabs.org
+http://www.orkut.com/Community.aspx?cmm=114799
+contato@motdlabs.org
+irc.freenode.org   	/join #motd
+
+
+
+ATENÇÃO: O  MotdLabs adverte  que não  será responsável  por qualquer tolice que
+você venha a fazer.  Estou certo de que  estará consciente que ao  tentar por em
+prática quaisquer técnicas descritas no decorrer desta zine, você poderá se  dar
+mal. Ela foi criada apenas para propósitos educacionais e cabe a você decidir  o
+que  fará com esse poder em suas mãos. Só não venha reclamar que se deu mal  por
+ter   feito  algo  que aprendeu  nesta  mesma.  Obrigado pela  a  atenção  e boa
+leitura!!! :)
+
+
+
+
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=[ Colaboradores ]=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+bashX......................................................bashx@click21.com.br
+
+BlackSh33p................................................sheep1826@hotmail.com
+
+inferninho..............................................inferninho@yahoo.com.br
+
+IP_FIX......................................................ip_fix@motdlabs.org
+
+Narcotic..................................................narcotic@motdlabs.org
+
+RoOtLiQuiD..............................................rootliquid@motdlabs.org
+
+SkyNet45..................................................skynet45@motdlabs.org
+
+tDs............................................................tds@motdlabs.org
+
+_tzlord_................................................rodrigo-lord@bol.com.br
+
+
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=[ Índice ]-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+[ 01 ] Introdução                                          (by IP_FIX)
+[ 02 ] Malícia é o mais importante 			   (by tDs)
+[ 03 ] Criptografia RSA - Algoritmos e Implementações 	   (by RoOtLiQuiD)
+[ 04 ] Shellcode em PHP                                    (by tDs)
+[ 05 ] Detonando HoneyPots em Linux 			   (by SkyNet45)
+[ 06 ] Slackware sem medo 				   (by _tzlord_)
+[ 07 ] Sockets in Perl for dummies                         (by BlackSh33p)
+[ 08 ] Nós ainda estamos ganhando...			   (by bashX)
+
+
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=[ Ferramentas ]=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+[Enumereitor-0.1]..........Enumera Hosts Válidos............(by inferninho)
+[Steck-0.2].................Backdoor em PHP.................(by tDs)
+[Steno]...................Steganografia em HTML.............(by Narcotic)
+[RevSteck-0.2].............Connect-Back em PHP..............(by tDs)	
+
+ 
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[01]-=[Introdução]=-|IP_FIX|=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+	
+	Senhores! Como vão? =)
+
+        Estamos aqui novamente compartilhando informações sobre hacking/security
+	para a comunidade, todos que estejam interessados. Como de costume esta
+	e-zine é destinada aos newbies, fuçadores e curiosos em geral.	
+	
+	Infelizmente não ocorreu o H2HC na data prevista, mas em breve o evento
+	irá se realizar. Sobre a e-zine, apesar de o conteúdo estar inferior da
+	edição passada, o conteúdo está muito bom. Para muitos não foi possível
+	entregar determinados artigos devido a falta de tempo, pois quase todos
+	trabalham e estudam, dificultando o empenho no grupo.
+
+	Mas estamos na ativa! Sempre colaborando na mail-list quando possível e
+	com frequência no canal #motd da freenode. Agradecemos ao Clube dos
+	Mercenários e ao Front The Scene pelo apoio e ajuda. Estamos abertos 
+	também a todos que queiram ajudar compartilhando informações em especial
+	pra e-zine, que é algo que vem sendo esperado por muitos.
+
+	É, tempos difíceis e duros, espero que aproveitem e critiquem sobre o ela
+	em geral. Sem mais o que falar... Façam bom aproveito!
+
+	HACKING FOREVER!!!
+
+	Abraços,
+
+	IP_FIX.
+
+
+
+Nossos parceiros r0x!
+
+Clube dos Mercenários:
+http://cdm.frontthescene.com.br
+http://br.groups.yahoo.com/group/mercenariesclub/
+irc.freenode.org 		/j #mercenaries
+
+Front The Scene:
+http://www.frontthescene.com.br
+http://br.groups.yahoo.com/group/frontthescene/
+irc.freenode.org		/j #fts

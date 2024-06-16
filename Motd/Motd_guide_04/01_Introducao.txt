@@ -1,0 +1,149 @@
+                                               dP         dP
+                                               88         88
+                         88d8b.d8b. .d8888b. d8888P .d888b88
+                         88'`88'`88 88'  `88   88   88'  `88
+                         88  88  88 88.  .88   88   88.  .88
+                         dP  dP  dP `88888P'   dP   `88888P8
+
+                                          oo       dP
+                                                   88
+                        .d8888b. dP    dP dP .d888b88 .d8888b.
+                        88'  `88 88    88 88 88'  `88 88ooood8
+                        88.  .88 88.  .88 88 88.  .88 88.  ...
+                        `8888P88 `88888P' dP `88888P8 `88888P'
+                             .88                    Número 04
+                         d8888P
+
+
+
+
+
+
+E-zine lançada oficialmente dia 18 de Abril de 2006.
+
+http://www.motdlabs.org
+contato[arroba]motdlabs.org
+irc.freenode.org   	/join #motd
+
+
+
+ATENÇÃO: O  MotdLabs adverte  que não  será responsável  por qualquer tolice que
+você venha a fazer.  Estou certo de que  estará consciente que ao  tentar por em
+prática quaisquer técnicas descritas no decorrer desta zine, você poderá se  dar
+mal. Ela foi criada apenas para propósitos educacionais e cabe a você decidir  o
+que  fará com esse poder em suas mãos. Só não venha reclamar que se deu mal  por
+ter feito  algo  que aprendeu aqui.  Obrigado pela a atenção e boa leitura! :)
+
+
+
+
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=[ Índice de Artigos ]-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+[ 01 ] Introdução					(by hallz)
+[ 02 ] Aeria Gloris - Camada 01				(by Toy)
+[ 03 ] Tutorial Sockets/Winsock - Parte I		(by Gustavo Moreira)
+[ 04 ] LKM Code Injection				(by tDs)
+[ 05 ] MSN Hacking					(by Leandro A. Thomas)
+[ 06 ] Linux além do printf I - Processos e Threads	(by Vo)
+[ 07 ] Algoritmo de escalonamento: Kernel 2.4 X 2.6	(by Felipe Goldstein)
+[ 08 ] Básico sobre Modelo OSI				(by d4rwin)
+[ 09 ] Daemon Fingerprint				(by Inferninho)
+[ 10 ] RNA: Uma Breve Introdução			(by tDs)
+[ 11 ] Entrevista com o dum_dum				(by vários)
+
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=[ Índice de Mini-Artigos ]-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+[ 12 ] Diferenças entre a sintaxe AT&T e a Intel	(by Narcotic)
+[ 13 ] Introdução a SQL Injection			(by Inseto Verde)
+[ 14 ] Implementando um Sniffer em Java			(by tDs)
+[ 15 ] Desenvolvimento de Bibliotecas			(by nEuRoMaNcEr)
+
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=[ Ferramentas ]=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+[GoogleCracker].....Usa o Google para quebrar senhas triviais	(by Narcotic)
+[detectVM]..........Detecta o VMWare				(by hallz)
+[herrschaft]........Coleta informações sobre a máquina		(by Inferninho)
+
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[01]-=[Introdução]=-|hallz|=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+	
+
+	Olá, pessoal
+
+
+	Acho que muita gente já tinha dado a zine como morta,  mas estamos aqui
+de novo, 18 meses depois, para apresentar a edição número 04 da zine.
+
+	Nesta edição temos uma novidade:  os mini-artigos,  que são artigos que
+podem ser lidos num intervalo  relativamente pequeno de tempo.  Seria algo como
+as "lightning talks" (palestras relâmpago), comuns em conferências da galera do
+Python. Experimente lê-los no banheiro, na sala de espera do dentista ou duran-
+te os intervalos na TV.
+
+	O conteúdo da zine continua voltado para os iniciantes (newbies), e es-
+peramos que toda a informação  contida aqui possa auxiliar os primeiros  passos
+dos interessados nessa jornada rumo ao hacking.
+
+	No mais,  gostaríamos de  agradecer a todos que contribuíram de  alguma
+forma para esta edição. Então aí vai a nossa pequena contribuição, da comunida-
+de para a comunidade. Boa leitura e até a próxima!
+
+
+	Abraços,
+
+	hallz
+
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=[ Colaboradores ]=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+d4rwin...............................................d4rwin[arroba]motdlabs.org
+
+dum_dum.....................................dum_dum[arroba]frontthescene.com.br
+
+Felipe Portavales................felipe.goldstein[arroba]students.ic.unicamp.br
+
+Gustavo Moreira......................................gustavo[arroba]milenar.net
+
+hallz.................................................hallz[arroba]motdlabs.org
+
+Inferninho.......................................inferninh0[arroba]yahoo.com.br
+
+Inseto Verde..........................................if.undef[arroba]gmail.com
+
+Leandro A. Thomas....................................leandroat[arroba]gmail.com
+
+Narcotic...........................................narcotic[arroba]motdlabs.org
+
+nEuRoMaNcEr.....................................marciomanbr[arroba]yahoo.com.br
+
+SKOFF.................................................skoff[arroba]motdlabs.org
+
+SkyNet45...........................................skynet45[arroba]motdlabs.org
+
+tDs.....................................................tds[arroba]motdlabs.org
+
+Toy...................................................toymak3r[arroba]gmail.com
+
+Vo.......................................................vo[arroba]motdlabs.org
+
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=[ _EOF_ ]=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

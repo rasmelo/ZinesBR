@@ -1,0 +1,340 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[08]-=[Básico sobre o Modelo OSI]=-|d4rwin|-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+!AVISO!:  O objetivo deste texto não é nem de longe dar todos os detalhes  sobre
+este modelo de referência, porém fornecer uma visão básica sobre ele, permitindo
+a compreensão de onde entram protocolos como o TCP e o IP por exemplo, ou então
+sobre como os dados trafegam na rede.      
+
+
+=======================================
+=            .,ÍNDICE.,               =
+=======================================
+=                                     =
+=  1.0...Introdução                   =
+=   |                                 =
+=  2.0...Camadas                      =
+=   |->   2.1...Aplicação             =
+=   |->   2.2...Apresentação          =
+=   |->   2.3...Sessão                = 
+=   |->   2.4...Transporte            =
+=   |->   2.5...Rede                  =
+=   |->   2.6...Enlace de dados       =
+=   |->   2.7...Física                =
+=   |                                 =
+=  3.0...Exemplo prático              =
+=   |                                 =
+=  4.0...Alegoria                     =
+=   |                                 =
+=  5.0...Os protocolos e o Modelo OSI =
+=   |                                 =
+=  6.0...Conclusão                    =
+=   |                                 =
+=  7.0...Referências bibliográficas   =
+=                                     =
+=======================================
+
+
+
+--=[ 1.0 - Introdução
+                     
+	O modelo de referência OSI(Open Systems Interconnection) foi criado pela
+ISO (International Standards Organization) para interconexão de redes heterogê-
+neas/sistemas abertos, visando por um fim à incompatibilidade até então enfren-
+tada pelas redes de computadores da época.    
+
+
+
+--=[ 2.0 - Camadas
+
+	Basicamente, pode-se  dividi-lo em sete camadas, classificadas de acor-
+do com suas funções. Todo o processo de comunicação entre computadores, segue o
+padrão de encapsulamento, isto é,  a camada de nível mais alto é encapsulada na
+de nível inferior. Cada camada não possui um protocolo específico, mas uma fun-
+ção determinada, que é preenchida por algum protocolo desenvolvido para tal.
+
+--=--=[ 2.1 - Aplicação 
+ 
+	Está é a camada mais superior do modelo OSI. É nela que as requisições a
+serviços são realizadas,  como visualizar uma página web (HTTP), transferir ar-
+quivos(FTP),  ou então receber e enviar emails(POP3 e SMTP).  Também gerencia e
+administra os processos de aplicação, faz o controle de acesso, realiza o moni-
+toramento e recuperação dos dados, etc.
+
+--=--=[ 2.2 - Apresentação 
+ 
+	É responsável pela interpretação e tradução dos dados vindos da camada
+precedente, cuidando da sintaxe das informações transmitidas. Quando se trata do
+receptor, as informações que vêm da camada 5 (Sessão) são preparadas na camada 6
+(Apresentação)  para a sua utilização por aplicativos  presentes na  camada 7 
+(Aplicação). Pode ter outras utilidades, como compressão de dados e criptogra-
+fia. No caso da compressão, os dados serão descomprimidos na camada correspoden-
+te pelo receptor.
+
+--=--=[ 2.3 - Sessão 
+ 
+	Aqui é onde se inicia o verdadeiro processo de comunicação. A camada de
+sessão permite estabelecer a conexão entre computadores distintos. Ela inicia e
+termina a sessão de diálogo entre duas máquinas, assim como gerencia e sincroni-
+za as informações trafegadas, também realizando a marcação dos dados para o caso
+de interrupção na comunicação, quando a conexão é reestabelecida,  sabe-se onde
+parou. Em outras palavras, permite que as máquinas se entendam. Fazendo uma ana-
+logia com a vida real, seria como um homem em meio a duas mulheres, administran-
+trando o momento certo de cada uma falar.
+
+--=--=[ 2.4 - Transporte
+ 
+	Dentre as 7 camadas sintetizadoras do Modelo  OSI, dois grupos podem ser
+formados. O primeiro composto pelas  camadas 7, 6, 5 (Aplicação,  Apresentação e
+Sessão respectivamente). Este  primeiro grupo se preocupa apenas com  os  dados,
+não importando a maneira como estão sendo transportados. O segundo grupo,  conta
+com as camadas 3,  2, 1 (Rede, Enlace  de dados e Física  respectivamente). Este
+grupo por sua vez, preocupa-se com a transmissão dos dados em si. Você deve  ter
+notado a falta da camada 4 (Transporte). É ela quem interliga estes dois grupos.
+
+	A camada de transporte realiza a segmentação dos dados provenientes  da
+camada de sessão. Após dividi-los em pacotes repassa à camada de rede. A camada
+de sessão estabelece a conexão,  e a de transporte  fornece e gerencia o canal
+para troca de dados. Exerce também o controle de fluxo (ordenação dos dados caso
+não estejam na ordem correta) e executa  correção de erros, através de mensagens
+de recebimento do pacote. No receptor, realiza a junção dos pacotes (multiplexa-
+ção) vindos da camada 3 para enviar a camada 5.
+
+--=--=[ 2.5 - Rede
+
+	Realiza o encaminhamento dos pacotes entre redes distintas, roteando os
+pacotes e lidando com as adversidades que venham a surgir durante a transmissão,
+como congestionamentos. Portanto, faz a conversão dos endereços lógico em ende-
+reços físicos.  Cabe a ela encontrar o computador destino no meio de tantos ou-
+tros e controlar condições de tráfego e prioridade para o roteamento.
+ 
+--=--=[ 2.6 - Enlace de dados
+
+	Também conhecida como camada de Link de Dados,  tem por função pegar os
+pacotes fornecidos pela camada de rede e transformá-los em quadros,  garantindo
+uma transmissão confiável através da rede.  Esses quadros  possuem  informações
+pertinentes, como endereços da placa de rede do transmissor e receptor,  payload
+(os dados em questão)  e o CRC, para  checar a integridade dos  dados (caso  não
+seja  enviada  nenhuma  mensagem  de  sucesso  no  transporte,  os  quadros  são
+reenviados pela camada 2). Um exemplo de protocolo que trabalha nesta camada   é
+o Ethernet, largamente utilizado nas redes de computadores atuais.
+
+--=--=[ 2.7 - Física
+
+	É a camada de mais baixo nível no modelo OSI, sendo o último elo de co-
+nexão entre duas máquinas. Sua função principal é fazer a conversão dos quadros
+que vêm da camada inferior em sinais elétricos ou luminosos (no caso das fibras
+ópticas), mantendo a compatibilidade com o meio de transmissão. Ou seja, a cama-
+da física faz a tradução dos quadros vindos da camada 2 em  0s e 1s e em seguida
+encaminha os bits através das interfaces de rede.
+
+OBS.: A camada física  não inclui o meio  em que os dados  trafegam, como  cabos
+por exemplo. 
+
+
+
+--=[ 3.0 - Exemplo prático
+
+	Para  facilitar o entendimento de como  funciona o modelo de referência,
+irei propor uma situação hipotética, porém prática da utilização do mesmo para a 
+construção de um  arquitetura de rede. Lembrando que as  camadas superiores são
+encapsuladas nas inferiores.
+
+Supomos  que um  usuário gostaria  de visualizar  seus e-mails  presentes em  um
+servidor.
+
+ * Camada 7
+   O primeiro passo é abrir o cliente  de e-mails, que entrará em contato com  o
+   servidor, utilizando o protocolo POP3. O ato de requisitar o servidor  usando
+   este protocolo, encaixa o mesmo na camada de aplicação do modelo OSI.
+
+ * Camada 6
+   A requisição feita pelo usuário usando a camada de aplicação é traduzida para
+   uma linguagem padrão para que os dados sejam transportados.
+
+ * Camada 5
+  Na camada de Sessão a conexão é estabelecida com o host destino (200.124.1.66,
+  *número  fictício).  Esta camada  irá  cuidar do  diálogo  entre as  máquinas,
+  interrupções na conexão, avisando o emissor caso alguma coisa aconteça.
+
+ * Camada 4
+  Aqui é  criado o  "túnel" fim-a-fim  para o  transporte dos  dados, que  serão
+  segmentados em pacotes, e repassados para a camada 3. Protocolos que trabalham
+  nesta camada  são o  TCP (Transmission  Control Protocol)  e UDP(User Datagram
+  Protocol).
+
+ * Camada 3
+  Como sabido,  esta  camada  é responsável   pelo encaminhamento  e  roteamento
+  dos pacotes, função essa exercida pelo IP (Internet Protocol) e roteadores.  O
+  ICMP (Internet Control Message  Protocol) também age nesta  camada, geralmente
+  casado com o IP. 
+
+ * Camadas 2 e 1 
+  A camada 2, onde os pacotes são transformados em quadros para serem repassados
+  a camada  física, possui  o  Ethernet. Ele  procura  pelo endereço  físico  da
+  interface de rede destino (MAC Adress) para então enviar os quadros, de acordo
+  com as especificações de cabeamento e sinais elétricos. 
+
+Quando os  bits chegam  na interface  de rede  destino (placa  de rede),   estes
+percorrem o caminho inverso ao exercido na máquina emissora.
+
+
+
+--=[ 4.0 - Alegoria
+
+	No tópico acima foi visto um exemplo prático da aplicação do modelo OSI
+para a construção de uma arquitetura, onde um usuário requisitou a um servidor
+ver os e-mails presentes no mesmo.  Agora vou propor uma situação fora do mundo
+da informática, para quem sabe esclarecer ainda mais o funcionamento do OSI.
+
+	A Silvia Saint vai estrelar um novo filme, e precisa ir de uma cidade à
+outra para filmar.  Por isso ela vai até a rodoviária e compra uma  passagem de
+ônibus convencional, porque leito é mais caro. O ato de comprar a passagem, re-
+presenta a camada de aplicação no modelo OSI. Ao chegar até a porta do ônibus,
+Silvia dá uma boa olhada no motorista, motorista dá uma boa olhada em Silvia, e
+então...pede a passagem dela para autenticar e suas malas para marcar. Esta é a
+camada de apresentação. Muito bem, começa a viagem e o ônibus se dirige até seu
+destino, estabelecendo a "conexão".  Aí temos a camada 5, Sessão.  O ônibus não
+pode andar em cima do nada, para  isso é preciso uma estrada, que representa  o
+protocolo TCP ou UDP, presentes na camada 4 (Transporte). Todavia surge um pro-
+blema, Silvia é a única passageira do ônibus (huhun) e está atrasadíssima para
+as filmagens. O motorista então tem de optar pela melhor rota para chegar até o
+destino. Encaixamos o IP.  Caso algum imprevisto ocorra, como um pneu furado, o
+ICMP entra em ação, e avisa a Central Rodoviária que o ônibus quebrou.  Agora,
+para representar as camadas remanescentes, como não encontrei nada melhor, vou
+utilizar o combustível do  ônibus. O Ethernet cuidará para que o motorista não
+abasteça o veículo com Diesel ao invés de Gasolina. Fim.
+
+
+
+--=[ 5.0 - Os protocolos e o Modelo OSI
+
+A figura 1.0 mostra a estrutura do modelo de referência OSI.
+  *Ilustração retirada do livro Redes de Computadores, 4ª Edição.
+
+A figura 1.1 mostra os protocolos utilizados tanto na internet como em redes  de
+computadores em geral. 
+  *Ilustração retirada do Wikipedia, vide referências bibliográficas.
+   
+ ###########################################################################################
+ #                                                                                         #
+ # Camada                                                             Nome da unidade      #
+ #                                                                     intercambiada       #
+ # ____________                                                        ____________        #
+ #|            |             Protocolo de aplicação                   |            |       #
+ #| Aplicação  |------------------------------------------------------| Aplicação  | APDU  #
+ #|____________|                                                      |____________|       #
+ # ______|_____                                                        ____________        #
+ #|            |             Protocolo de apresentação                |            |       #
+ #|Apresentação|------------------------------------------------------|Apresentação| PPDU  # 
+ #|____________|                                                      |____________|       # 
+ # ______|_____                                                        ____________        #
+ #|            |              Protocolo de sessão                     |            |       #
+ #|  Sessão    |------------------------------------------------------|  Sessão    | SPDU  #
+ #|____________|                                                      |____________|       # 
+ # ______|_____                                                        ____________        # 
+ #|            |             Protocolo de transporte                  |            |       #
+ #| Transporte |------------------------------------------------------| Transporte | TPDU  # 
+ #|____________|            Limite da Sub-Rede de Comunicação         |____________|       #
+ # ______|_____      ___________________||_____________________        ____________        # 
+ #|            |    |   PDRI = Protocolo da Sub-Rede Interna   |      |            |       #
+ #|   Rede     |--1-|       ******           ******            |------|   Rede     | Pacote#
+ #|____________|  | |       *Rede* ========= *Rede*            |      |____________|       #
+ # ______|_____   | |       ******           ******            |       ____________        #
+ #|            |  | |        PDRI                              |      |            |       #
+ #|   Enlace   |- 2-|       ********         ********          |------|   Enlace   | Quadro#
+ #|____________|  | |       *Enlace* ======= *Enlace*          |      |____________|       #
+ # ______|_____   | |       ********         ********          |       ____________        #
+ #|            |  | |        PDRI                              |      |            |       #
+ #|   Física   |--3-|       ********         ********          |------|   Física   | Bit   #
+ #|____________|  | |       *Física* ======= *Física*          |      |____________|       #
+ #                | |       ********         ********          |                           #
+ #  Host A        | |       Roteador         Roteador          |         Host B            #
+ #  ^^^^ ^        | |__________________________________________|         ^^^^ ^            #
+ #                |_________;1 Protocolo de roteador/host da camada de rede                #
+ #                |_________;2 Protocolo de roteador/host da camada de enlace de dados     #
+ #                |_________;3 Protocolo de roteador/host da camada física                 #
+ ###########################################################################################
+                                      Figura 1.0
+                                      
+  
+   
+                  #################################################
+                  #            Protocolos de Internet             #
+                  #################################################
+                  # Aplicação   #   HTTP, SMTP, FTP, SSH, IRC,    # 
+                  #             #   SMTP, NNTP, POP3, IMAP, etc.  # 
+                  # ----------- # ------------------------------- #
+                  # Transporte  #   TCP, UDP, SCTP, RTP, DCCP     #
+                  # ----------- # ------------------------------- #
+                  # Rede        #   IPv4, IPv6, ARP, ICMP         #
+                  # ----------- # ------------------------------- #
+                  # Ligação     #   Ethernet, 802.11 WiFi, Token  #
+                  #             #   Ring, FDDI, PPP, etc.         #
+                  # ----------- # ------------------------------- #
+                  # Física      #   RS-232, EIA-422, RS-449, etc. #
+                  #################################################
+                                     Figura 1.1
+
+
+
+--=[ 6.0 - Conclusão
+
+	Termino por aqui este pequeno artigo sobre o Modelo OSI. Como o próprio
+título do artigo propõe,  foi exposto aqui apenas o básico, mas isso não signi-
+fica que seja o necessário. Não se prenda e vá atrás de mais informações a res-
+peito, dê uma olhada nos links do Referências Bibliográficas. É isso ae, qual-
+quer coisa mail-me.
+
+
+
+--=[ 7.0 - Referências Bibliográficas
+
+Arquitetura OSI
+http://penta.ufrgs.br/Marco/arqosi.html  
+
+Modelo de Referência OSI
+http://www.forumweb.com.br/artigos/artigos.php?action=file&id=268
+
+Entendendo os protocolos
+http://www.clubedasredes.eti.br/rede0013.htm
+
+Ethernet
+http://pt.wikipedia.org/wiki/Ethernet
+                                     
+O Modelo OSI de Interconexão de Sistemas Abertos
+http://www.teleco.com.br/tutoriais/tutorialosi/default.asp
+
+Comunicação de dados (Normas)
+http://www2.ufp.pt/~lmbg/textos/norma_osi.html#camadasois
+
+Livro "Redes de Computadores", 4ª Edição
+Livro "Universidade H4CK3R", 1ª Edição
+
+
+                                      
+                   |>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                   ||                                            ||
+                   ||           d4rwin at motdlabs.org           || 
+                   ||          http://www.d4rwin.cjb.net         ||
+                   ||                                            ||
+                   || MSN/GoogleTalk > d4rwin@gmail.com          ||
+                   || YahooMessenger > d4rwinetico@yahoo.com.br  ||
+                   || IRC            > irc.freenode.net -j #motd ||
+                   ||                                            ||
+                   |>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+"Quem tem boca vai a Roma. Meu fogão tem 4 e não saiu da cozinha."
+                                                      (Desconhecido)
+                                         
+"Bill Gates não é Adão, mais comeu a  Apple. E quem paga os pecados é o  usuário
+do Windows."
+                                                      (Desconhecido)
+                                                      
+                                              
+                                                      
+
+_EOF_

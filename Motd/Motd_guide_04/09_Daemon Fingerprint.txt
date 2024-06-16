@@ -1,0 +1,457 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[09]-=[Daemon Fingerprint]=-|Inferninho|=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+--=[ Introducao
+
+	Sempre que iniciamos um ataque se faz necessario um estudo sobre o alvo,
+determinando assim brechas em potencial, isso inclui sabermos as versoes dos da-
+emons que estao rodando no servidor, este texto ira demonstrar alguns metodos de
+deteccao destes daemons, assim como estudo sobre os metodos utilizados por algu-
+mas ferramentas disponiveis na internet.
+
+
+
+--=[ Banner Grabbing
+
+	Todos os daemons exibem um banner de boas vindas quando recebem uma co-
+nexao,  na verdade nao passa de pura e simplesmente propaganda do produto,  e'
+trivial visualizarmos esse banner,  um simples telnet faz isso.  Supondo que um
+atacante queira  descobrir qual o daemon de ftp esta rodando numa maquina alvo,
+ele se conecta na porta correspondente ao ftp e aguarda a exibicao do banner.
+
+inferninho@weapon:~$ telnet localhost 21
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+220 ProFTPD 1.2.9 Server (weapon) [weapon.first.weapon.org]
+quit
+221 Goodbye.
+Connection closed by foreign host.
+
+	Como podemos notar se trata de um ProFTPD 1.2.9. Todos os daemons que 
+permitem interagir com o usuario via telnet estao sujeitos a esse tipo de detec-
+cao, agora vamos ver um esquema que visa puxar o banner do httpd.
+
+inferninho@weapon:~$ telnet localhost 80
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+get index.html HTTP/1.0
+HTTP/1.1 400 Bad Request
+Date: Fri, 10 Dec 2004 19:50:59 GMT
+Server: Apache/1.3.31 (Unix) PHP/4.3.7
+Connection: close
+Content-Type: text/html; charset=iso-8859-1
+
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<HTML><HEAD>
+<TITLE>400 Bad Request</TITLE>
+</HEAD><BODY>
+<H1>Bad Request</H1>
+Your browser sent a request that this server could not understand.<P>
+The request line contained invalid characters following the protocol string.<P>
+<P>
+<HR>
+<ADDRESS>Apache/1.3.31 Server at weapon.first.weapon.org Port 80</ADDRESS>
+</BODY></HTML>
+Connection closed by foreign host.
+
+
+	Nesse caso simplesmente enviamos um get index.html HTTP/1.0 e foi retor-
+nado na linha denominada "Server:" a versao do daemon httpd Apache/1.3.31 (Unix)
+PHP/4.37 alem de podermos notar que o servidor  esta rodando num sistema  unix e
+com suporte a PHP.
+
+Podemos automatizar todo o processo atraves do uso de ferramentas.
+- NMAP que pode ser encontrado em http://www.insecure.org/nmap
+- AMAP da THC http://www.thc.org
+- TMAP
+
+inferninho@weapon:~$ cat tmap.pl
+<++> tmap.pl
+#!usr/bin/perl
+# TMAP (Tosco MAP?)-> Realiza Banner Grabbing
+# coded by Inferninho
+###
+
+use IO::Socket;
+$ARGC=@ARGV;
+if($ARGC<2) {
+        print "Usage: perl $0 host porta\n\n";
+        exit;
+}
+my ($HOST)=$ARGV[0];
+my ($PORT)=$ARGV[1];
+my (@res,@ref);
+my $res;
+my $pagina="/index.html";
+my $socket = IO::Socket::INET->new(
+                                   PeerAddr => "$HOST",
+                                   PeerPort => "$PORT",
+                                   Prot => "tcp"
+                                  );
+die "Nao foi possivel criar a socket\n" unless $socket;
+if ($PORT eq "80")
+{
+        &http
+}
+elsif ($PORT eq "8080")
+{
+        &http
+}
+else {
+        &outros
+}
+
+sub http {
+if ($socket) {
+        print $socket "GET $pagina HTTP/1.0\n\n" or die "erro";
+}
+@res=<$socket>;
+@ref=grep/Server/,@res;
+print "\nDaemon em $HOST porta $PORT:\n\n";
+print "@ref\n";
+close ($socket);
+exit;
+}
+
+sub outros {
+        if ($socket) {
+        print $socket "quit\n" or die "erro";
+}
+$res=<$socket>;
+print "\nDaemon em $HOST porta $PORT:\n\n";
+print "$res\n";
+close ($socket);
+exit;
+}
+<--> tmap.pl
+
+
+--=[ Deteccao de Banners Alterados
+
+	Algumas vezes o banner pode ter sido alterado, ocorrendo o que se co-
+nhece como seguranca por obscuridade, vemos um exemplo muito claro disso logo
+abaixo.
+
+inferninho@weapon:~$ telnet localhost 21
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+220 Specter-FTPd 2.1
+quit
+221 Goodbye.
+Connection closed by foreign host.
+
+	Nao conheco nenhum daemon de ftp chamado Specter-FTPd, fica evidente que
+esse banner foi alterado, a tecnica de banner grabbing vai por agua abaixo nesse
+caso, mas se comecarmos a comparar alguns daemons veremos que cada um possui al-
+gumas caracteristicas peculiares, isso mesmo, ja que o daemon nos permite inte-
+ragir com ele, vamos abusar desse recurso, vamos analisar dois daemons diferen-
+tes de ftp agora.
+
+inferninho@weapon:~$ telnet localhost 21
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+220 ProFTPD 1.2.9 Server (weapon) [weapon.first.weapon.org]
+help
+214-The following commands are recognized (* =>'s unimplemented).
+ USER    PASS    ACCT*   CWD     XCWD    CDUP    XCUP    SMNT*  
+ QUIT    REIN*  PORT    PASV     EPRT    EPSV      TYPE     STRU   
+ MODE  RETR    STOR    STOU    APPE    ALLO*    REST     RNFR   
+ RNTO   ABOR   DELE    MDTM   RMD     XRMD    MKD     XMKD   
+ PWD     XPWD   SIZE     LIST      NLST    SITE       SYST     STAT   
+ HELP   NOOP  FEAT     OPTS    ADAT*   AUTH*   CCC*    CONF*  
+ ENC*   MIC*    PBSZ*   PROT*  
+214 Direct comments to root@localhost.
+quit
+221 Goodbye.
+Connection closed by foreign host.
+
+
+	Ao conectarmos rebemos logo de cara a versao do servidor de ftp, trata-
+se de um ProFTPD 1.2.9, em seguida enviamos um help para vizualizacao do menu de
+ajuda edepois um quit. Abaixo outro exemplo agora num Pure-FTPd.
+
+inferninho@weapon:~$ telnet localhost 21
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+220---------- Welcome to Pure-FTPd [TLS] ----------
+220-You are user number 3 of 50 allowed.
+220-Local time is now 16:19. Server port: 21.
+220-This is a private system - No anonymous login
+220 You will be disconnected after 15 minutes of inactivity.
+help
+214-The following SITE commands are recognized
+ ALIAS
+ CHMOD
+ IDLE
+214 Pure-FTPd - http://pureftpd.org/
+quit
+221-Goodbye. You uploaded 0 and downloaded 0 kbytes.
+221 Logout.
+Connection closed by foreign host.
+
+
+	Se observamos o menu de ajuda e a mensagem de saida dos dois  daemons
+iremos notar algumas diferencas, comparem como os daemons reagem  apos recebe-
+rem os comandos "help" e "quit". Agora se fizermos o mesmo com o nosso Specter-
+FTPd, teremos:
+
+inferninho@weapon:~$ telnet localhost 21
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+220 Specter-FTPd
+help
+214-The following commands are recognized (* =>'s unimplemented).
+ USER    PASS    ACCT*   CWD     XCWD    CDUP    XCUP    SMNT*  
+ QUIT    REIN*  PORT    PASV    EPRT      EPSV     TYPE     STRU   
+ MODE  RETR    STOR    STOU   APPE      ALLO*   REST     RNFR   
+ RNTO   ABOR   DELE    MDTM RMD       XRMD    MKD     XMKD   
+ PWD     XPWD   SIZE     LIST    NLST       SITE       SYST     STAT   
+ HELP   NOOP  FEAT     OPTS   ADAT*     AUTH*   CCC*   CONF*  
+ ENC*   MIC*    PBSZ*   PROT*  
+214 Direct comments to root@localhost.
+quit
+221 Goodbye.
+Connection closed by foreign host.
+
+	Muito bem,  se tivermos que dar um "palpite" ao compararmos a saida do 
+Specter-FTPd com a do ProFTPD e Pure-FTPd, fica realmente obvio que o daemon com
+banner alterado e um ProFTPD. Alguns podem estar se perguntando, algo como: Mas
+todos daemons tem saida diferentes? A resposta e' sim, podemos notar diferencas
+mesmo num mesmo daemon em versoes diferentes. Para ficar mais visivel ainda vou
+colocar duas saidas referentes ao Exim e ao Sendmail.
+
+inferninho@weapon:~$ telnet localhost 25
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+220-linux.meudns.org ESMTP Exim 4.43 #1 Fri, 10 Dec 2004 18:23:53 -0200
+220-We do not authorize the use of this system to transport unsolicited,
+220 and/or bulk e-mail.
+help
+214-Commands supported:
+214 AUTH STARTTLS HELO EHLO MAIL RCPT DATA NOOP QUIT RSET HELP
+quit
+221 weapon.fisrt.weapon.org closing connection
+Connection closed by foreign host.
+
+
+inferninho@weapon:~$ telnet localhost 25
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+220 weapon.first.weapon.org ESMTP Sendmail 8.12.11/8.12.11; Fri, 10 Dec 2004 20:46:10 GMT
+help
+214-2.0.0 This is sendmail version 8.12.11
+214-2.0.0 Topics:
+214-2.0.0       HELO    EHLO    MAIL    RCPT    DATA
+214-2.0.0       RSET    NOOP    QUIT    HELP    VRFY
+214-2.0.0       EXPN    VERB    ETRN    DSN     AUTH
+214-2.0.0       STARTTLS
+214-2.0.0 For more info use "HELP <topic>".
+214-2.0.0 To report bugs in the implementation send email to
+214-2.0.0       sendmail-bugs@sendmail.org.
+214-2.0.0 For local information send email to Postmaster at your site.
+214 2.0.0 End of HELP info
+quit
+221 2.0.0 weapon.first.weapon.org closing connection
+Connection closed by foreign host.
+
+
+	Nesse caso a diferenca eh realmente gritante, mesmo que os banner fossem
+alterados,  o menu de ajuda e mensagem de saida continuam inalterados e nos per-
+mite identificar o daemon por meio de comparacoes.
+
+
+
+--=[ Estudo de Caso - NMAP X AMAP X TMAP
+
+	Na verdade vou centralizar esse topico no nmap uma vez que este e' mais
+completo que o amap e o tmap, os dois ultimos sao facilmente ludibriados e ainda
+precisam de algumas implementacoes.
+
+inferninho@weapon:~$ perl tmap.pl localhost 21
+Daemon em localhost porta 21:
+220 Specter-FTPd
+
+inferninho@weapon:~$ amap localhost -B 21                                          
+amap v4.7 (www.thc.org) started at 2004-12-10 21:20:40 - BANNER GRAB mode
+Banner on 127.0.0.1:21/tcp : 220 Specter-FTPd\r\n
+amap v4.7 finished at 2004-12-10 21:20:40
+
+
+	Como podemos ver os dois engolem facilmente o Specter-FTPd e o imprime
+na tela como uma informacao correta. Isso ocorre por que os dois apenas lancam
+na tela a primeira informacao que recebem, sem averiguar sua veracidade.
+
+	Apesar do amap ter outras  funcoes alem do banner  grabbing o tmap e'
+mais completo nesse quesito, isso se levarmos em conta que o amap sequer tem
+implementacao para detectar daemons de httpd.
+
+inferninho@weapon:~$ amap localhost -B 80
+amap v4.7 (www.thc.org) started at 2004-12-10 21:27:32 - BANNER GRAB mode
+amap v4.7 finished at 2004-12-10 21:27:38
+
+A saida dele fica em branco, ja no tmap:
+
+inferninho@weapon:~$ perl tmap.pl localhost 80
+Daemon em localhost porta 80:
+Server: Apache/1.3.31 (Unix) PHP/4.3.7
+ <ADDRESS>Apache/1.3.31 Server at weapon.first.weapon.org Port 80</ADDRESS>
+
+
+	O nmap faz uma implementacao diferente, ao receber o banner ele confere
+com um banco  de dados (/usr/share/nmap/nmap-service-probes)  caso a comparacao
+seja verdadeira ele imprime a versao  do daemon como verdadeira,  caso a compa-
+racao nao confira com nenhuma das assinaturas de banners contidas no banco  de
+dados,  ele faz outra implementacao  simplesmente  enviando um comando "help".
+Podemos observar isso vendo a saida do tcpdump.
+
+Saida do tcpdump caso a primeira comparacao seja verdadeira.
+
+root@weapon:/home/inferninho# tcpdump
+tcpdump: WARNING: Promiscuous mode not supported on the "any" device
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on any, link-type LINUX_SLL (Linux cooked), capture size 96 bytes
+22:13:46.583168 IP localhost > localhost: icmp 8: echo request seq 63418
+22:13:46.583213 IP localhost > localhost: icmp 8: echo reply seq 63418
+[......]
+Varias Linhas
+[......]
+22:13:51.148052 IP localhost.ftp > localhost.35437: S 1378107143:1378107143(0)
+ack 3500700108 win 32767 <mss 16396,nop,nop,timestamp 1347208 1061109567,nop,
+wscale 0>
+22:13:51.148061 IP localhost.35437 > localhost.ftp: R 3500700108:3500700108(0) 
+win 0
+
+53 packets captured
+106 packets received by filter
+0 packets dropped by kernel
+--------
+
+Saida do tcpdump caso a primeira comparacao seja falsa.
+
+root@weapon:/home/inferninho# tcpdump
+tcpdump: WARNING: Promiscuous mode not supported on the "any" device
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on any, link-type LINUX_SLL (Linux cooked), capture size 96 bytes
+22:08:21.238284 IP localhost > localhost: icmp 8: echo request seq 58344
+22:08:21.238334 IP localhost > localhost: icmp 8: echo reply seq 58344
+22:08:21.238697 IP localhost.41564 > localhost.http: . ack 2017081566 win 2048
+22:08:21.238735 IP localhost.http > localhost.41564: R 2017081566:2017081566(0)
+win 0
+[......]
+Varias Linhas
+[......]
+22:08:40.768255 IP localhost.41545 > localhost.ftp: R 3825271309:3825271309(0) 
+win 0
+22:08:40.888108 IP localhost.41546 > localhost.ftp: S 3825271309:3825271309(0)
+win 2048 <wscale 10,nop,mss 265,timestamp 1061109567 0,eol>
+22:08:40.888170 IP localhost.ftp > localhost.41546: S 1063640235:1063640235(0)
+ack 3825271310 win 32767 <mss 16396,nop,nop,timestamp 1316182 1061109567,nop,
+wscale 0>
+22:08:40.888191 IP localhost.41546 > localhost.ftp: R 3825271310:3825271310(0)
+win 0
+
+72 packets captured
+144 packets received by filter
+0 packets dropped by kernel
+
+
+	A diferenca na quantidade de envio de pacotes fica exposta nesse momen-
+to, assim podemos afirmar que o nmap age diferente dependendo do caso.  Ao con-
+trario do que se afirma por ai ele nao faz nenhuma  comparacao por meio de res-
+postas de pacotes para descobrir a versao do daemon, vamos ter mais provas disso
+logo a seguir.  Ah, esse icmp 8: echo request na saida do tcpdump e para o os-
+fingerprint mas ai eh outra historia.
+
+root@weapon:/home/inferninho# nmap -A localhost -p 21
+Starting nmap 3.50 ( http://www.insecure.org/nmap/ ) at 2004-12-10 21:41 UTC
+Warning:  OS detection will be MUCH less reliable because we did not find at 
+least 1 open and 1 closed TCP port
+Interesting ports on localhost (127.0.0.1):
+PORT   STATE SERVICE VERSION
+21/tcp open  ftp
+1 service unrecognized despite returning data. If you know the service/version,
+please submit the following fingerprint at http://www.insecure.org/cgi-bin/serv
+icefp-submit.cgi :
+SF-Port21-TCP:V=3.50%D=12/10%Time=41BA1818%P=i486-slackware-linux-gnu%r(NU
+SF:LL,12,"220\x20Specter-FTPd\r\n")%r(GenericLines,12,"220\x20Specter-FTPd
+SF:\r\n")%r(Help,232,"220\x20Specter-FTPd\r\n214-The\x20following\x20comma
+SF:nds\x20are\x20recognized\x20\(\*\x20=>'s\x20unimplemented\)\.\r\n\x20US
+SF:ER\x20\x20\x20\x20PASS\x20\x20\x20\x20ACCT\*\x20\x20\x20CWD\x20\x20\x20
+SF:\x20\x20XCWD\x20\x20\x20\x20CDUP\x20\x20\x20\x20XCUP\x20\x20\x20\x20SMN
+SF:T\*\x20\x20\x20\r\n\x20QUIT\x20\x20\x20\x20REIN\*\x20\x20\x20PORT\x20\x
+SF:20\x20\x20PASV\x20\x20\x20\x20EPRT\x20\x20\x20\x20EPSV\x20\x20\x20\x20T
+SF:YPE\x20\x20\x20\x20STRU\x20\x20\x20\x20\r\n\x20MODE\x20\x20\x20\x20RETR
+SF:\x20\x20\x20\x20STOR\x20\x20\x20\x20STOU\x20\x20\x20\x20APPE\x20\x20\x2
+SF:0\x20ALLO\*\x20\x20\x20REST\x20\x20\x20\x20RNFR\x20\x20\x20\x20\r\n\x20
+SF:RNTO\x20\x20\x20\x20ABOR\x20\x20\x20\x20DELE\x20\x20\x20\x20MDTM\x20\x2
+SF:0\x20\x20RMD\x20\x20\x20\x20\x20XRMD\x20\x20\x20\x20MKD\x20\x20\x20\x20
+SF:\x20XMKD\x20\x20\x20\x20\r\n\x20PWD\x20\x20\x20\x20\x20XPWD\x20\x20\x20
+SF:\x20SIZE\x20\x20\x20\x20LIST\x20\x20\x20\x20NLST\x20\x20\x20\x20SITE\x2
+SF:0\x20\x20\x20SYST\x20\x20\x20\x20STAT\x20\x20\x20\x20\r\n\x20HELP\x20\x
+SF:20\x20\x20NOOP\x20\x20\x20\x20FEAT\x20\x20\x20\x20OPTS\x20\x20\x20\x20A
+SF:DAT\*\x20\x20\x20AUTH\*\x20\x20\x20CCC\*\x20\x20\x20\x20CONF\*\x20\x20\
+SF:x20\r\n\x20ENC\*\x20\x20\x20\x20MIC\*\x20\x20\x20\x20PBSZ\*\x20\x20\x20
+SF:PROT\*\x20\x20\x20\r\n214\x20Direct\x20comments\x20to\x20root@localhost
+SF:\.\r\n");
+Device type: general purpose
+Running: Linux 2.4.X|2.5.X
+OS details: Linux Kernel 2.4.0 - 2.5.20
+Uptime 0.134 days (since Fri Dec 10 18:29:19 2004)
+
+Nmap run completed -- 1 IP address (1 host up) scanned in 20.050 seconds
+
+
+	O nmap  confere o banco de dados como nao acha  nenhuma saida do Spect-
+er-FTPd, ele tenta comparar o help e acusaria um ProFTPD 1.2.9, mas o banco de
+assinatura dele esta incorreto ai a informacao nao bate e ele imprime na tela a
+saida do help,  como podemos conferir observando os trechos em detaque,  e pede
+para enviarmos para o site da insecure.org,  provavelmente para implementacoes
+futuras. 
+
+	Se realmente ele verificasse a respostas de pacotes ao inves do banner
+e do menu de help,  ele pediria para enviar tal pacote e nao o help do daemon.
+Uma vez que o nmap nao faz essa segunda verificacao todas as vezes,  fazendo
+apenas quando a primeira falha, podemos ludibria-lo colocando um banner valido
+de outro daemon:
+
+se mudarmos o ServerIdent do /etc/proftpd.conf para:
+ServerIdent  on  "---------- Welcome to Pure-FTPd [TLS] ----------"
+
+Olha o que ocorre com o nmap:
+
+root@weapon:# nmap -A localhost -p 21
+Interesting ports on localhost (127.0.0.1):
+PORT   STATE SERVICE VERSION
+21/tcp open  ftp     PureFTPd
+
+	Caso ele enviasse algum pacote e comparasse a resposta como no caso do
+os-fingerprint com certeza ele nao faria tal afirmacao erronea. O banco de dados
+com a lista de assinaturas dos daemons encontra-se  em: /usr/share/nmap/nmap-se
+rvice-probes
+
+
+
+--=[ Conclusao
+
+	Agora que voce ja sabe como descobrir o que de fato roda naquela porta,
+faco eu algumas recomendacoes, mesmo que o nmap seja fodao, quer dizer, nem tan-
+to, evite o uso deles em redes com IDS, a nao ser que voce saiba usar as opcoes
+corretas dele para fazer um slow scan e mais alguns truques, pois ate o Tabaja-
+raIDS consegue logar nmap com as regras  mais simples.  A melhor forma para ma-
+pear a rede sem ser percebido e ir fazendo tudo manualmente, conectando apenas
+em portas que realmente rodem algo, se der telnet na porta 1 por exemplo, e mui-
+to provavel que voce fique logado, entao escolha bem as portas fazendo conexoes
+legitimas, e de um intervalo em cada tentativa, va tomar um cafe, conversar com
+a namorada, e volte, nunca se afobe mais que o necessario.
+
+_EOF_

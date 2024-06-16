@@ -1,0 +1,436 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[07]-=[Sniffing for Dummies]-=|hallz|=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+                            Introducao ao Sniffing 
+                            (Sniffing for Dummies) 
+
+                                               Por hallz <hallz at motdlabs.org>
+
+
+.:: Introducao ::.
+
+  Procuro abordar aqui o  funcionamento de um sniffer,  os riscos que este  pode
+trazer a uma  rede, alguns truques  que invasores usam  para oculta-lo e  tambem
+formas de deteccao. 
+ 
+  Ao longo do artigo, usarei a palavra 'invasor' quando me referir a pessoa  que
+esta 'sniffando' uma  rede que nao  seja sua. 'Invasor'  neste caso, serve  para
+hackers, crackers e kiddies. Vale  lembrar, no entanto, que as  diferencas entre
+os termos sao enormes. Hackers sao pessoas com conhecimento  avancado, que estao
+sempre em busca de mais conhecimento, compartilham suas descobertas e seguem uma
+etica; Crackers violam sistemas com intencoes maliciosas, causando problemas aos
+seus alvos; Kiddies  sao pessoas que  nao tem conhecimento  tecnico, apenas usam
+ferramentas criadas por outros como forma de conseguir seus 15 minutos de fama. 
+ 
+  Este eh um texto basico, portanto  se voce ja eh 'fera', nao  espere encontrar
+algo novo por aqui.
+
+
+
+.:: O que sao Sniffers? ::.
+
+  Sniffers (farejadores) sao dispositivos (podem ser programas ou algum hardware
+especifico) que capturam  (a maioria tambem  analisa) o trafego  de uma rede  de
+forma  passiva, isto  eh, sem  interferir nas  comunicacoes.  Estes,  podem ser
+utilizados  tanto  por  administradores  como  por  invasores,  obviamente   com
+propositos diferentes.
+
+  Administradores podem usar  um sniffer para  detectar, ou pelo  menos ajudar a
+detectar, a causa de um problema, assim  como gerar logs do trafego da rede  que
+podem  ser consultados posteriormente caso necessario (devido ao comprometimento
+de  uma  maquina, por  exemplo).  Ja invasores  podem  utiliza-lo para  capturar
+informacoes  confidenciais   que  circulem   em  'texto-puro',   ou  seja,   nao
+criptografadas. Qualquer informacao nao criptografada, incluindo logins e senhas
+de  servicos  como  FTP,  Telnet  e  POP,  estara  acessivel  ao  invasor.  Usar
+criptografia eh altamente recomendavel, porem nao impede totalmente o acesso por
+parte do invasor as informacoes.
+
+
+
+.:: Como Funcionam ::.
+
+  Para   entender  o   funcionamento  dos   sniffers,  precisamos   entender  o
+funcionamento das redes. Aqui sera abordado o padrao Ethernet, o mais  utilizado
+hoje em dia.
+
+  Cada computador em  uma rede Ethernet  tem o seu  endereco de hardware,  o MAC
+(Media Access Control).  O MAC, um  numero hexadecimal de  12 digitos, unico  em
+toda a rede (teoricamente nao existem duas  placas de rede com o mesmo MAC),  eh
+utilizado para identificar as maquinas. Em cada pacote enviado, logo no  comeco,
+podemos encontrar  dois enderecos  MACs; O  endereco do  computador que enviou o
+pacote, e o endereco do computador que deve recebe-lo.
+
+  Na verdade, todos os computadores da rede recebem os pacotes (salvo se  a rede
+utilizar  switches - isto sera  abordado mais  adiante),  mas  so responderao  a
+pacotes destinados a elas, ou seja, apenas responderao caso o pacote em  questao
+tenha o  seu endereco  MAC como  destinatario; caso  nao possua,  o pacote  sera
+descartado  (isso  eh  feito  a  nivel de  hardware  -  interface  de  rede). Se
+conseguirmos  fazer  com que  a  interface nao  descarte  os pacotes,  poderemos
+capturar todo o trafego da rede! E eh assim que um sniffer funciona, ele faz com
+que  a  interface de  rede  aceite todos  os  pacotes. Quando  uma  interface se
+encontra nesta condicao, dizemos que esta em 'modo promiscuo', estado que geral-
+mente pode-se habilitar via software.
+
+  Na maioria dos sistemas operacionais atuais, para por uma interface de rede em
+modo promiscuo, deve-se ter privilegios de root (administrador). O sniffer  pode
+ser utilizado com  a interface em  seu estado normal,  mas neste caso  soh serao
+capturados os pacotes que tenham como origem (ou destino) o computador onde  ele
+esta sendo executado. Pode nao parecer tao interessante (e realmente nao eh) mas
+se este computador for um roteador, o invasor  tera acesso a todo  o trafego que
+por ele passar.
+
+  Os  pacotes capturados  pelo sniffer  geralmente sao  armazenados em  arquivos
+salvos no disco  rigido, para posterior  analise. Em uma  rede movimentada, este
+arquivo podera ficar enorme, em poucas horas, o que facilitaria a deteccao de um
+sniffer por parte do  administrador. Por este motivo  (e tambem para nao  perder
+tempo), sniffers instalados furtivamente sao bem seletivos; gravam apenas o  que
+eh interessante ao invasor (geralmente logins e senhas).  Como estas informacoes
+geralmente localizam-se no comeco do pacote, muitos sniffers nao analisam o  pa-
+cote inteiro, mas apenas os seus primeiros 200-300 bytes.   Outros  sniffers vao
+ainda mais longe;  enviam os  logins/senhas capturados  para um e-mail fornecido
+pelo invasor.
+
+  Imaginemos a seguinte situacao: Um invasor, localizado no RJ, quer interceptar
+a conversa pela internet de Joao e Maria, que estao em SP, usando um sniffer. Eh
+possivel? 
+
+                         ----------------
+                        /                \
+                       /                  \
+  ------       ----------                ----------        -------
+ | Joao |---> | Provedor |   INTERNET   | Provedor | <--- | Maria |
+  ------       ----------                ----------        -------
+                       \                  /
+                        \   ----------   /
+                         --| Provedor |--
+                            ----------
+                                |   
+                            ---------
+                           | Invasor |
+                            ---------
+                             
+  Claro! Basta que ele consiga acesso  ao computador de um dos dois  (engenharia
+social, exploracao de alguma falha, trojans...), ou a algum que esteja 'no  meio
+do caminho' (Um  servidor do provedor  de Maria ou  um roteador, por  exemplo) e
+instale la o sniffer.  O invasor pode ainda  fazer com que os  dados passem pelo
+seu computador (ou seja,  ele redireciona o trafego).  Apesar de ser muito  mais
+trabalhoso, eh possivel.
+
+
+
+.:: Sniffers em redes comutadas ::.
+
+  Logo acima foi dito que os pacotes  em uma rede sao distribuidos por todos  os
+computadores; Isto eh verdade se for utilizado um hub ou cabo coaxial para fazer
+a ligacao dos PCs, mas nao  se for utilizado um switch  (Lembrem-se  que estamos
+falando de redes Ethernet). 
+
+  Os  switches  possuem  tabelas  onde  sao  armazenados,  entre  outras coisas,
+enderecos MACs encontrados em cada uma  de suas portas. Por isso, o  switch pode
+enviar  os pacotes  apenas para  a porta  onde esta  o destinatario.  Com isso,
+dificulta-se o sniffing (Porem  nao o torna impossivel  :P ). Mas como  o switch
+sabe em  que porta  o destinatario  esta? Simples!  Suponhamos que  Joao e Maria
+agora  estao  ligados em  uma  rede comutada.  Vejamos  o que  acontece  se Joao
+'pingar' (ICMP Echo Request) o computador de Maria.
+ 
+Joao ---> ARP Request ---> Broadcast
+Joao <--- ARP Response <--- Maria
+Joao ---> ICMP Echo Request ---> Maria
+Joao <--- ICMP Echo Response <--- Maria
+
+  O que acontece eh o seguinte: Joao  quer enviar o ICMP Echo Request (o  famoso
+Ping) para Maria, mas  para isso, ele precisa  saber o endereco fisico  (MAC) do
+computador de Maria. Por isso, Joao 'grita', para todos os computadores da  rede
+(Broadcast): "Qual o endereco  MAC de Maria?". Isto  eh um ARP Request  (Address
+Resolution Protocol - o  ARP traduz enderecos IP  para MAC). Maria entao  ouve o
+'grito' de Joao e  o responde (ARP Response).  Agora que Joao ja  tem o endereco
+MAC, pode  enviar o  'ping' (Echo  Request), que  eh prontamente respondido pela
+Maria (Echo Response). Depois disso,  caso Joao queira enviar mais  algum pacote
+para Maria (e vice-versa), nao precisara enviar primeiro outro ARP Request, pois
+o endereco MAC de Maria ja  sera conhecido, podendo ser localizado na  cache ARP
+de seu PC. Quando passam ARP Requests e Responses pelo switch,  este verifica de
+qual de suas portas o pacote  foi originado e pega o endereco  MAC de origem que
+esta escrito no pacote.  Essas informacoes sao entao registradas nas tabelas  do
+switch; Assim ele fica sabendo em que porta estao localizados cada computador, e 
+pode repassar os pacotes apenas para a porta onde esta o destinatario do pacote.
+Redes  que operem  nesta forma sao chamadas  de comutadas.   Porem nem  tudo sao 
+flores, e o sniffing ainda pode funcionar nestas condicoes. Vejamos algumas for-
+mas de fazer isso.
+
+
++ Table Flooding
+  Como ja foi  dito, o switch  sabe para que  porta enviar cada  pacote devido a
+tabela que ele  possui (CAM Table).  (CAM) Table Flooding  consiste em encher  a
+tabela do switch  com entradas falsas,  para que ele  passe a enviar  os pacotes
+para todas as portas.
+ 
+Tabela do Switch ANTES do ataque:   (apenas  para ilustracao,  a tabela  eh mais 
+'complexa')
+ 
+ --------------------------
+| Porta  |  Endereco MAC   |
+|--------------------------|
+|   01   |   MAC de Maria  |
+|   02   |   MAC de Joao   |
+|   ...  |       ...       |
+|   10   |  MAC do Invasor |
+ --------------------------
+
+  Entao o invasor, que quer capturar o trafego da rede, comeca a enviar  pacotes
+ARP  para  a rede,  cada  um com  um  endereco MAC  -  que nao  existe  na rede 
+- diferente. O switch armazena estes enderecos em sua tabela, ateh que esta fica
+cheia - Sim, a CAM Table tem um limite de entradas.  
+ 
+Tabela do Switch DURANTE o ataque:  
+ 
+ ----------------------------
+| Porta |    Endereco MAC    |
+|----------------------------|
+|  01   | MAC inexistente 1  |
+|  02   | MAC inexistente 2  |
+|  ...  |        ...         |
+|  10   | MAC inexistente 10 |
+ ----------------------------
+
+  Assim, todo o pacote cujo destinatario nao estiver listado na tabela do switch
+devera ser  enviado para  todas as  portas. Ai,  o invasor  pode captura-los sem
+problemas. O macof eh um programa que aplica esta tecnica.
+
+
++ ARP Cache Poisoning
+  Esta tecnica consiste em enviar pacotes ARP forjados para as maquinas-alvo, de
+forma com que todo o trafego entre elas passe pela maquina do invasor.
+  Vejamos o caminho (normal) dos pacotes  entre Joao e Maria:
+
+ --------        --------        -------
+|  Joao  | <--> | Switch | <--> | Maria |
+ --------        --------        -------
+
+  Para poder sniffar o trafego entre  Joao e Maria, o invasor envia  pacotes ARP
+(que nao requerem autenticacao) para Joao fingindo ser Maria, e pacotes ARP para
+Maria fingindo  ser Joao.  Assim a  tabela ARP  de Maria  e Joao fica envenenada
+(poisoned). Vejamos as tabelas:
+
+Antes:
+
+  Tabela de Joao ANTES do ataque           Tabela de Maria ANTES do ataque
+ --------------------------------          --------------------------------
+|  Endereco IP  |  Endereco MAC  |        |  Endereco IP  |  Endereco MAC  |
+|--------------------------------|        |--------------------------------|
+| IP de Maria   | MAC de Maria   |        |  IP de Joao   |  MAC de Joao   |
+| IP do Invasor | MAC do Invasor |        | IP do Invasor | MAC do Invasor |
+ --------------------------------          --------------------------------
+ 
+Durante:
+
+ Tabela de Joao DURANTE o ataque           Tabela de Maria DURANTE o ataque
+ --------------------------------          --------------------------------
+|  Endereco IP  |  Endereco MAC  |        |  Endereco IP  |  Endereco MAC  |
+|--------------------------------|        |--------------------------------|
+| IP de Maria   | MAC do Invasor |        |  IP de Joao   | MAC do Invasor |
+| IP do Invasor | MAC do Invasor |        | IP do Invasor | MAC do Invasor |
+ --------------------------------          --------------------------------
+ 
+  O invasor deve certificar-se que os  pacotes enviados por Joao cheguem ao  seu
+destinatario real, Maria, e vice-versa.  Isso pode ser feito facilmente  atraves
+do IP Forwarding, que eh suportado por muitos sistemas operacionais. Alem disso,
+o invasor devera enviar regularmente novos  pacotes ARP para Maria e Joao,  pois
+as entradas nas tabelas ARP expiram.
+
+O caminho dos pacotes durante o ARP Poisoning:
+ --------        --------        ---------        --------        -------
+|  Joao  | <--> | Switch | <--> | Invasor | <--> | Switch | <--> | Maria |
+ --------        --------        ---------        --------        -------
+ 
+  Com o  ARP Cache  Poisoning o  invasor pode  nao somente  capturar os  pacotes
+enviados como  tambem altera-los  (assim como  cria-los) antes  de enviar para o
+verdadeiro destinatario. Imagine se o invasor se passar por um roteador...
+
+
++ ICMP Redirect
+  Pacotes  ICMP  Redirect  sao  usados por  roteadores  para  fazer  com que  os
+computadores  enviem  seus  pacotes  por  um  caminho  diferente.  Forjando ICMP
+Redirects o invasor pode  alterar as tabelas de  roteamento de uma maquina  para
+que o trafego passe por ele.
+
+
++ Monitor Port (SPAN, Port Mirroring, Port Monitoring)
+  Muitos switches fornecem Monitor Ports, que permitem copiar todo o trafego  da
+rede para uma  (ou mais) portas.  O problema -  Ou solucao, depende  do ponto de
+vista - eh que muitos  administradores nao alteram as senhas-padrao,  permitindo
+assim que o invasor faca  com que o switch envie  todo o trafego da rede  para a
+porta em que ele esta conectado. Caso o switch suporte realizar esta configuracao 
+via SNMP,  o invasor pode tentar  adivinhar a senha.   Mesmo que o administrador 
+tenha configurado o switch para  aceitar apenas pacotes SNMP  vindos de um certo 
+endereco IP, o invasor pode utilizar de spoofing.
+
+
++ Switch Port Stealing
+  Nesta  tecnica  o invasor  envia  pacotes com  o  endereco MAC  de  origem  da
+maquina-alvo. O switch entao "aprende" que o invasor *eh* a maquina-alvo e passa
+a enviar os pacotes destinados a ela para o invasor.
+
+  Temos dois problemas aih. O primeiro eh que se a maquina-alvo parar de receber
+os  pacotes, a   conexao se  encerra; O  outro problema  eh que  a maquina-alvo
+continuara enviando pacotes, o que fara com que a tabela do switch volte ao  seu
+estado normal.
+
+  Para contornar o  problema, podemos tirar  a maquina-vitima da  jogada (DoS) e
+enviar os pacotes com o MAC  alterado. Assim podemos tomar conta de  uma conexao
+ja autenticada, como  uma sessao Telnet.  Outra possibilidade eh  enviar pacotes
+com o MAC alterado em intervalos  regulares, e ao receber um pacote destinado  a
+maquina-alvo,  reenvia-lo  para  broadcast.   Assim,   a  maquina-alvo  continua
+recebendo os pacotes.
+
+
+
+.:: Detectando Sniffers ::.
+
+  Por sua  natureza  passiva,  a  deteccao  de  sniffers  pode  se  tornar  algo
+complicado. Contudo, formas de deteccao  existem, e podem ser divididas  em duas
+categorias: locais e remotas.
+
+  A deteccao  local consiste basicamente em utilizar ferramentas do sistema para
+verificar se  existem interfaces  em modo  promiscuo, ou  algum outro indicio da
+existencia de sniffers  na maquina. Podemos  ver se uma  interface esta em  modo
+promiscuo usando o ifconfig:
+
+bash-2.05b# ifconfig -a 
+eth0      Link encap:Ethernet  HWaddr 00:50:56:40:2A:B9  
+          inet addr:192.168.0.172  Bcast:192.168.0.191  Mask:255.255.255.224
+          UP BROADCAST NOTRAILERS RUNNING PROMISC MULTICAST  MTU:1500  Metric:1
+          RX packets:10 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:10 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:100 
+          RX bytes:2282 (2.2 Kb)  TX bytes:2707 (2.6 Kb)
+          Interrupt:10 Base address:0x10a0 
+
+lo        Link encap:Local Loopback  
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          UP LOOPBACK RUNNING  MTU:16436  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
+
+  Repare a palavra "PROMISC" em eth0.   Em maquinas Windows (NT, 2000, XP)  pode
+-se utilizar o PromiscDetect. Outra ferramenta que pode ser utilizada eh o  lsof
+(list  open files),  em busca  de network  files abertos  (sockets) ou  ainda o
+arquivo onde o sniffer grave os dados capturados.
+
+  O problema da deteccao local eh  que o invasor pode substituir as  ferramentas
+como  ifconfig ou  ainda carregar  modulos que  facam o  computador esconder  as
+informacoes  que  poderiam  entregar  a  presenca  do  sniffer.  Um  checador de
+integridade, como o tripwire, pode ajudar a resolver o problema da alteracao  de
+binarios, mas se o invasor inserir um modulo no kernel que faca o sistema mentir
+para voce, o tripwire de nada adiantara. Existem ferramentas, como o rkscan, que
+podem localizar rootkits conhecidos, atraves de assinaturas (padroes). Novamente, 
+o rkscan de nada adiantara contra  um rootkit desenvolvido pelo proprio  invasor, 
+ja que sua assinatura nao constara no rkscan.  
+E a brincadeira de gato e rato continua... :>
+
+  A deteccao remota eh um processo heuristico, ou seja, o resultado nao eh  100%
+confiavel.  Nesta  deteccao   exploram-se  certas  caracteristicas   do  sistema
+operacional e protocolos, que possam indicar a existencia de um sniffer. Vejamos
+algumas das tecnicas que IDS e ferramentas como o antisniff utilizam para tentar
+identificar sniffers na rede.
+
++ Metodo Ping
+  Sem duvida o metodo  mais conhecido, consiste em  enviar um ICMP Echo  Request
+(ping) para a maquina  a ser testada, mas  com o endereco MAC  diferente. Como o
+MAC nao eh o da maquina, nao deve haver resposta ao ping; se houver, eh porque a
+interface de  rede nao  descartou o  pacote, e  portanto, esta  rodando em  modo
+promiscuo. Este metodo pode ser realizado com qualquer protocolo que gere resposta.
+  Apesar de eficiente, pode ser  contornado facilmente; de fato varios  sniffers
+furtivos implementam uma especie de 'filtro virtual de MAC', que inutiliza  esta
+tecnica.
+
++ Metodo ARP
+  Existem basicamente duas possibilidades aqui. A primeira eh a mesma do  Metodo
+Ping, soh que utiliza-se o protocolo  ARP. A segunda aproveita-se do ARP  Cache.
+Lembram de como funciona isto? Se nao lembram, releiam o texto, pois eu que  nao
+vou escrever novamente :P
+  Bem, o que se faz eh o seguinte: Envia-se um ARP para um endereco que nao seja
+o de broadcast, e depois um  Ping para broadcast. As maquinas que  responderem o
+ping sem antes enviarem um ARP pedindo seu MAC *podem* te-lo obtido capturando o
+seu pacote ARP anterior, portanto *podem* estar executando um sniffer.
+
++ Honey Pot (aka Armadilha)
+  Honey  Pots sao  utilizados para  a deteccao  e estudo  de ataques  (apesar de
+existirem  muitas  criticas a  respeito  de seu  uso).  No caso  da  deteccao de
+sniffers, pode-se enviar informacoes, senhas falsas na rede, simular conexoes, e
+esperar que alguem tente usa-las. Pode ser uma boa forma de detectar um  sniffer
+totalmente passivo.
+
++ DNS Reverso
+  Alguns sniffers realizam operacoes  resolucao reversao (Reverse DNS  Lookups),
+isto eh, transformam enderecos IP em nomes mais amigaveis (pelo menos para seres
+humanos normais), como google.com. Entao, monitorando a utilizacao de  resolucao
+reversa na rede pode-se encontrar sniffers.
+ Um exemplo pratico seria voce  enviar varios pings para enderecos  inexistentes
+na rede, e monitora-la, para ver se alguma maquina tenta realizar a resolucao.
+
++ Inundacao ARP
+  Para  sniffers  em  redes  comutadas  serem  funcionais,  frequentemente  eles
+necessitarao gerar grande trafego  ARP, seja para encher  a tabela do switch  ou
+para assumir o lugar  de outra maquina (Man  in the middle). O  monitoramento do
+numero de anuncios ARP pode revelar a existencia de sniffers na rede.
+
++ Latencia
+  Este metodo  pode trazer  problemas a  rede, portanto  deve ser  empregado com
+cuidado, e apenas quando ja existir a suspeita que uma maquina esteja executando
+um sniffer. Ele  consiste em enviar  uma grande quantidade  de trafego na  rede.
+Maquinas que nao estiverem suas interfaces de rede executando em modo  promiscuo
+nao serao afetadas, apenas as que estiverem, sim. Como serao afetadas? Terao  um
+aumento do seu tempo de resposta, devido ao fato do sniffer (a maioria) analisar
+todos os pacotes recebidos  a fim de armazenar  apenas as informacoes que  forem
+interessantes.
+  'Pingue' a maquina suspeita antes  de injetar grande quantidade de  trafego na
+rede e  anote o  resultado. Depois,  pingue novamente  durante a 'tempestade' de
+pacotes. Se a diferenca for grande, podemos ter um sniffer ai.
+
+
+
+.:: Evitando o sniffing ::.
+
+  Existem formas de tornar as coisas mais complicadas para sniffers, como o  uso
+de entradas ARP estaticas  - a cache ARP  nao eh modificada -  ou o uso de  Port
+Security, que 'prende' os enderecos MAC  a certas portas do switch, mas  nao sao
+muito praticas.
+  Existem ainda interfaces de  rede que nao suportam  o modo promiscuo, mas  sao
+dificeis de serem encontradas.
+  A solucao mais  efetiva contra sniffers  eh o uso  de criptografia, desde  que
+seja implementada de forma correta,  com algoritmos seguros,  alem de ser muito 
+mais facil de ser administrado que as solucoes anteriores.
+
+
+
+.:: Finalizando ::.
+
+  Espero que este artigo tenha atingido seu objetivo de servir de introducao  ao
+sniffing, um eterno (?) problema para admins. Fico devendo (mas nao garanto  que
+farei :P) uma parte sobre sniffing de redes wireless. Ate a proxima! :>
+
+hallz
+
+
+
+.:: Links Relacionados ::.
+
+http://www.packetstormsecurity.nl/sniffers/
+http://stein.cshl.org/~lstein/talks/WWW6/sniffer/
+http://www.linux-sec.net/Sniffer/
+http://www.datanerds.net/~mike/dsniff.html
+http://www.ntsecurity.nu/toolbox/promiscdetect/
+http://www.securityfriday.com/ToolDownload/ScoopLM/scooplm_doc.html
+http://ettercap.sourceforge.net/
+http://www.oxid.it/cain.html
+http://staff.washington.edu/dittrich/talks/agora/macof
+http://www.robertgraham.com/pubs/sniffing-faq.html
+http://www.nwo.net/osall/Methodology/Novice/Sniffer_FAQ/sniffer_faq.html
+http://www.packetwatch.net/documents/papers/layer2sniffing.pdf
+http://www.ebookhackers.net/kb/index.php?page=index_v1&c=15
+
+.:: EOF ::.

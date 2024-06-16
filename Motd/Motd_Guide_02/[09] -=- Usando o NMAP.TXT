@@ -1,0 +1,148 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[09]-=[Usando o NMAP]-=|REPOLHO|=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+1.Introducao
+
+Neste (mini) artigo mostrarei as opcoes "basicas" do nmap, este portscan  apesar
+de ser muito  famoso e conhecido  por toda populacao  linux do mundo,  tem muito
+gente mesmo  que nao  sabe utiliza-la  de forma  completa e  util, desconhecendo
+assim esta grande ferramenta.
+
+
+2.O que eh?
+
+O nmap  eh um  utilitario open  source utilizado  para exploracao  da rede  e/ou
+examinar a seguranca de um servidor/rede. O uso mais comum dele eh como portscan
+e deteccao de SO de um alvo qualquer.
+
+
+3.Como usar
+
+Para utilizar o nmap a sintaxe eh a seguinte:
+
+nmap [tipo de scan] [opcoes] <host ou rede alvo>
+
+sendo assim vou  mostrar os principais  tipos de scan  primeiro e logo  mais as
+opcoes que tem alguma utilidade.
+
+
+4. Tipos de Scan - Metodos e Varredura
+
+-sT
+TCP connect Scan: esta forma eh a  mais simples de scan, pois ele usa  a chamada
+de sistema  "connect()" que  tenta conectar  porta em  porta ateh  que receba um
+valor igual a  0 , que  corresponde porta aberta,  eh um metodo  muito mas deixa
+milhares de logs, pois  seria como se um  cliente conectasse no servidor,  sendo
+assim, deixando todo o log no sistema.
+
+
+-sP
+Ping Scan: neste metodo o  nmap envia um ping para  o alvo para saber se  o host
+esta up ou nao,  mas como existem hoje  varios metodos que barram  pacotes ICMP,
+entao  o nmap  manda tmb  pacotes de  TCP ACK  na porta  80, caso  o nmap  obtem
+resposta ele. OBS: este  metodo eh usado apenas  para ver se o  servidor esta up
+sem realmente scanear as portas .
+
+-sS
+TCP SYN Scan: este metodo manda um  pacote SYN como se fosse uma conexao  real e
+aguarda resposta, caso a resposta seja  um pacote SYN ACK, a porta  esta aberta,
+caso receba a flag RST como resposta, indica que a porta esta fechado, isto  eh,
+nao esta em modo listening, o bom deste metodo eh que eh mais dificil a deteccao
+de das conexoes.
+
+-sU
+UDP Scan:  este metodo  eh utilizado  para verificar  as portas  UDP de  um alvo
+qualquer. Ele manda  um pacote UDP  de 0 bytes  pra cada porta  , se receber  um
+pacote ICMP como resposta entao a  porta esta fechada, senao a porta  PODE estar
+aberta.
+
+-sR
+RPC scan: Ele  pega todas  as   portas  TCP/UDP  encontradas   abertas  e inunda
+elas com comandos NULL de  programas  SunRPC numa tentativa de determinar quando
+elas são portas RPC, e se sao, qual programa e versao dos servicos. Seria  quase
+o mesmo que usar o comando "rcpinfo -p" mesmo estando atras de um firewall.
+
+-sX -sF -sN
+Modos Stealth FIN, Xmas Tree, ou  Null scan: este e um metodo  "menos" visiveis,
+pois eles passam atraves de um  firewall, ou servidor de deteccao de  scan, este
+metodo nao funciona com maquina window, portanto eh um metodo de identificar por
+cima qual SO que a vitima esta usando.
+
+-sI
+Metodo idlescan: este metodo nao possui  no man do Nmap, uma documentacao  sobre
+este  metodo  esta disponivel  em  : http://www.insecure.org/nmap/idlescan.html,
+este eh um metodo onde o atacante nao envia nenhum pacote saindo de sua maquina,
+deem uma olhada no site para mais infos, mas um detalhe... eh show di bola ;) 
+PS: nao vou colocar tudo aqui pq eh muito material sobre o idlescan.
+
+
+5. Opcoes
+
+-A
+Esta opcao  mostra a  versao do  programa rodando  naquela porta,  isso eh muito
+util,  ja  que  utilizar  scaners  de  vulnerabilidades  provoca  muito barulho,
+identificado q programa  e qual a  versao dele, podemos  correr atras de  falhas
+para o mesmo, fazendo assim o trabalho de um scan de vulnerabilidades.
+
+
+-D 
+Durante uma varredura,  utiliza uma serie  de endereços falsificados,  simulando
+que  o  scanning  tenha  originado  desses  varios  hosts,  sendo   praticamente
+impossível identificar a verdadeira origem da varredura.
+
+Ex.: nmap -D IP1,IP2,IP3,IP4,IP6,SEU_IP alvo
+
+-F
+Procura pelas portas que estao  no /etc/services. Metodo mais rapido,  porem nao
+procura por todas as portas.
+
+-I
+Se o host estiver utilizando o ident, eh possivel identificar o dono dos servicos
+que estao sendo executados no servidor (trabalha com a opcao -sT)
+
+-n
+Nao ira resolver nomes, soh funciona com IP.
+
+-O
+Mostra o sistema operacional e a versao usada pelo sevidor (nao eh 100% confiavel)
+
+-p 
+Voce especifica quais portas vao ser verficadas
+Ex.: nmap -p 21,22,80 vitima
+
+-P0
+Faz a  varredura sem  pingar o  host antes,  pois pode  acontecer da  vitima nao
+aceitar ICMP.
+
+-R
+Ira resolver nomes de hosts que serao varridos.
+
+-ttl <valor>
+Altera o valor do TTL (Time to Live), dessa forma dificulta a origem do pacote.
+Ex.: nmap -ttl 55 vitima
+
+
+6. Consideracoes Finais
+
+Bom basicamente eh isso, isto eh soh  algumas opcoes do nmap , a intencao  de eu
+escrever este artigo e soh pra quem nao tem a minima ideia que o nmap tem  estas
+opcoes  ou nao  sabe ingles  pra ler  o man  ou tem  preguica de  ler o  man em
+portugues do site. Abracos a todos.
+
+7. Agradecimentos
+
+Bom... dedico este artigo a todo o pessoal da scene hacker, ao pessoal da  MOTD,
+CDM e FTS, obrigado mais uma vez ao meu amigo inferninh0 por ter contribuido  em
+alguns pontos do artigo.
+
+8. Links Interessantes
+
+- http://www.repolho.org/
+- http://www.insecure.org/nmap
+- http://www.motdlabs.org/
+- http://cdm.frontthescene.com.br/
+- http://www.frontthescene.com.br/
+- http://inferninho.motdlabs.org/
+- http://www.google.com.br/

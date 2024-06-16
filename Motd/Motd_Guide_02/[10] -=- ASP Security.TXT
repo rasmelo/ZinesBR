@@ -1,0 +1,349 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[10]-=[ASP Security]-=|Stinger|-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+                            Active Pages Security
+                                 Introdução
+                                  Stinger 
+                            stinger@motdlabs.org
+                         http://stinger.motdlabs.org
+**********************************************************************                            
+*                                                                    *                                                                                             *
+*                                                                    *                                                                                             *
+**********************************************************************
+
+
+Fui informado a tempos que a Microsoft vai abrir uma academia de formacao aqui
+em Angola. Eu nao tenho nada contra isso, muito pelo contrario sou a favor de
+iniciativas que incentivam o ensino, mas quando se trata de ensinar mal e pob
+remente assim como a maior parte dessas academias eu resolvo me retirar. Bast
+a olhar para os outros paises que ja provaram o 'sabor' da Microsoft e ver 
+que quem vai aprender em escola de 'rico' nao se da bem.
+Podemos ver isso nos milhares de codigos com bugs produzidos por programadores
+'Microsoft Certified'. Meus amigos diploma nao eh tudo, eu nao fiz nenhum curs
+o para aprender a dominar linguagens de programacao, para dominar redes e etc.
+Por isso dedique-se e estude isso vai fazer de voce um cara mais respeitado no
+mundo da 'computacao seria' onde nem sempre o que vale eh o diploma.
+    
+E sabe qual tem sido o resultado da falta de estudo e excesso de confianca nos
+certificados?
+Milhares de linhas de codigo bem arrumadas, codigos bonitos e etc. Isso mesmo as 
+empresas contratam programadores, e os crackers? Os Vandalos? Os Gatunos? 
+SAO FACILITADOS.	
+
+Este artigo pretende demonstrar nao so como detectar bugs em ASP mas tambem como 
+proteger-se.
+
+Includes 
+Os includes sao o primeiro grande problema dos programadores iniciantes em ASP.
+O problemas nao se baseiam exactamente nos includes, eles estao safos mas o 
+problemas localiza-se na extensao desses arquivos muitas vezes setados como .inc
+Vejamos por exemplo uma pagina que usa um arquivo include.
+
+http://www.site.co.ao/verificapass.htm
+
+Ao analisarmos o codigo fonte verificamos as seguintes linhas:
+
+C:\>type verificapass.htm > log.txt
+C:\>Type log.txt
+
+   <html>
+   ..
+   ...
+   <%
+   REM Arquivo para verificar as passwords
+   <!--#include virtual="pass.inc" -->
+   REM Fim do arquivo
+   %>
+   ...
+   ..
+   </html>
+
+Podemos ver ali a existencia de uma chamada a um arquivo com a extensao .inc
+em seguida abrimos o browser e digitamos:
+http://www.site.co.ao/pass.inc
+Vemos o seguinte:
+
+   <%
+   Dim id, password, q, rs, d
+
+   id = Request.Form("id")
+   password = Request.Form("password")
+
+   ' ** Create your Query
+   q = "SELECT * FROM password WHERE id LIKE '" &_
+   id & "' AND password LIKE '" & password & "'"
+
+   ' ** Create a RecordSet to store the results of the Query
+   Set rs = Server.CreateObject("ADODB.RecordSet")
+   rs.Open q, "DSN=Banco;"
+
+   ' ** check for no records returned (id or password not found)
+   if NOT rs.EOF then
+
+   ' ** Set cookies for user's convenience
+   d = Date
+   Response.Cookies("userid") = id
+   Response.Cookies("pword") = password
+   Response.Cookies("userid").Expires = DateAdd("yyyy",2,d)
+   Response.Cookies("pword").Expires = DateAdd("yyyy",2,d)
+   end if
+   %>
+  
+
+Podemos ver claramente que o algoritimo de autenticacao pode ser visto a olho nu
+por isso um conselho: Quando for usar includes evite sempre a extensao .inc .htm
+.html .txt use sempre a extensao .asp!
+
+Base64
+Existem pessoas que ainda insistem em codificar os seus dados com base64, nao sei 
+porque ainda fazem isso ja que sabe-se de meios e esquemas de se descodificar esses
+dados facilmente paginas web, programas preparados para descodificar dados cofificados
+com base64. 
+O meu programa PassManipulator pode ser usado para codificar e decodificar strings
+em base64 propriamente especificados pela RFC 2045(Multipurpose Internet Mail Extensions). 
+Usando assim:
+C:\>pman encode string <word> <output.txt>
+C:\>pman encode file   <file.txt> <output.txt>
+
+C:\>pman decode string <word> <output.txt>
+C:\>pman decode file   <file.txt> <output.txt>
+
+[Stinger@Boxuh]$perl pman encode string <word> <output.txt>
+[Stinger@Boxuh]$perl pman encode file   <file.txt> <output.txt>
+
+[Stinger@Boxuh]$perl pman decode string <word> <output.txt>
+[Stinger@Boxuh]$perl pman decode file   <file.txt> <output.txt>
+
+Obs: Ainda nao coloquei o programa no server. Daqui a 2/3 semanas contem com isso.
+
+Bases de dados Acess
+Realmente um grande problema. As bases de dados acess se acessadas podem revelar informacoes
+fidedignas da base de dados como usernames passwords etc.
+Voce pode usar a ferramenta srcmdb.pl que eu desenvolvi para tentar procurar por bases de
+dados acess:
+C:\>perl srcmdb.pl www.site.com 
+Ou 
+C:\>perl srcmdb.pl www.site.com dir1 dir2 dir3
+Esses dir1 dir2 dir3 indicam que ele vai procurar bases de dados nesses diretorios.
+Use o arquivo srcmdb.cf para indicar outros nomes a procurar.
+Realmente isso acontece assim. Se voce acessa a URL:
+www.site.com/users.mdb
+Entao ele baixa a base de dados para o seu computador. Ou pode ser via wget:
+[Stinger@Boxuh]$wget http://www.site.com/users.mdb
+
+Obs: Ainda nao coloquei o programa no server. Daqui a 2/3 semanas contem com isso.
+
+Filtragem de caracteres(Replace)
+A filtragem de caracteres eh uma particularidade do ASP(e de outras), basicamente o que 
+ela faz eh subistituir caractere a caractere. 
+Vamos analisar em seguida ataques que podem ser barrados usando essa funcao.
+
+XSS - Cross site Scripting Bugs
+Esses bugs tem sido um problema ignorado por muita gente. Mas eles nem sabem que 
+tem sido explorados com sucesso. Ainda tenho visto muitas apps e sites com bugs 
+desse tipo e eles nem ligam nenhuma.
+Basicamete com esse bug e se voce for vitima qualquer pessoa pode acessar seu cookie
+ou mesmo redirecciona-lo a uma pagina maliciosa a fim de executar comandos. Bem mas
+concentremo-nos nos cookies. Como voce sabe(eu nao sei se voce sabe)os cookies sao
+arquivos armazenados no computador que armazenam informacoes sobre a navegacao em
+paginas dinamicas ou nao. Por exemplo se voce digitou seu username e password uma 
+vez voce nao precisa digitar mais gracas ao cookie, e eh ai onde entra o perigo um 
+atacante pode obter seus cookies chamando uma funcao javascript e atirando os cookies
+para um servidor previamente preparado. 
+Tendo capturado seus cookies ele simplesmente esparrama na pasta cookie do pc dele e
+acessa o site cujo cookie voce possuia. Sendo assim, ou seja tendo o teu cookie na 
+maquina dele ele vira voce, porque a pagina vai identificar o cookie e vai com base no
+cookie vai deixar ele acessar suas contas. 
+
+Proteccao
+Basta filtrar as URl's que nao prestam:
+Page.asp
+<%
+'Exemplo de proteccao contra
+'Ataques de Cross Site Scripting
+id=Replace(Request.Querystring("id"),"'","&nbsp")
+id=Replace(Request.Querystring("id"),"-","&nbsp")
+id=Replace(Request.Querystring("id"),">","&nbsp")
+id=Replace(Request.Querystring("id"),"<","&nbsp")
+id=Replace(Request.Querystring("id"),".","&nbsp")
+id=Replace(Request.Querystring("id"),"!","&nbsp")
+id=Replace(Request.Querystring("id"),"%","&nbsp")
+'A seguir retiramos os espacos:
+'Sem lados
+id=Trim(Request.Querystring("id"))
+'A esquerda
+id=LTrim(Request.Querystring("id"))
+'A direita
+id=RTrim(Request.Querystring("id"))
+%>
+
+Se um atacante tenta um ataque com a seguite URL
+http://www.siteprotegido.ao/Page.asp?id=<script>alert('ola')</script>
+O ataque vai ser filtrado.
+
+SQL Injection ataques
+Os ataques com base em sql injection tem aumentado de grau. Cito uma grande rede
+criada para ser segura (e era) a nivel de protocolos de transaccao, usava Linux
+SSL, e algo mais, mas era vulneravel a SQL Injection. Com isso mais de 
+40.000 contas ficaram expostas. Imagine se fosse um cracker ou Kiddie que 
+descobrisse aquilo?
+
+Proteccao
+
+Basicamente a proteccao eh quase identica a do XSS mas tenha atencao em filtrar
+os caracteres , ; - %20 etc.
+Page.asp
+<%
+'Exemplo de proteccao contra
+'Ataques de SQL Injection
+id=Replace(Request.Querystring("id"),"'","&nbsp")
+id=Replace(Request.Querystring("id"),"-","&nbsp")
+id=Replace(Request.Querystring("id"),",","&nbsp")
+id=Replace(Request.Querystring("id"),";","&nbsp")
+id=Replace(Request.Querystring("id"),"%20","&nbsp")
+id=Replace(Request.Querystring("id"),"or","&nbsp")
+id=Replace(Request.Querystring("id"),"select","&nbsp")
+id=Replace(Request.Querystring("id"),"SELECT","&nbsp")
+id=Replace(Request.Querystring("id"),"*","&nbsp")
+'A seguir retiramos os espacos:
+'Sem lados
+id=Trim(Request.Querystring("id"))
+'A esquerda
+id=LTrim(Request.Querystring("id"))
+'A direita
+id=RTrim(Request.Querystring("id"))
+%>
+
+Se um atacante tenta um ataque com a seguite URL
+http://www.siteprotegido.ao/Page.asp?id=21';SELECT ...
+Vai ser filtrada.
+
+Extored Procedures
+O servidor SQL da Microsoft possui extored Procedures que permitem a execucao de 
+instrucoes de maquinas em paginas da internet:
+URL Normal
+http://www.siteprotegido.ao/Page.asp?id=21
+URL com ataque em extored procedures
+http://www.siteprotegido.ao/Page.asp?id=21';EXEC master.dbo.xp_cmdshell 'cmd.exe dir 
+Onde master.dbo.xp_cmdshell eh uma extored procedure
+Existem dezenas de outras que permitem a manipulacao do registro do sistema por exemplo.
+
+Proteccao
+
+Page.asp
+<%
+'Exemplo de proteccao contra
+'Ataques de SQL Injection Com Extored Procedures
+id=Replace(Request.Querystring("id"),"EXEC","&nbsp")
+id=Replace(Request.Querystring("id"),";","&nbsp")
+id=Replace(Request.Querystring("id"),"'","&nbsp")
+id=Replace(Request.Querystring("id"),".","&nbsp")
+'A seguir retiramos os espacos:
+'Sem lados
+id=Trim(Request.Querystring("id"))
+'A esquerda
+id=LTrim(Request.Querystring("id"))
+'A direita
+id=RTrim(Request.Querystring("id"))
+%>
+
+
+Diretorio Transversal
+Os ataques de dot dot em servidores e em aplicacoes da Web que manipulam dados.
+Vamos ver uma URL valida
+http://www.siteprotegido.ao/Page.asp?id=21
+Basicamente se um atacante digita nessa URL:
+http://www.siteprotegido.ao/Page.asp?id=../../../../../C:\boot.ini
+Ele pode ver na pagina qualquer arquivo no servidor
+
+Proteccao
+
+Vamos retirar os bad caracteres:
+Page.asp
+<%
+'Exemplo de proteccao contra
+'Ataques de Dot Dot
+id=Replace(Request.Querystring("id"),"%20","&nbsp")
+id=Replace(Request.Querystring("id"),".","&nbsp")
+id=Replace(Request.Querystring("id"),"/","&nbsp")
+id=Replace(Request.Querystring("id"),"//","&nbsp")
+id=Replace(Request.Querystring("id"),"\","&nbsp")
+id=Replace(Request.Querystring("id"),"\\","&nbsp")
+id=Replace(Request.Querystring("id"),":","&nbsp")
+'A seguir retiramos os espacos:
+'Sem lados
+id=Trim(Request.Querystring("id"))
+'A esquerda
+id=LTrim(Request.Querystring("id"))
+'A direita
+id=RTrim(Request.Querystring("id"))
+%>
+
+
+Pipe
+Nao vou dar uma explicacao tecnica sobre pipe mas se voce quiser sabe pode ir digitando
+na sua console:
+Windows
+dir | dir *.exe
+Linux 
+ls  | cd /
+Voce pode ver que ele executa dois comandos simultaneamente, isso mesmo aconselho voce a
+ler o meu artigo 'Debug-Pro.txt' 
+Esse problema foi amplamente divulgado quando o RFP demonstrou ele naquele problema
+do ODBC do Windows o que resultou em milhares de paginas pichadas por kiddies.
+
+Basicamente uma URL valida:
+http://www.siteprotegido.ao/Page.asp?id=21
+http://www.siteprotegido.ao/Page.asp?id=|cmd+/c+dir
+
+Proteccao
+
+Vamos retirar os bad caracteres:
+
+Page.asp
+<%
+'Exemplo de proteccao contra
+'Ataques de Pipe
+id=Replace(Request.Querystring("id"),"|","&nbsp")
+'A seguir retiramos os espacos:
+'Sem lados
+id=Trim(Request.Querystring("id"))
+'A esquerda
+id=LTrim(Request.Querystring("id"))
+'A direita
+id=RTrim(Request.Querystring("id"))
+%>
+
+Case sensitivismo
+
+Um 'espertinho' pode muito bem usar tecnicas de casesensitivismo a fim de tentar 
+passar por tecicas de proteccao muito usadas em sistemas de IDS como protocol analisys.
+Nesse caso:
+<SCRIPT>alert('ola')</SCRIPT> e <script>alert('ola')</script> nao sao iguais. Lembro
+que o Snort era vulneravel a essa tecnica
+
+Proteccao
+Passa por chamar uma funcao do ASP que transforma letras maiusculas em minusculas:
+Page.asp
+<%
+'Exemplo de proteccao contra
+'Ataques de Case Sensitivismo
+id=LCase(Request.Querystring("id"))
+'A seguir retiramos os espacos:
+'Sem lados
+id=Trim(Request.Querystring("id"))
+'A esquerda
+id=LTrim(Request.Querystring("id"))
+'A direita
+id=RTrim(Request.Querystring("id"))
+%>
+
+Bem por hoje eh tudo na proxima parte pretendo abordar tecnicas de proteccao mais avancadas
+contra codificacao de bytes em hexadecimal e decimal ate tecnicas de rastreamento e 
+logging, algumas tecnicas de diversao a fim de 'massacrar' o atacante e fazer ele perder
+tempo a toa pensando que esta atacando a rede. Pretendo ainda falar sobre pattern matching.
+
+4:17 PM 2/23/2004
+

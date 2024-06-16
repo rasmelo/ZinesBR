@@ -1,0 +1,369 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[11]-=[Entrevista com dum_dum]-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Perguntas por: d4rwin, hallz, SKOFF, SkyNet45 e tDs
+
+
+1. Primeiramente, gostaríamos que você se apresentasse, fazendo um pequeno resu-
+   mo de como foram os seus primeiros contatos com computadores.
+
+Meu nome é Wendel Guglielmetti Henrique, atualmente trabalho como analista de
+penetration test (teste de intrusão), sou um dos fundadores do grupo Front The
+Scene, já estive ligado a outras cenas e grupos de Hackers, ou se preferirem,
+Hackers Éticos. Sou um dos fundadores e organizadores do H2HC (Hackers 2 Hackers
+Conference), e faço parte de algumas poucas comunidades de Hackers internacionais.
+
+Meu primeiro micro computador eu adquiri por influência de um tio, que me con-
+venceu que era mais interessante pedir um micro computador de presente de ani-
+versário do que um video-game da época. Eu não sabia exatamente o que fazia, mas
+eu já achava bem interessante os três micro computadores que ele tinha na empre-
+sa (rodando MS-DOS). :)
+
+Meu interesse por jogos eletrônicos foi diminuindo com o passar do tempo. A prin-
+cípio eu gostava de aprender sobre o MS-DOS, com exceção de programação em ar-
+quivos de lotes.  Na época,  programação não me atraía, para não dizer que eu
+achava muito chato. Até onde eu me lembro a cidade onde eu morava ainda não tinha
+provedor de acesso a internet ou BBS. Eu tinha poucos conhecidos que tinham ou se
+interessavam por micro computadores. Meu interesse cresceu alguns anos depois,
+quando mudei de escola e fiz um amigo (Fernando) que também gostava muito de
+micro computadores. O Fernando sabia mais do que eu  e tinha acesso a internet.
+
+
+
+2. Para você, o que é um hacker?
+
+Muito complexo definir. Se eu tivesse que definir de forma sucinta, eu diria que
+são pessoas que tem sede de aprender, e acabam se tornando muito boas nisso. De
+uma certa forma, eu acho que lembra o significado da palavra Kung-Fu.
+
+Entretanto esse perfil é voltado para informática, mas acaba abrangendo outras
+áreas relacionadas, como: telefonia, sistemas digitais, dispositivos eletrônicos,
+etc.
+
+Outro ponto relevante é o grande interesse por segurança e insegurança, que
+talvez seja o que os motive. E por fim, mas não menos importante, vem a po-
+lêmica ética Hacker, que acaba sendo moldada em cada um deles com o passar dos
+anos, e a sua filosofia em prol de várias causas como a liberdade da informação.
+
+
+
+3. A Ética Hacker também é algo bastante discutido. Algumas pessoas chegam in-
+   clusive a dizer que hackers não têm (ou não devem ter) uma ética. Qual é o
+   seu ponto de vista?
+
+Hackers tem ética. A questão é que essa ética em vários pontos não condiz com a
+ética que as pessoas aprendem desde criança.
+
+A ética Hacker ao meu ver é baseada em três pilares, sendo:
+
+- A liberdade da informação.
+- Possibilidade de acesso ao conhecimento.
+- Usufruir dos dois pilares acima da melhor forma possível para que não exista
+  (ou exista o mínimo possível) pessoas prejudicadas.
+
+
+
+4. O que te atrai no hacking?
+
+Principalmente os desafios que ele proporciona.
+
+
+
+5. Como você acha que é formado um hacker?
+
+Definitivamente não é em Universidades. :)
+
+Os Hackers de forma geral são autodidatas,  conseqüentemente a formação acontece
+naturalmente de acordo com o tempo que cada um começa a dedicar para pesquisar e
+desenvolver nesse seguimento. A própria comunidade Hacker tem um papel importante
+nesse sentido, pois ela desenvolve material para que novos interessados possam
+ler, aprender e conhecer o caminho das pedras...
+
+
+
+6. Quais os livros/textos você acha fundamentais para alguém que deseja ser um
+   hacker?
+
+Parece preconceituoso, mas eu acho fundamental conseguir ler em inglês para
+poder ter acesso mais fácil as informações. A língua inglesa tem um ponto muito
+positivo, que possibilitou através da Internet a disseminação quase em tempo real
+de conhecimento entre comunidades do mundo todo.
+
+Alguns Hackers defendem a importância de conhecer outros idiomas, como alemão,
+francês, russo, polonês, etc devido a grande qualidade de alguns textos publi-
+cados nesses idiomas, que não são traduzidos para a língua inglesa.
+
+Eu não acredito que existam livros fundamentais, mas sim tópicos fundamentais.
+Vou citar alguns tópicos e referencias de alguns clássicos do gênero, no intuito
+de auxiliar quem quer começar e não sabe por onde.
+
+Sistemas Operacionais (Internals):
+
+Operating System Concepts
+Modern Operating Systems (Second Edition)
+Operating Systems: Design and Implementation (Second Edition)
+
+
+Rede de Computadores:
+
+The Protocols (TCP/IP Illustrated)
+UNIX Network Programming
+
+
+Lógica de programação e linguagens:
+
+The Logical Basis for Computer Programming
+Curso básico de C da UFMG (http://ead1.eee.ufmg.br/cursos/C/)
+Programming Windows (Fifth Edition)
+Advanced Programming in the UNIX(R) Environment (Second Edition)
+Professional Assembly Language (Programmer to Programmer)
+
+
+Hacking em Geral:
+
+Phrack Magazine (http://www.phrack.org)
+The Hackers Choice - THC (www.thc.org/)
+Xfocus Team (http://www.xfocus.org/)
+
+
+Eventos de Hacking no Brasil:
+
+H2HC (http://www.h2hc.com.br OU http://www.h2hc.org.br)
+Code Breakers (http://www.codebreakers.com.br/)
+
+
+
+7. Para você, quais pessoas e/ou grupos deram grandes contribuições para a cena
+   hacker, tanto tecnicamente quanto na disseminação do espírito hacker?
+
+Depende, você quer saber sobre a cena Brasileira ou Internacional ?
+
+O Hacking tem algumas décadas, o que torna difícil dizer quais foram as maiores
+contribuições, já que eu não vivi nem mesmo metade delas. Entretanto, vou listar
+de forma reduzida algumas que eu presenciei.
+
+Brasil:
+- Axur05
+- Barata Elétrica (apesar de eu não gostar muito, ela foi importante)
+- Sekure.org
+- Unsekurity (Scene & Team)
+- Clube Dos Mercenarios (CDM)
+- H2HC (Hackers 2 Hackers Conference)
+
+Internacional:
+- Chaos Computer Club (CCC)
+- Cult Of The Dead Cow  (CDC)
+- 2600: The Hacker Quarterly (2600 Magazine)
+- Eletronic Frontier Foundation (EFF)
+- Legion Of Doom (LOD)
+- Masters Of Deception (MOD)
+- L0pht Heavy Industries
+- The Hackers Choice (THC)
+
+Eu acabei modificando várias vezes essa lista, pois existiram inúmeros grupos de
+peso com o passar dos anos, e para não favorecer nenhum, coloquei apenas os que
+eu considero que foram extremamente importantes para o Hacking.
+
+
+
+8. Vemos constantemente a mídia taxar hackers como criminosos. Qual seria o
+   principal motivo? E o que poderia ser feito para mudar esta situação?
+
+Esse assunto é muito polêmico na comunidade Hacker. Eu acredito que os dois
+principais motivos são: a desinformação e os interesses comerciais.
+
+Vários Hackers Brasileiros já contataram vários reporters de grandes meios de
+comunicação como Globo, Folha de São Paulo, Estadão, etc, com intuito de escla-
+recer conceitos utilizados de forma errônea nas matérias. Alguns simplesmente
+ignoram. Contudo, essa situação tem se modificado nos últimos anos, aos poucos.
+
+Por outro lado, existe a questão do interesse comercial: como nós bem sabemos,
+a palavra Hacker vende!
+
+
+
+9. O Brasil é famoso por seus grupos de pichadores, que figuram inúmeras vezes
+   em matérias publicadas por todas as partes. Você acha que o Brasil tem real-
+   mente grandes talentos na "arte do hacking" ou apenas pichadores e kiddies?
+
+Como em todo lugar do mundo, o Brasil tem verdadeiros Hackers, mas particular-
+mente eu acho que são poucos comparados a outros países, inclusive aqueles muito
+menores que o nosso. O Brasil com certeza tem muito mais Defacers, Script Kiddies,
+Carders e Bankers.
+
+Ser Hacker leva tempo, muito tempo, atualmente nós temos muitos newbies no Bra-
+sil. Então quem sabe daqui a alguns anos nós tenhamos uma cena Hacker forte.
+
+
+
+10. O cenário do hacking no Brasil não é tão expressivo quanto o de alguns outros
+    países. Isso pode ser devido a qual(is) fator(es)?
+
+Bom, eu não entendo muito dessa parte social, quem deveria responder essa pergunta
+é o meu irmão, que estuda Ciências Sociais. :)
+
+Eu acredito que os principais fatores são:
+- A Internet é recente no Brasil com relação a outros países de poder econômico
+  maior.
+- Hoje está muito mais fácil, mas a alguns anos atrás adquirir um micro computa-
+  dor era um luxo de poucos.
+- O famoso jeitinho Brasileiro de sempre querer passar a perna em alguém, ser
+  mais esperto, etc.
+
+
+
+11. O que te levou a criar a Front The Scene? Qual é o objetivo da FTS? Você
+    acha que este objetivo vem sendo alcançado?
+
+A Front The Scene foi criada junto com meu amigo Ygor (dmr). A idéia era apenas
+ser um grupo de amigos para trocar informações referentes a segurança computacio-
+nal e hacking. Atualmente a única parte ativa é a mail-list.
+
+A FTS colaborou com uma certa expressão para outras comunidades e acontecimentos
+importantes do Hacking no Brasil, como o primeiro evento Hacker Brasileiro, o
+H2HC.
+
+Eu diria que para a FTS alcançar algum objetivo nos dias de hoje, ela precisaria
+ser reestruturada; tenho discutido isso com o Ygor (dmr) recentemente.
+
+
+
+12. Quais tecnologias/conceitos você acredita serem promissores para o aumento
+    da segurança de redes e máquinas? E quais abordagens devem ser abandonadas
+    ou repensadas?
+
+Eu acredito que o conceito mais promissor para um aumento drástico da segurança
+da informação é educar os usuários, desenvolvedores, administradores de sistemas
+e administradores de redes. :)
+
+Existem vários conceitos aplicados atualmente que ou são defasados ou o design é
+ineficaz. Um exemplo interessante é o novo sistema para deletar ou encriptar
+arquivos de laptops roubados (http://info.abril.com.br/aberto/infonews/042006/
+12042006-7.shl).
+
+- Uma quadrilha especializada em roubos de laptops não formataria a máquina
+  antes de revender?
+- Se o objetivo da quadrilha é roubar informações classificadas, para que eles
+  conectariam esse laptop à internet?  Fazer atualizações do Windows (rs)?
+
+
+
+13. Você já teve algum tipo de problema por ter o seu nome vinculado ao hacking?
+
+Sim, algumas empresas tem alguns analistas de segurança e consultores de segurança
+que confundem a definição de Hacker com Cracker e as vezes até mesmo com Carders
+e Bankers, e dessa forma já fomos (nós do Intruders Tiger Team Security) prejudi-
+cados.
+
+
+
+14. Em suas palestras, qual tem sido o perfil predominante do público?
+
+Depende muito do evento; se é um evento de Software Livre, Hacking ou Universi-
+tário. De uma forma geral, a grande maioria são interessados por segurança e in-
+segurança, na maioria estudantes universitários.
+
+
+
+15. As instituições de ensino tem um histórico ruim no quesito (in)segurança.
+    Muitos alunos terminam o curso de TI sem saber o que é um race condition,
+    format string bug, MITM e até mesmo buffer overflow. Como você avalia, em
+    linhas gerais, o nível de conhecimento sobre as ameaças digitais dos uni-
+    versitários que tem encontrado?
+
+Generalizar é complicado, mas de forma geral os conceitos de segurança dos uni-
+versitários são muito fracos. Acredito que isso acontece devido a não existirem
+fundamentos de segurança da informação nas grades curriculares, o que é uma pena.
+
+Como eu disse, são casos e casos, mas no geral os conceitos sobre segurança da
+informação são bem precários, com resalva para os cursos cujo foco é segurança
+ou quando o professor/aluno tem um interesse extra-curricular por segurança.
+
+
+
+16. Sobre o H2HC. Conte-nos um pouco sobre a experiência de organizar um evento
+    para hackers, no Brasil. Foram muitas as dificuldades? As expectativas estão
+    sendo atingidas? O que podemos esperar para as próximas edições?
+
+Organizar eventos é difícil e requer muito tempo e esforço. Se for um evento de
+Hacking complica mais ainda. Se o evento for de Hacker e no Brasil, onde existe
+essa grande confusão dos termos, então é trabalho para homem casado, como diz meu
+amigo Glaudson.
+
+O H2HC é um evento sem fins lucrativos, e diga-se de passagem dá prejuízo (que é
+ratiado entre os organizadores). Por ter como foco o Hacking, fica difícil arrumar
+patrocinadores; então o evento é totalmente independente.
+
+O H2HC tem melhorado a cada ano em vários pontos, como organização, estrutura e
+modelação. Esse ano nós temos alguns novos membros escolhidos a dedo na comissão
+organizadora, e acreditamos que isso vai nos ajudar bastante.
+
+O H2HC com certeza atinge os seus dois principais objetivos, que são:
+- Fortalecer a cena Hacker brasileira como um todo.
+- Canalizar os recursos da mídia para difundir o sentido correto do termo Hacker.
+
+O próximo H2HC vem cheio de novidades, aguardem!
+
+
+
+17. Qual seria o perfil ideal para um patrocinador do H2HC?
+
+Uma empresa ou pessoa que apoie o Hacking ético, e não emponha as seguintes
+restrições:
+
+- Proibido demonstrar falhas ou citar como ineficaz o produto X, Y ou Z.
+- Não nós obrigue a abrir palestras fora do foco do evento.
+
+Nós entendemos que isso pode ser complicado do ponto de vista comercial, e
+estamos abertos a propostas e quem sabe chegar a um consenso.
+
+
+
+18. Como as empresas para quem você prestou serviços vêem o hacking e os hackers?
+
+Esse assunto tem que ser tratado com muito cuidado. Nós procuramos explicar para
+todos os clientes e possíveis clientes o que é Hacking e o que são Hackers. Pro-
+curamos ainda mostrar que os Hackers estão em todos lugares, e participam ativa-
+mente no desenvolvimento das mais variadas soluções existentes,  não só no campo
+da segurança computacional.
+
+
+
+19. Sobre o Intruders, o que tem sido desenvolvido/pesquisado?
+
+O Intruders Tiger Team Security (http://www.intruders.com.br/) é onde eu trabalho,
+que é uma divisão da Security OpenSource (http://www.security.org.br).
+
+Nós pesquisamos várias áreas, as principais são:
+- Pesquisa & desenvolvimento de vulnerabilidades.
+- Pesquisas com certificados digitais.
+- Pesquisas & desenvolvimento de possíveis soluções Anti-Phishing
+- Pesquisas & desenvolvimento de possíveis soluções contra malwares em geral
+  (vírus, trojans, ...)
+- Desenvolvimento do Security Works, que é uma família de serviços de segurança
+  gerenciados.
+
+
+
+20. Existe alguma solução desenvolvida pelo Intruders que estará disponível aos
+    usuários em breve?
+
+Sim, mas infelizmente não posso repassar maiores detalhes. :(
+
+
+
+21. Existem rumores de que o seu nick é uma referência ao pagode, som que você
+    curte. (tikidum dum dum, tikidum dum dum). Você confirma?
+
+Hahaha, estava demorando pra começar! :)
+
+
+
+22. Espaço livre. Mande o seu recado para os newbies de plantão :-)
+
+1 - Don't learn to hack, Hack to learn.
+2 - Nunca confie no hallz, ele sempre faz perguntas para te deixar encabulado. :)
+
+
+_EOF_

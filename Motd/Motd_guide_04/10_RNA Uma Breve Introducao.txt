@@ -1,0 +1,514 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[10]-=[RNA: Uma Breve Introducao - Parte 1 ]=-|tDs|=-=-=-=-=-=-=-=-=-=-=-=-=-
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+--=[ Introducao
+
+
+--=--=[ Neuronios
+    
+	Neuronios sao as principais celulas do sistema nervoso central,  sendo
+composto por corpo celular (soma), dendritos, axonio e telodendro. O axonio, que
+e' unico por neuronio, e' o responsavel por levar sinais nervosos para fora do
+neuronio. Dendritos formam uma rede para recebimento de informacoes advindas do
+exterior do neuronio, ou seja, vindo de outros neuronios. Neuronios normais 
+(todos sao) possuem diversos dendritos. 
+
+	A comunicacao entre os neuronios se da atraves de ligacoes chamadas de 
+sinapses, que resumidamente e' uma ligacao entre dois neuronios, a qual e' feita
+entre o axonio de um neuronio e um dendrito ou a soma de um outro neuronio, po-
+dendo ocorrer tambem a ligacao entre dois axonios, embora isso seja menos comum.
+As sinapses sao tambem responsaveis pela  comunicacao entre neuronios e  outras
+celulas nao neurais, como por exemplo musculos ou glandulas.
+
+	Neuronios do cortex cerebral nos mamiferos  (citado agora somente como
+cortex) podem possuir algo em torno de 1000 dendritos cada, possibilitando co-
+nexao com dezenas de milhares de outras celulas. Entao, nao e' surpresa saber
+que o cortex esta envolvido nas atividades cerebrais mais complexas, tais como
+consciencia, linguagem, consciencia perceptual (voce sabe que esta percebendo) 
+e pensamento.
+
+	O cortex recebe  informacoes sensoriais de diversas partes do  corpo,
+tais como maos ou patas, olhos e ouvidos. As informacoes sao entao processadas
+por neuronios, que dependendo do que foi recebido ira enviar outras informacoes
+para outros neuronios, formando um ciclo interminavel ( ok, a morte existe ).
+
+	Neuronios basicamente trabalham com entrada e saida de sinais. Ao rece-
+ber um sinal de entrada, atraves de um dendrito, ele verifica se este sinal al-
+canca seu valor de ativacao. No caso positivo, o neuronio ira estimular a saida
+de sinal atraves de seu axonio (este axonio que, como citado anteriormente, esta 
+ligado em dendritos de um outro neuronio). Caso contrario, a saida sera inibida.
+
+    
+--=--=[ Neuronios Artificiais
+    
+	Assim como os neuronios biologicos, os neuronios artificiais, principais 
+componentes de uma rede neural articial, basicamente trabalham com entrada e sa-
+ida de informacoes. Atraves dos dendritos as entradas chegam ao neuronio, tendo
+pesos atribuidos  pelas sinapses.  A soma das entradas combinadas com os  pesos
+produz uma saida efetiva, a qual sera processada pela funcao de ativacao do neu-
+ronio. A funcao de ativacao ira ou nao ativar a saida do neuronio finalmente.
+Podemos  abservar  na Fig. 1 uma descricao de um neuronio  artificial e suas
+partes.
+
+     .............................................................
+    +                                                             +
+    |                                                             |
+    |         w1                                                  |
+    |   X1 .............           |'''''''''''''+                |
+    |         w2        \          |             |t               |
+    |   X2 ============{ E }=======+    f(a)     |========> y     |
+    |         w3        /          |             |                |
+    |   Xn ............/           +.............+                |
+    |                                                             |
+    |                                                             |
+    |    X1, X2 e Xn:                                             |
+    |      Dendritos (entradas)                                   |
+    |    w1, w2 e w3:                                             |
+    |      Pesos (os pesos podem ser comparados com               |
+    |      neurotransmissores em um neuronio biologico)           |
+    |    E:                                                       |
+    |     Soma ponderada do produto das entradas                  |
+    |     pelos pesos ( E = X1w1 + X2w2 ... + Xnwn )              |
+    |   f(a):                                                     |
+    |     Funcao de ativacao do neuronio                          |
+    |   t:                                                        |
+    |     Limite de ativacao (threshold)                          |
+    |   y:                                                        |
+    |     Axonio (saida)                                          |
+    |                                            Fig. 01          |
+    +.............................................................+
+
+
+
+--=[ Redes de Neuronios
+    
+	Um conjunto de neuronios artificiais interconectados forma a base de uma
+rede neural artificial. Redes neurais artificiais (chamada agora apenas de RNA),
+usam modelos matematicos para processamento de informacoes, baseados em uma tipo
+especifico de conexionismo, voltado a computacao  (conexionismo pode ser visto
+como um conjunto de unidades simples interconectadas,  no caso de RNAs,  essas
+unidades simples sao os neuronios).
+
+	Redes neurais podem e sao utilizadas para diversos fins, entre os quais,
+reconhecimento de voz, reconhecimento otico de caracteres (OCR), previsoes, re-
+conhecimento de padroes, classificacao de dados, entre outros. Existem diversas
+classes de RNAs entre os quais:
+    
+    - Feedforward neural networks
+    - Recurrent network
+    - Stochastic neural networks
+    - Modular neural networks
+
+    Em cada classe de RNA existem diversos tipos de redes, as mais populares 
+sao:
+    
+    - Adaptive Linear Neuron / Adaptive Linear Element (ADALINE)
+    - Multiple Adaptive Linear Neuron (MADALINE)
+    - Radial Basis Function (RBF)
+    - Kohonen self-organizing network
+    - Hopfield network
+    - Single Layer Perceptron
+    - Multi Layer Perceptron (MLP)
+    
+	As redes neurais funcionam com base em treinamentos, ou seja, nao basta
+apenas construir uma RNA e colocar ela, por exemplo, para classificar padroes.
+Ela antes precisa conhecer esses padroes atraves de um treinamento previo. Ha
+varios metodos de treinamento, entre eles:
+    
+    - Decision Tree
+    - Nearest Neighbor
+    - Boosting
+    - Bayesian inference
+    - Naive Bayes classifier
+    - Clustering
+    - Backpropagation
+
+    
+	Nota-se que RNAs nao sao exatamente complexas,  mas sim uma area muito
+vasta, com muita informacao, nao sendo muito facil ter conhecimento sobre tudo
+que possa estar envolvido no desenvolvimento de todos os tipos de redes de todas
+as classes, utilizando diversos metodos de treinamento.  Vamos entao nos concen-
+trar em uma classe especifica de RNA, a feedforward neural network. Nesta clas-
+se, ficaremos no tipo de rede conhecido como multi layer perceptron (mlp) e po-
+demos (e vamos) utilizar backpropagation como metodo de treinamento.
+
+
+--=--=[ Feedforward Neural Networks    
+    
+	RNAs sao formadas por layers (camadas) de neuronios, normalmente tendo
+uma layer na entrada, uma outra na saida e uma  layer oculta (hidden layer). Em
+uma feedforward neural network (FFNet) cada neuronio (chamado agora de unit) de
+uma layer esta conectado com cada outra unit de uma outra layer  (posterior ou 
+anterior a esta layer). A informacao entra na rede atraves da layer de entrada,
+passando por cada outra layer ate chegar a saida. Durante a operacao normal da 
+rede, nao existe feedback - retorno - de uma layer para a sua layer anterior. 
+Dai surge o nome de feedforward neural network.
+
+
+--=--=[ Perceptron
+    
+	Um perceptron e' um tipo de RNA que consiste de uma ou mais layers de
+units. As entradas sao entregues diretamente as saidas, via uma serie de pesos
+usados para calculo de ativacao. As layers nao dao feedback para outras layers,
+sendo assim este um tipo de FFNet. Vamos a um exemplo ilustrativo de como funci-
+ona um perceptron. Na Figura 2 temos no perceptron os pesos de cada entrada pre-
+viamente calculados atraves de um treino com padroes ja conhecidos. Nas entradas
+temos os valores que queremos a classificacao do padrao. O valor minimo de ati-
+vacao e'de 0,4. Desta forma temos na entrada E o seguinte:
+    
+    E = ((5x0,3) + (9x0,6) + (2x0,4)) / (5+9+2) .-. E = 0,48125
+
+    Para que a saida seja ativada, a entrada deve ser maior ou igual a t (0,4).
+Como neste caso o valor e' maior, a saida sera ativada.
+
+     ...............................................................
+    +                                                               +
+    |                                                               |
+    |           w1=0,3                                              |
+    |   X1=5 .............           |'''''''''''''+                |
+    |           w2=0,6    \          |             |t=0,4           |
+    |   X2=9 ============{ E }=======+             |========> y     |
+    |           w3=0,4    /          |             |                |
+    |   X3=2 ............/           +.............+                |
+    |                                                               |
+    |                                                               |
+    |                                              Fig. 02          |
+    +...............................................................+
+
+    
+
+--=--=[ Multi Layer Perceptron com Aprendizado por Backpropagation
+    
+	Multi layer perceptron (MLP) e' o tipo de RNA mais utilizado. Consiste
+de uma layer de entrada, que contem uma quantidade de units igual a quantidade
+de variaveis que um problema possa ter (ficara claro no exemplo que vem a seguir
+o que isso significa), uma layer de saida, que sera o local por onde a "respos-
+ta" do problema sera mostrada. A layer de saida normalmente contem uma unit ape-
+nas. As layers entre a de entrada e a de saida sao as chamadas hidden layers. 
+Problemas que podem ser resolvidos por um perceptron, podem ser feitos de tal 
+forma que a utilizacao de apenas uma hidden layer resolva, entretanto o percep-
+tron algumas vezes se comporta melhor com o uso de duas hidden layers.
+
+	Backpropagation e' um algoritimo de aprendizado utilizado em FFNets com
+uma ou mais layers entre a entrada e a saida da rede (por isso pode e e' muito
+utilizado em multi layer perceptron). Uma rede MLP  ao ser iniciada contem pesos 
+aleatorios (entre 0 e 1) nas entradas e um valor que e' esperado na saida. Apos
+os dados serem apresentados 'a entrada e a saida ter sido calculada, uma compa-
+racao entre esta saida calculada e a saida desejada, o erro e' calculado e pro-
+pagado por toda a rede, da saida para a entrada (back propagation) para que os
+pesos possam ser entao recalculados.  Este procedimento e' repetido ate que a
+rede chegue em um nivel de erro aceitavel para a funcao que ira desempenhar.
+
+
+
+--=[ LIBFANN - Fast Artificial Neural Network
+
+	Podemos ver um exemplo simples de uso de uma RNA para classificar in-
+formacoes. Este primeiro exemplo sera para uma breve introducao na utilizacao
+da FANN, que e' uma lib que implementa rede multi layer e utiliza backpropaga-
+tion para o treinamento. Os exemplos serao feitos utilizando a linguagem PHP,
+embora a lib possa ser utilizanda em programas escritos em C, Python, Ruby,
+Octave e algumas outras.
+
+	E' necessario entao instalar a libfann e criar o modulo que sera utili-
+zado nos scripts php (supondo que ja tenha o interpretador php instalado, pois
+isso nao sera coberto).  Faca o download da libfann [1] e da fannphp [2] (as 
+versoes utilizadas foram 1.2.0 (libfann) e 0.1.0 (fannphp). Apos isso, a insta-
+lacao da libfann se da' da seguinte forma:
+
+    $ tar xjvf fann-1.2.0.tar.bz2
+    $ cd fann-1.2.0
+    $ ./configure              
+    $ make
+    # make install
+    
+    E a criacao do modulo php:
+    
+    $ tar xjvf fannphp-0.1.0.tar.bz2
+    $ cd ext/fann/
+    $ phpize
+    $ ./configure
+    $ make
+    
+    Apos isso, um arquivo chamado "fann.so" sera criado no diretorio "modules/":
+    
+    $ ls  modules/fann.so 
+    modules/fann.so*
+    
+    Este modulo sera utilizado por todos os scripts php que utilizem alguma RNA.    
+
+
+
+--=[ Classificacao de Informacao e Reconhecimento de Padroes
+    
+	A tabela a seguir (Tab. 1) contem informacoes que foram adquiridas em 
+uma pesquisa de rua, na qual foram consultadas pessoas que acessam regularmente
+a internet. Foi questionado o seguinte, como pode ser observado:
+
+    - Nome da pessoa consultada;
+    - Sexo da pessoa;
+    - Idade da pessoa;
+    - Se tem ou nao filhos e, caso tenha, quantos;
+    - Faz compras via internet ( 1 = sim, 0 = nao )
+
+    .______________.______._______.________.___________________.
+    | Nome         | Sexo | Idade | Filhos | Compra pela web ? |
+    +--------------+------+-------+--------+-------------------+
+    | Jose         |   M  |   32  |    1   |         1         |
+    | Maria        |   F  |   22  |    0   |         0         |
+    | Joana        |   F  |   25  |    0   |         0         |
+    | Joao         |   M  |   35  |    0   |         1         |
+    | Lucia        |   F  |   24  |    1   |         1         |
+    | Marina       |   F  |   21  |    0   |         0         |
+    | Joseane      |   F  |   22  |    0   |         0         |
+    | Carlos       |   M  |   40  |    2   |         1         |
+    | Mariano      |   M  |   33  |    3   |         1         |
+    | Claudia      |   F  |   23  |    0   |         0         |
+    | Francine     |   F  |   26  |    0   |         0         |
+    | Marlon       |   M  |   36  |    1   |         1         |
+    | Tatiane      |   F  |   25  |    1   |         1         |
+    | Jaqueline    |   F  |   22  |    0   |         0         |
+    | Raquel       |   F  |   21  |    0   |         0         |
+    | Mustafa      |   M  |   41  |    2   |         1         |
+    '--------------'------'-------'--------'-------------------'
+                                         Tab. 1: Pesquisa de rua 
+    
+	De posse dessa informacao, uma loja que efetua vendas via internet, que
+passaremos a chamar apenas de "Loja", gostaria de buscar por algo em comum entre
+as pessoas que normalmente compram via internet. A Loja possui um outro banco de
+dados (Tab. 2) com informacoes de outras pessoas, as quais ela nao sabe se cos-
+tumam ou nao efetuar compras em lojas eletronicas,  e gostaria de  convida-las
+para uma visita ao site. Entretanto, ela nao pretende incomodar as pessoas que
+supostamente nao iriam comprar, e nao acha interessante, por qualquer motivo, 
+enviar emails a estas pessoas (que nao iriam comprar). Politica de minimizacao 
+de spam adotada pela empresa. Para que pessoas da lista a Loja deve enviar o 
+email? 
+
+            .______________.______._______.________.
+            | Nome         | Sexo | Idade | Filhos |
+            +--------------+------+-------+--------+
+            | Ivan         |   M  |   30  |    1   |
+            | Juliana      |   F  |   20  |    0   |
+            | Maristela    |   F  |   22  |    0   |
+            | Claudionor   |   M  |   37  |    0   |
+            | Marcia       |   F  |   25  |    1   |
+            | Sabrina      |   F  |   21  |    0   |
+            '--------------'------'-------'--------'
+                    Tab. 2: Dados para classificacao
+
+    De posse dessa informacao, podemos organizar os dados para a construcao e
+treino da rede.
+
+    - Numero de units na layer de entrada: Baseado na quantidade de variaveis
+      ( sexo, idade e filhos ). Utilizaremos entao 3 units.
+    - Hidden layer: Apenas uma.
+    - Numero de units na hidden layer: 6
+    - Numero de units na layer de saida: 1 ( a saida ira indicar se a pessoa 
+      entra no padrao de quem compra pela internet ou de quem nao compra )
+    - Dados para treino da rede: O conteudo da Tab. 1
+    - Dados para serem classificados: O conteudo da Tab. 2
+    
+	Resumidamente, o que a rede ira fazer e' verificar em qual classe as
+pessoas da Tab. 2 se encaixam: Classe das pessoas que compram pela internet e
+classe das pessoas que nao compram pela internet. Vamos ao codigo:
+
+
+<++> php_rna/peopleClass.php
+<?php
+/**
+ * Simples exemplo de treino de rede neural
+ * by tDs <tds@motdlabs.org>
+ */
+
+/* modulo que foi criado anteriormente */
+dl('fann.so');
+
+/*
+ * Aqui temos um array com informacoes sobre
+ * as pessoas da Tab. 1, as quais serao utilizadas para treino
+ * da rede. Sexo sera definido como 'M' = 0 e 'F' = 1
+ */
+$dados = array (
+    array ( 'sexo' => 'M', 'idade' => 32, 'filhos' => 1, 'saida' => 1 ),
+    array ( 'sexo' => 'F', 'idade' => 22, 'filhos' => 0, 'saida' => 0 ),
+    array ( 'sexo' => 'F', 'idade' => 25, 'filhos' => 0, 'saida' => 0 ),
+    array ( 'sexo' => 'M', 'idade' => 35, 'filhos' => 0, 'saida' => 1 ),
+    array ( 'sexo' => 'F', 'idade' => 24, 'filhos' => 1, 'saida' => 1 ),
+    array ( 'sexo' => 'F', 'idade' => 21, 'filhos' => 0, 'saida' => 0 ),
+    array ( 'sexo' => 'F', 'idade' => 22, 'filhos' => 0, 'saida' => 0 ),
+    array ( 'sexo' => 'M', 'idade' => 40, 'filhos' => 2, 'saida' => 1 ),
+    array ( 'sexo' => 'M', 'idade' => 33, 'filhos' => 3, 'saida' => 1 ),
+    array ( 'sexo' => 'F', 'idade' => 23, 'filhos' => 0, 'saida' => 0 ),
+    array ( 'sexo' => 'F', 'idade' => 26, 'filhos' => 0, 'saida' => 0 ),
+    array ( 'sexo' => 'M', 'idade' => 36, 'filhos' => 1, 'saida' => 1 ),
+    array ( 'sexo' => 'F', 'idade' => 25, 'filhos' => 1, 'saida' => 1 ),
+    array ( 'sexo' => 'F', 'idade' => 22, 'filhos' => 0, 'saida' => 0 ),
+    array ( 'sexo' => 'F', 'idade' => 21, 'filhos' => 0, 'saida' => 0 ),
+    array ( 'sexo' => 'M', 'idade' => 41, 'filhos' => 2, 'saida' => 1 )
+                );
+
+
+/**
+ * Aqui a rede sera criada
+ * Em tipo de conexao podemos utilizar 1.0 ou 0.5, que indica que a
+ * rede sera totalmente conectada ou indica que a rede tera somente
+ * metade das conexoes efetuadas.
+ * informacoes detalhadas sobre a funcao podem ser encontradas em [3]
+ */
+$rede = fann_create ( array(3, 6, 1), // units: 3/entrada, 6/hidden e 1/saida
+                      1.0,            // tipo de conexao
+                      0.7             // taxa de aprendizagem
+                    );
+
+
+/*
+ * E' feita a leitura de cada pessoa e a informacao e' colocada de
+ * forma que a funcao possa entender e entao e' jogado na rede para
+ * treinamento
+ */
+$info = array();
+foreach ( $dados as $pessoa ) {
+    array_push ( $info,
+                     array (
+                         array (
+                             $pessoa['sexo'],
+                             $pessoa['idade'],
+                             $pessoa['filhos']
+                         ),
+                         array (
+                             $pessoa['saida']
+                         )
+                     )
+               );
+}
+fann_train ( $rede,
+             $info,    // informacao utilizada para o treino
+             10000,     // numero maximo de interacoes para treino da rede
+                       // (epocas/epochs)
+             0.00001,  // erro max. para que a rede seja considerada treinada
+             0         // mostrar informacoes sobre o treino da rede a cada
+                       // quantas epocas?
+           );
+
+
+
+$teste0     = fann_run ( $rede, array ( 'F', 22, 0 ));
+$teste1     = fann_run ( $rede, array ( 'M', 32, 1 ));
+$Ivan       = fann_run ( $rede, array ( 'M', 30, 1 ));
+$Juliana    = fann_run ( $rede, array ( 'F', 20, 0 ));
+$Maristela  = fann_run ( $rede, array ( 'F', 22, 0 ));
+$Claudionor = fann_run ( $rede, array ( 'M', 37, 0 ));
+$Marcia     = fann_run ( $rede, array ( 'F', 25, 1 ));
+$Sabrina    = fann_run ( $rede, array ( 'F', 21, 0 ));
+
+echo "As saidas foram as seguintes:\n".
+     "teste0:     $teste0[0]\n".
+     "teste1:     $teste1[0]\n".
+     "Ivan:       $Ivan[0]\n".
+     "Juliana:    $Juliana[0]\n".
+     "Maristela:  $Maristela[0]\n".
+     "Claudionor: $Claudionor[0]\n".
+     "Marcia:     $Marcia[0]\n".
+     "Sabrina:    $Sabrina[0]\n\n";
+?>
+<--> php_rna/peopleClass.php    
+
+
+	Antes de verificarmos como a rede se comporta, algumas consideracoes 
+devem ser feitas:
+
+    - Os dados para treino da rede sao muito importantes, entao devem ser bem
+    selecionados e em uma boa quantidade  ( o que nao foi o caso,  esta sendo
+    utilizada pouca informacao para treino)
+
+    - Observe que os dados que serao  testados para a saida em "$teste0" e 
+    "$teste1" sao exatamente iguais a dados que foram utilizados durante o
+    treinamento da rede, entao essas saidas deveram ser iguais as saidas que
+    foram apresentadas com os mesmos dados durante o treinamento.
+
+    - O codigo php utiliza algumas poucas funcoes, resumidamente trabalhando
+    da seguinte forma:
+      * E' carregado o modulo para uso da fann;
+      * E' criado um array com as informacoes que serao utilizadas pela rede
+      durante o treinamento;
+      * A rede e' criada;
+      * As informacoes que serao utilizadas para o treino e' organizada em uma
+      pilha ( que vai se transformar em um array de arrya ), que sera passada
+      para o treino da rede;
+      * A rede e' treinada;
+      * A rede e' utilizada para classificar informacoes para "teste0", 
+      "teste1", "Ivan", ... e "Sabrina";
+      * O resultado da classificacao e' entao exibido;
+      
+    Vejamos como ficou:
+    
+    $ php peopleClass.php
+    As saidas foram as seguintes:
+    teste0:     0
+    teste1:     1
+    Ivan:       1
+    Juliana:    0
+    Maristela:  0
+    Claudionor: 1
+    Marcia:     1
+    Sabrina:    0
+    $
+    
+	Como dito, "teste0" e "teste1" realmente obtiveram as saidas conforme o
+esperado. O que podemos observar tambem e' que, aparentemente as informacoes fo-
+ram classificadas de tal forma que se assemelham com os dados de entrada. Veja
+por exemplo o Claudionor, que tem 37 anos, 1 filho e e' do sexo 'M'. Nos dados
+de entrada nao existe nenhuma informacao igual a dele, e o que mais se assemelha
+e' a entrada da linha 12 de dados:
+
+"array ( 'sexo' => 'M', 'idade' => 36, 'filhos' => 1, 'saida' => 1 )"
+
+Assim como esta entrada de dados, a saida do Claudionor tambem esta em 1, ou se-
+ja, o Claudionor se encaixaria na classe de pessoas que efetuariam  uma compra
+pela internet.
+
+	Como pode se observar, o funcionamento e' bastante simples (embora os
+algoritimos utilizados para que isso funcione nao sao assim tao simples). Apos
+essa breve introducao e visualizacao de como funciona ( e que realmente funcio-
+na), podemos partir para algo mais interessante.
+
+
+
+--=[ Utilizacao de RNA para Deteccao Local de Intrusao (Proxima Parte)
+    
+	Sistemas dedicados a determinadas tarefas normalmente seguem um deter-
+minado padrao, muito embora esses padroes possam nos passar despercebidos. Eles
+podem ser, entre outras coisa:
+
+    - Arquivos
+      * Quem acessou
+      * Em que horario acessou
+      * O que fez com o arquivo (leu/gravou/deletou)
+      * De onde acessou
+    - Processos
+      * Quem executou
+      * Em que horario executou
+      * Durante quanto tempo ficou ativo 
+
+	O que vamos implementar e' uma simples RNA treinada com informacoes de 
+quais usuarios acessam quais arquivos e em que horarios. O ideal seria treinar
+a rede com informacoes sobre o uso normal do ambiente no qual o sistema de de-
+teccao de intrusao (chamado agora apenas de HIDS - Host Intrusion Detection
+System ) sera implementado. A rede sera treinada com informacoes triviais, como
+user id, arquivo acessado e horario e o dia de acesso ( dia normal / fim de 
+semana ). Devido a simplicidade do treino ( nao sera algo muito aprofundado ),
+a quantidade de falso-positivos pode ( provavelmente sera ) muito alta.
+
+                                            
+
+[ CONTINUA NA PARTE 2 ]
+
+
+[1] http://prdownloads.sourceforge.net/fann/fann-1.2.0.tar.bz2?download
+[2] http://prdownloads.sourceforge.net/fann/fannphp-0.1.0.tar.bz2?download
+[3] http://leenissen.dk/fann/fann.html#php.api
+
+http://en.wikipedia.org/
+http://pt.wikipedia.org/

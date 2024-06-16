@@ -1,0 +1,1191 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[05]-=[Detonando HoneyPots em Linux]-=|SkeyNet45|-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+##################################################################
+######################### -  MOTD LABS  - ########################
+##################################################################
+
+Desenvolvido por SkyNet45 aka Rapadura_com_Farinha
+
+Este texto faz parte integrante da Motd Guide N° 03 e pode ser obtido em:
+
+http://www.motdlabs.org/                             
+http://guide.motdlabs.org/
+http://skynet45.motdlabs.org/
+
+
+
+
+###############
+Observacao ####
+###############
+
+Este documento visa  expor algumas das  falhas existentes no  uso de ferramentas
+muito comuns em redes coorporativas  na atualidade, os honeypots. Nao  tenho por
+objetivo  expor  nenhuma  falha  ou  vulnerabilidade nova,  apenas  expor   mais
+claramente metodos pre-existentes, e  tambem algumas 'gambiarras' que  sao uteis
+na hora de  passarmos por um  honeypot. Se voce  procura algo novo  ou que possa
+chamar muito a atencao, infelizmente voce estah procurando no lugar errado,  SK,
+defacers, e  banda podre  nao sao  bem vindos  na leitura  desse texto. Qualquer
+duvida ou contradicao favor contatar.
+
+	O DESENVOLVEDOR DESSE MATERIAL NAO SE RESPONSABLIZA POR QUALQUER DANO  CAUSADO
+                       	PELAS INFORMACOES CONTIDAS AQUI.
+
+
+
+-----------------------------------# TOPICOS  #---------------------------------
+
+
+	1 – Conceito de Honeypots
+
+	2 – O que eh um Honeypot? 		
+			2.1 – Exemplo de Honeypot.
+
+	3 – Honeynets
+			3.1 - O que eh uma Honeynet? 
+			3.2 - Onde funcionam.
+			3.3 - Como funcionam.
+			3.4 - Exemplo de uma Honeynet.
+
+	4 – Tipos e Honeypots
+			4.1 – Alta Interatividade
+				4.1.1. - O que sao?
+				4.1.2. - O que possuem?
+				4.1.3. - Onde funcionam?
+				4.1.4. - Exemplo de Honeypots de  Alta Interatividade.
+			4.2 – Baixa Interatividade 
+				4.2.1. - O que  sao?
+				4.2.2. - O que possuem? 
+				4.2.3. - Onde  funcionam? 
+				4.2.4. - Exemplo  de Honeypots  de Baixa Interatividade.
+
+	5  –  Tipo  de  Atacantes 		
+			5.1 – Atacantes  Experientes 
+			5.2 - NewBies, ScriptKiddies e afins.
+			5.3 - Atacantes X Conceito.
+
+	6 – VMWARE
+			6.1  – Deteccao
+				6.1.1. - 4tphi – vmchk.c (code) 
+				6.1.2. - ifconfig
+				6.1.3. - Ksyms | grep vm
+
+	7 – Sebek
+			7.1 - Funcionamento do Sebek.
+			7.2 - Metados para deteccao do Sebek.
+				7.2.1. - chkrootkit (*).
+				7.2.2. - Modulos no boot X lsmod.
+
+	8 –  HoneyD
+			8.1  - Caracteristicasdo  HoneyD.
+			8.2  - Deteccao. 
+				8.2.1. - ps ax
+				8.2.2. - /dev /mem
+
+	9 – Causas do uso de um Honeypot.
+			9.1 - DMZ.
+			9.2 - Altos Gastos.
+
+	10 – Perigos
+			10.1 - Comprometimento.
+			10.2 - Ataques Ddos.
+			10.3 - Fornecimento de recursos.
+
+	11 – Aspectos Juridicos
+			11.1 - Constituicoes fora do Brasil.
+			11.2 - Comparacao ao Grampo Telefonico. 
+			11.3 - Logs  Contraversivos.
+			11.4 - Inducao ao ataque.
+			11.5 - Ataques futuros ao Honeypot.
+			11.6 - Brasil – Pt- Br.
+
+	12  –  Serah que  tem  jeito? 		
+			12.1 -  Eh possivel  melhorar? 
+			12.2 -  Sem honeypot....nao sem seguranca!!!
+
+
+
+***************************    
+1 – Conceito de Honeypots *
+***************************
+
+Sao  ferramentas criadas  para se  apoderar do  conhecimento dos  atacantes  que
+querem comprometer a  rede em questao.  Estes programas desenvolvem  um papel de
+agentes  nos quais  captam logs,  comandos e  ferramentas utilizadas  durante  o
+ataque, e guardao  estas informacoes para  futura analise pelo  administrador do
+honeypot ou por todas  a comunidade de seguranca.  O conceito mais difundido  eh
+que as ferramentas  que constituem os honeypots podem demonstrar  claramente aos
+administradores de redes  as tecnicas mais  recentes utilizadas pelos  hackers e
+com isso eles podem se proteger  melhor e ateh desenvolver anti-tecnicas  ou
+protecoes mais eficientes para coibir a acao dos fucadores.
+
+Essas ferramentas sao apenas programas que emulam variados sistemas, servicos, e
+vulnerabilidades  existentes.  Elas  mostram para   o atacante   uma  realidade
+falsa, um sistema que  pode interagir com comandos  e repostas, mas  ateh  certo
+ponto. Existe uma facilidade muito grande em se invadir um honeypot pois o mesmo
+jah eh  criado para  ser invadido,  dependendo da  sua caracteristica o honeypot
+irah  reagir  de  maneiras  diferentes as  tecnicas  aplicadas  pelo  invasor do
+sistema. Algumas vezes o atacante pode facilitar a captacao de seus dados e  das
+tecnicas  aplicadas na  invasao feita  alih, isso  no caso  de um  atacante  sem
+experiencia.
+
+
+**************************
+2 – O que eh um Honeypot?*
+**************************
+
+Um honeypot nao  eh nada mais   do que uma  maquina preparada de   ante-mao para
+emular servicos  e sistemas  falsos ou  reais, para  atrair a  acao de hackers a
+estes sistemas. Esta maquina preparada para ser um honeypot eh sempre munida das
+ferramentas necessarias  para: atrair, captar,   e avisar  sobre a  invasao  que
+o atacante fez.
+
+Eh importante analisar logo de   comeco as caracteristicas mais interessantes  e
+polemicas dos honeypots e ferramenta s relacionadas mais utilizados e comentados
+hoje pela comunidade.
+
+Teremos entre eles:
+
+---> • HoneyD
+---> • Sebek
+
+
+*****************************   
+2.1 – Exemplo de um Honeypot*
+*****************************
+		 -------------------------------
+        	|	 ------	 HONEYD		|
+		|	| ==== | SMTP		|	
+HONEYPOT ------>|	| ==== | HTTP		|	
+		|	 ------	 FTP		|
+		|	/ **** \ 		|	 
+		|       -------			|
+		|				|
+		 -------------------------------			
+**************
+3 – Honeynets*
+**************
+
+Para tentar ludibriar da melhor forma os hackers os administradores de rede  que
+querem trazer a tao sonhada seguranca usam seus esforcos em busca de uma solucao
+mais sutil e poderesa, daih talvez tenha surgido a ideia de se criar as honeynet
+s. A caracterizacao de uma honeynet eh feita quando encontramos varios  honeypot
+s juntos numa rede, rede essa que pode muitas vezes ter seus proprios  servicos,
+caracterizando um  dos tipos  de honeypot,  ou com  servicos e maquinas emulados
+apenas por uma maquina na qual eh chamada de hospedeira.
+
+*****************************   
+3.5 - O que eh uma Honeynet?*
+*****************************
+
+Honeynets  muitas  vezes   sao  redes  complexas   com  roteadores  e   sistemas
+operacionais variados e dos mais qualificados tipos. Talvez para um atacante sem
+experiencia  nao  se  perceba logo  de  cara  que essa  rede  nao  eh totalmente
+funcional como uma rede real. Os construtores das ferramentas de honeypot s  jah
+ha muito tempo vem buscando melhorar  a performace e tambem a qualidade  de suas
+solucoes  no que  diz respeito  aos honeypot  s, muitos  jah trazem  opcoes  bem
+interessantes  com relacao  a funcionalidade  das redes  tcp/ip, como:  MAC  das
+placas de redes emulados, roteadores  emulados e com interface, tempo  de Uptime
+setado na configuracao e etc.
+
+Tais caracteristicas podem realmente aumentar a funcionalidade dessa rede,  isso
+aos  olhos  de  um  novato,  mas hackers  podem  perceber  isso  com  uma grande
+facilidade.
+
+**********************
+3.6 - Onde funcionam.*
+**********************
+
+Como jah  citado uma  honeynet eh  um conjunto  de honeypots, ou seja uma rede
+previamente preparada para captar  toda a acao dos  atacantes em seus hosts.  Em
+muitos casos as empresas estao dispos tas a pagar o preco mecessario para se ter
+seguranca, isso pode ser refletido nos  altos gastos que a implementacao de  uma
+honeynet pode trazer.
+
+Exemplos  nos  mostram que  se  tivermos apenas  maquinas  reais dentro  de  uma
+honeynet, se seus hosts forem  realmente maquinas fisicamente presentes e  sem a
+emulacao de nenhum  servico ou vulnerabilidade  falsa, trara um  altissimo custo
+com implement acao,  manutencao, monitoramento, link  e etc, custo  esse que nao
+trara beneficio real para a seguranca da rede com veremos mais a seguir.
+
+Por outro  lado, talvez  procurando baratear  as coisas  existem ferramentas que
+fazem tudo isso por si soh, elas trasformam um maquina modes ta em uma rede  com
+maquinas e  roteadores, e  ainda de  brinde as  vulnerabilidades nesses sistemas
+criados pela ferramenta. Um caso bem conhecido eh a questao da VMWARE ou maquina
+virtual como desejar chamar, esta real solucao cria maquinas virtuais na maquina
+hospedeira  e tem-se a  possibilidade de  instalar novos  sistemas dentro  das
+maquinas criadas pela VMWARE.
+
+
+**********************
+3.7 - Como funcionam.*
+**********************
+
+As honeynets por  serem redes  comuns como  as outras  tem o seu funcionamento
+muitissimo parecido  com um  rede coorporativa,  talvez o  administrador da rede
+julgando - se  experto tente fazer  da melhor maneira  uma configuracao que  ira
+facilitar  a captura  do trafego  malicioso que  circula alih.  Sempre que   uma
+empresa ou profissional  resolver implement ar  uma honeynet eh  bom lembrar que
+ela muitas vezes pode se tornar  um segmento da rede coorporativa e  de trabalho
+da  empresa, sendo  assim o  funcionamento confiavel  da empresa  pode ser   SIM
+comprometido por um hacker.
+
+
+*******************************   
+3.8 - Exemplo de uma Honeynet.*
+*******************************
+
+Vou deixar apenas o link para uma imagem, sorry!
+Fazer uma rede em ascii nao rola!
+
+http://www.skynet45.motdlabs.org/honeys/honeynet_screen.jpg
+
+
+
+***********************
+4 – Tipos de Honeypots*
+***********************
+
+As ferramentas de honeypots tem uma classificao bem interessante, no nosso  caso
+iremos simplificar as coisas e separar  a classificacao em apenas 2 tipos.  Para
+distinguirmos  de  qual  classificacao  o  honeypot  em  questao  eh,  se  torna
+importante a total  atencao a algumas  caracteristicas imprecindiveis que  podem
+ser claras em alguns honeypot e honeynets.
+
+**************************
+4.2 – Alta Interatividade*
+**************************
+
+A relacao entre a maquina e o atacante vai ser muito importante para a distincao
+dos  tipos, tambem  por conhercer  o servico  em questao  vai ajudar   bastante.
+Honeypots de Alta Interatividade  podem ser caracterizados por  nao apresentarem
+nenhum  ferramenta que  emule ou  crie maquinas  falsas ou  que faca  o  sistema
+parecer vulneravel.
+
+Talvez alguns pesem entao: mas serah que eh soh conectar uma maquina na internet
+com um sistema bugado que eu vou ter meu honeypot? Claro que nao, honeypot s  de
+alta interatividade tem instalados em  si algumas ferramentas sim, muitos  deles
+sao muito bem configurados para captar todas as informacoes que o administ rador
+julguem  ser  necessarias  para  um futuro  estudo  das  tecnicas  e ferramentas
+empregadas no ataque.
+
+********************
+4.2.1. - O que sao?*
+********************
+
+Esta classificacao  talvez exista  por que  os criadores  e desenvolvedores  das
+ferramentas  de honeypot  perceberam que  nao adiantava  soh tentar  enganar  os
+fucadores com servicos  e solucoes falsas,  talvez tenha -  se percebido que  em
+alguns minutos  um hacker  pode distingui  se o  host em  questao eh  ou nao uma
+maquina com servicos reais.
+
+Honeypots de  Alta Interatividade  sao bem  mais dificeis  de se detectar, visto
+eles na maioria das vezes soh  possuirem ferramentas para captacao de logs.  Uma
+maquina  equipada com  o Sebek  por exemplo  jah se  torna um  honeypot de  Alta
+Interatividade, sendo que esta possue um ProFTPd vulneravel a ataques de  upload
+de arquivos em modo ASCII.
+
+************************
+4.2.2. - O que possuem?*
+************************
+
+As  maquinas  que  sao  honeypots  de  Alta  Ineratividade  tem  sempre recursos
+proprios, nao sao  emuladas por nenhuma  ferramenta. Eh sempre  caracteristico a
+presenca de ferramentas que captam o trafego e guardam logs para analise  futura
+ou  instatanea,  sempre  trazem  firewalls  configurados  para  nao  permitir ao
+atacante muitos opcoes de saida. Eh interessant e que por posuirem seus proprios
+sistemas  operacionais   e  programas   reais  eh   muito  mais   facil  o   seu
+comprometimento, ao contrario do caso da deteccao que eh mais dificil.
+
+Eh mais que util salientar que  honeynets com honeypot s de Alta  Interatividade
+na maioria das vezes possuem um Servidor Forense guardar com seguranca os Dados,
+ou informacoes, capturadas  durante o ataque  ou tentativa do  ataque. Lembrando
+que surgem varias ideias em torno do comprometimento deste Servidor Forense,  na
+maioria das vezes  eles possuem bases  de dados, ou  banco de dados  mesmo, tais
+como: postgresql  e mysql,  sendo assim  a contra  - partida  pode-se tentar  um
+comprometimento via vulnerabilidades nesses Banco de Dados ou talvez uma mudanca
+de rotas no centralizador das maquinas(Swicth).
+
+
+****************************************************** 
+4.2.4. - Exemplo de Honeypots de Alta Interatividade.*
+******************************************************
+
+http://www.skynet45.motdlabs.org/honeys/honeynet_high.jpg
+
+
+*************************
+4.3 Baixa Interatividade*
+*************************
+
+Este tipo  de honeypot  eh bem  interes sante,  em muitos  casos sua deteccao eh
+simples, apenas  com alguns  comandos, com  algumas passadas  de olhos  e um bom
+senso de percepcao podemos perceber a sua presenca no nosso alvo. Nesse caso  eh
+importante  lembrar  que  esse  tipo  de  honeypot  (Baixa  Interatividade)  sao
+ferramentas e que estas sempre deixam rastros e na maioria das vezes tem falhas.
+
+********************
+4.3.1. - O que sao?*
+********************
+
+Sao programas que ao serem instalados na maquina hospedeira podem criar uma gama
+de sistemas operacionais  e vulnerabilidades que  irao atrair fucadores  a estas
+maquinas.  Estas  ferramentas  podem  criar  redes  com  quantas  maquinas forem
+necessarias, e inserir dentro  delas , via configuracao,  o tipo de servico  que
+necessitar.
+
+
+Exemplo: honeyd.conf
+
+create linux set linux personality "Linux 2.4.16 - 2.4.18" set linux default tcp
+action reset  set linux  default udp  action reset  add linux  tcp port  110 "sh
+scripts/pop/emulate-pop3.sh" set linux subsystem "/usr/sbin/httpd" add linux tcp
+port 21 "sh scripts/ftp.sh" set linux uptime 3284460 bind 192.168.1.202 linux
+
+
+************************
+4.3.2. - O que possuem?*
+************************
+
+As ferramentas que  sao de Baixa  Interatividade oferecem uma  certa comodida na
+hora da escolha dos sistemas e dos servicos contidos nos host s. Pode- se ter  a
+total comodida de ser colocar um IIS pra rodar dentro de um OpenBSD (engracado),
+isso nao traz favoretismo nenhum para a seguranca. Hacker irao peceber em  curto
+periodo que as  configuracoes feitas alih  sao pra ludibria-lo  durante um certo
+tempo, configuracoes muito mistas, e meio atrapalhadas facilitam a deteccao  dos
+honeypots de Baixa Interatividade.
+
+
+*************************
+4.3.3. - Onde funcionam?*
+*************************
+
+Estes sempre sao instalados em maquinas hospedeiras, sao compilados e  iniciados
+pela interface do usuario e sempre  usam recursos nao proprios. Por as  maquinas
+criadas  pelo HoneyD  por exemplo  usarem recursos  da maquina  hospedeira  esta
+fornecerah sempre  indicios e  rastros sobre  a ferramenta  como veremos  mais a
+frente.
+
+Exemplo de Baixa Interatividade: HoneyD
+
+******************************************************* 
+4.3.4. - Exemplo de Honeypots de Baixa Interatividade.*
+*******************************************************
+
+
+http://www.skynet45.motdlabs.org/honeys/honeynet_low.jpg
+
+
+
+
+**********************
+5 – Tipo de Atacantes*
+**********************
+
+Eh importante  sempre lembrarmos  que o  conceito do  honeypot eh  bem seguro eh
+muito difundido  entre os  meios que  o usam  para aumentar  a seguranca de suas
+redes,  tal conceito  afirma que  com a  implement acao  dos honeypot  s toda  a
+comunidade  de seguranca  poderah aprender  a se  defender melhor  dos hacker  e
+poderah tornar publica solucoes para os novos tipos de ataques e novas  tecnicas
+usadas pelos  hacker mundo  a fora.  Entao eh  muito importante  da nossa  parte
+analisarmos que tipo de  atacante um honeypot pode  atrair, quais as falhas  que
+esse conceito apresenta para toda a comunidade em geral.
+
+
+****************************      
+5.4 – Atacantes Experientes*
+****************************
+
+Todos sabemos que hacker nao eh aquela figura prefigurada pela midia nos  nossos
+dias, isso eh uma questao esgotada, mais os presentes sabem que hacker tem  seus
+objetivos, e quais seriam os objetivos  de um hacker? Pertinente a essa  questao
+eh  valido  lembrar  que  Hackers  sabem  sempre  qual  eh  o  seu  objetivo  em
+determinadas maquinas ou redes. Um hacker  nao invadiria uma rede por prazer  ou
+por querer se divertir, ao estudar  as possibilidades de se invadir uma  rede eh
+bem analisado que tipo de informacoes ele busca naquele alvo, que tipo de  dados
+o interessa. Se um hacker consegue acesso  a uma maquina e percebe que alih  nao
+tem nada que ele  quer, eh simples ele  apenas nao quer essa  maquina, ele parte
+para outra ateh atingir seu objetivo ou conseguir o que ele queria.
+
+Serah  que um  honeypot tem  algo que  atraia hackers?  Eh bem  claro que   nao.
+Honeypots  possuem  apenas  falhas  conhecidas  e  muitas  vezes  nem   conteudo
+aprensentao, sendo assim  a pratica do  hacking nesses eh  totalmente futil. Nao
+desconsideramos a possibilidade de um hacker cair dentro de um honeypot uma  vez
+que  ninguem eh  perfeito, mais  tais possibilidades  sao vagas,  e alem   disso
+hackers ao  perceberem que  estao dentro  de um  honeypot podem  causar um baita
+estrago no  mesmo, a  experiencia com  varios sistemas  e com  os protocolos  em
+questao irao demoNstrar ao hacker que o sistema onde ele estah nao eh totalmente
+funcional como um real, isso no  caso dos honeypots de Baixa Interatividade,  no
+caso dos de Alta Interatividade  iremos analisar algumas questoes pertinentes  a
+deteccao das  ferramentas utilizadas  nos mesmos.  Muitas vezes  por questao  de
+gosto talvez, o hacker pode tirar o honeypot de circulacao por causar um  ataque
+DOS no honeypot no qual as vezes o faca perde tempo.
+
+
+**************************************
+5.5 - NewBies, ScriptKiddies e afins.*
+**************************************
+
+Todos sabemos que assim que entramos para o mundo da informatica e da tecnologia
+em  geral comecamos  a ver  um novo  universo em  nossa frente,  muitas vezes  o
+conhecimento e ansia do aprendizado sao coisas vividas para uma pessoa que estah
+desenvolvendo seus conhecimentos e cada dia busca uma maneira de por em  pratica
+o  que jah  aprendeu. Quando  percebemos que  ser hacker  nao eh  soh ficar   em
+localhos t talvez tenhamos um enorme desejo de partir para investidas  externas,
+muitas  vezes  sem proposito  algum  somente para  testar  tudo aquilo  que  jah
+cansamos de  ler e  de estudar,  talvez por  tentarem seguir  o velho ditado: “A
+pratica leva a perfeicao”. Quero deixar  bem claro que NewBies muitas vezes  nao
+tem intencoes  de prejudicar  ninguem, estes  porem talvez  realmente tenham uma
+vontade muito grande de conhecer o vasto universo recem apresentado a eles.  Jah
+os ScriptKiddies sao  pessoas como todos  sabem que usam  seu pouco conhecimento
+para deturpar o real sentido do hacking e realmente acabam manchando a imagem da
+palavra hacker, mas esse  nao eh assunto para  nos, sendo assim o  ScriptKiddies
+agem como se nao pensasem nem em que alvo estao tentado suas investidas e talvez
+nao estejao concientes com respeito do transtorno causado pelos seus atos muitas
+vezes de `pixacao ` feitos em sites mundo a fora.
+
+Foi deveras  inportant e  analisarmos que  tipo de  pessoas sao  os NewBies e os
+ScriptKiddies, seus atos podem influenciar e muito na utilizacao e implementacao
+dos honeypots como solucao de seguranca, devemos sempre ter em mente o  conceito
+principal dos honeypot s, lembrando que um NewBies, sem discriminacao, foge  dos
+paramet ros dos honeypot  s. NewBies por serem  pessoas novas e com  ainda pouco
+conhecimento  ainda  nao praticao  o  hacking em  si  (ao peh  da  letra), estes
+costumam  utilizar  de  ferramentas  jah  prontas  e  muitas  vezes   muitissimo
+conhecidas dos administradores de rede e que talvez que jah apresentem  solucoes
+na  comunidade, entao  para que  fim os  administradores de  redes irao   querer
+recolher informacoes sobre estes se os  mesmo nao tem nada de inedito  para most
+rar para eles? Consideremos agora as questoes dos ScriptKiddies, estes as  vezes
+possuem um certo conhecimento adquirido ao longo de suas investidas inuteis, mas
+sempre  usam  de  metodos  conhecidos  e  altamento  comentados  por  muitos  na
+comunidade, estes tambem nao oferecem nada increvel para os administ radores  de
+redes que  adotam os  honeypots como  ferramenta de  seguranca para  suas redes.
+Chegamos a uma conclusao interes sante, pessoas com pouco conhecimento nao  irao
+beneficiar os amantes dos honeypots.
+
+****************************     
+5.6 - Atacantes X Conceito.*
+****************************
+
+Bom, se torna mais do que interessante lembramos que o conceito do honeypots eh:
+“aprender com quem  sabe” (heheheheh), desculpe  as risadas, mas  realmente eles
+estao certos, eles devem aprender com quem sabe, mas com NewBies e ScriptKiddies
+eles nao irao aprender nada de novo, ou que possam aumentar a seguranca deles na
+pratica.  Este  tipo  de  atacantes nao  tem  nada  para  oferecer a  comunidade
+especialmente os  ScriptKiddies. Analises  de logs  de hosts  que sao  honeypots
+demostram que eh muitissimo fraco  o trafego nestes honeypots, trafego  este que
+soh  recebem  acessos em  protocolos  como: httpd  e  pop, lembrando  que  estes
+protocolos sao os favoritos dos SK e dos defacers.
+
+Um atacante,  ou melhor  um hacker  possivelmente nunca  irah demostrar  para um
+honeypot  o  que  ele realmente  sabe  ateh  por que  ainda  nao  inventarao uma
+ferramenta ou solucao para capturar  malicia. Honeypots, IDS e afins  soh captam
+conteudo tecnico, nao conseguem desvendar o que se passa na cabeca de um hacker,
+e enquanto eles  nao fizerem isso  nunca poderao criar  solucoes eficientes para
+seus casos.
+
+***********
+6 - VMWARE*
+***********
+
+Nos ultimos anos solucoes dos variads tipos surgiram no scenario da informatica,
+uma delas  que eh  muito prezada  ateh mesmo  por mim  eh a  VMware, ou  maquina
+virtual como  quiser chamar,  seu uso  facilita muito  o estudo  e a  pratica de
+muitas coisas que as  vezes se tornam dificeis  de entender soh no  conceito, ou
+somente em localhost. As VMware sao programas que criam maquinas virtuais dentro
+de um sistema real, com ela eh possivel se ter um OpenBSD instalado na  maquina,
+rodando ao mesmo tempo com um Linux, a VMware eh instalada no Linux e daih  cria
+se  uma maquina  virtual com  o OpenBSD  instalado e  podemos rodar  as duas  em
+paralelo e criar  uma rede entre  elas para facilitar  o estudo e  possivelmente
+para se emular redes de sistemas variados.
+
+Com a alta  difundicao das VMwares,  elas foram adotadas  como compendio para  a
+implementacao de honeypots, nao eh que um honeypot necessite de uma VMware  para
+funcionar mas sim que dentro de um VMware pode-se criar varios honeypots,  tendo
+assim  uma  honeyNET.  Os  altos  gastos  com  a  compra  de  Hardware  para   a
+implementacao de honeyNETs abriu uma  oportunidade paras as VMwares entrarem  no
+'jogo',  com  elas  em possivel  se  ter  em uma  unica  maquina  4,5,6 sistemas
+diferentes  sem  precisar  adquirir nenhum  novo  hardware,  basta ter  recursos
+suficientes na maquina para  isso. Daih podemos julgar  as VMware como sendo  um
+primeiro passo para  desconfiarmos que no  nosso alvo roda  um honeypot, ou  uma
+honeyNET.  Com  base   em  algumas  analises   vou  tentar  demonstrar   algumas
+caracteristicas 'basicas' dela e como podemos detectalas.
+
+***************
+6.1 - Deteccao*
+***************
+
+Vamos partir  do principio  que os  honeypots sao  feitos para  ser invadidos, e
+digamos que vc jah tenha acesso a maquina alvo, daih podemos separar os  metodos
+de deteccao em 2 categorias:
+
+COMO USUARIO COMUM - Nessa opcao temos 2 possibilidades validas!
+
+*********************************  
+6.1.1. - 4tphi - vmchk.c(code)  *
+*********************************
+
+Ao fucar  um pouco  na internet  e em  muitos foruns,  eu achei  lah em um dos
+foruns da insecure.org (www.insecure.org) uma pequena discussao sobre VMwares,
+daih achei um  codigo fonte feito  em C muito  pratico e que  realmente eh uma
+'mao na roda'. Esse programa chama-se VMCHK e eh tao pratico que alem de dizer
+se realmente ali roda  uma VMware, ele ainda  diz a versao da  VMware. Podemos
+partir do presuposto que: se há  uma VMware também há possibilidades de  haver
+um honeypot.
+
+4tphi-vmchk.c --> Escrito por Andrew Hintz <hhtp://guh.nu>
+
+
+*******************
+6.1.2. - ifconfig *
+*******************
+
+Essa eh mais simples que batata cozida, mas tambem funciona e eh util em todos
+os casos, novamente  presumindo que vc  tem acesso a  maquina alvo...: Sabemos
+que cada placa de rede alem de  seu numero IP, elas tambem tem seu  MAC adress
+ou endereco fisico, cada placa de rede segundo o conceito, cada placa de  rede
+tem  seu MAC  diferente das  outras placas,  ou seja,  segundo o  conceito  eh
+impossivel acharmos uma placa de rede com MAC igual a de outra. Bom, vejamos o
+seguinde, se voce  jah usou alguma  vez uma VMware  vc percebeu que  alem dela
+criar maquinas virtuais, ela tambem  cria outras interfaces de rede  (placa de
+rede) tanto no Linux quanto no Windows, daih se notarmos ao criar essas placas
+de rede  virtuais a  VMware dota  elas de  seus respectivos  MAC adress, mas o
+interessante eh que ela sempre cria MAC adress MUITO parecidos como:  
+	------------------------------     
+	eth0 - 00:F0:29:F5:00:1F:CF:A9
+	eth1 - 00:F0:29:F5:00:1F:CF:AA     
+	eth2 - 00:F0:29:F5:00:1F:CF:AB     
+	eth4 - 00:F0:29:F5:00:1F:CF:AC  
+	-------------------------------
+	 
+Ateh   minha   mae perceberia que esses HEXs (numero MAC), sao MUITO parecidos
+mudando  apenas  o  ultimo numero,  isso acontece  sempre que  uma VMware  eh
+instalada  em  um   sistema  Linux e   Windows.  Aih   jah  eh  outro  quisito
+possitivo para  sabermos que  há possibilidades de o  sistema rodar dentro  de
+um VMware  ou ateh  de  ser nosso amado  honeypot ;) Para saber  o  MAC adress
+das placas de redes  instaladas usa se um comando simples e nativo do Linux, o
+/sbin/ifconfig , no qual este lista todas as interfaces de rede com seus IPs e
+MACs.
+
+
+**************************
+6.1.3. - Ksyms | grep vm *
+**************************
+
+Esse metodo  eh  bem simples, assim  como os outros,  mas eh de  grande ajuda, o
+comando 'ksyms' mostra  os simbolos exportados  pelo kernel, ou  seja nos mostra
+nomes relacionados ao  modulos carregados no  Kernel do Linux,  juntamente com o
+comando 'grep vm' iremos procurar por  simbolos no Kernel com a string  'vm' (ou
+VM), faremos isso por que uma maquina virtual (vmware) carrega modulos no Kernel
+com essa string, por
+exemplo:
+
+root@rapadura:/home/rapadura# ksyms | grep VM
+c7a30060  VMX86_RegisterMonitor             [vmmon]
+
+Com   isso  fica   bem  claro   que  estamos   numa  vmware,   esse  metodo   eh
+consideravelmente simples, mas eh com coisas simples que chegamos onde queremos,
+podemos mudar um pouco o exemplo, com o comando 'dmesg'podemos ver quase tudo que 
+foi carregado durante a inicilizacao da maquina, coloque assim:
+
+root@rapadura:/home/rapadura# dmesg | grep VM
+hda: VMware Virtual IDE Hard Drive, ATA DISK drive
+hdc: VMware Virtual IDE CDROM Drive, ATAPI CD/DVD-ROM drive
+
+Notamos que juntamente com a inicilazicao da maquina, foram criados dispositivos
+virtuais, no nosso caso, uma unidade de  cdrom e um hd. Com isso jah  temos mais
+cartas  na  manga,  jah  eh mais  motivos  para  desconfiarmos  que estamos  num
+honeypot, outra  dica, quando  voce se  deparar com  uma VMware provavelmente na
+maioria  das vezes  ela eh  um honeypot  de Alta  Interatividade, assim  pode-se
+explorar a  maquina por  completo, estou  dizendo para  voces poderem  pensar em
+maneiras de se explorar falhas na VMware, nao no
+honeypot, isso seria interessante. ;)
+
+
+***********
+7 - Sebek *
+***********
+
+Ferramentas  para a  composicao de  uma maquina  honeypot sao  muitas, mas  essa
+concerteza chama muito atencao  por ser de grande  ajuda na captacao de  logs. O
+Sebek eh originalmente desenvolvido com o intuito de guardar os logs procedentes
+de todos os servico da maquina, há possibilidades de se manter o log apenas para
+consulta 'ao vivo'  ou guarda-lo em  um banco de  dados estilo mysql,  com esses
+logs  em banco  de dados  podem ser  usados para  se fazer  consultas futuras  e
+estatisticas em cima das maquinas honeypot.
+
+Se for levar ao peh da letra o Sebek nao eh um honeypot, mas sim uma  ferramenta
+de  auxilio  na   construcao  de  honeypots,   tanto  de  Alta   como  de  Baixa
+Interatividade,  ele eh  caracterizado assim  por que  nao tem  opcao de  emular
+nenhum servico ou vulnerabilidade falsas,  mas este eh muito usado  e concerteza
+voce fucador pode ser deparar com muitos por aih. Vamos analisar agora como eh o
+funcionamento  do   Sebek,  assim   poderemos  criar   situacoes  praticas  para
+detectarmos sua presenca na maquina alvo.
+
+*******************************   
+7.1 - Funcionamento do Sebek. *
+*******************************
+
+Bom, de comeco eh bom lembrarmos que o sistema operacional Linux eh dividido em:
+User Space  e Kernel  Space, sendo  assim sabemos  que o  User Space  eh onde as
+coisas sao limitadas e podem ser alteradas com uma certa facilidade, um  exemplo
+de User Space eh o shell (sh, bash) onde por meio dele se envia comandos para  o
+Kernel Space que eh  como se fosse um  mundo supremo onde pode-se  tudo. Vejamos
+agora no desenho abaixo  uma apliacao do Sebek  no Linux, dividimos em  Kernel e
+User Space:
+
+http://www.skynet45.motdlabs.org/honeys/sebek_kernel.jpg
+
+Se notarem  bem, vao  perceber que  uma vez  o atacente  digitando um comando no
+shell esse comando eh enviado ao system call read e assim executado pelo kernel,
+daih com a instalacao do Sebek no alvo esse system call passa a ser interceptado
+antes de  repassar o  comando para  o kernel,  o Sebek  cria um novo system call
+(new_read) e assim repasa o comando  digitado a uma base de dados  (data logger)
+onde ele serah armazenado, depois disso  o modulo do Sebek reenvia o  comando ao
+kernel jah para ser executado normalmente. Olhos perceptivos conseguem enchergar
+que o Sebek trabalha  com o kernel, fica  quase inviavel executarmos um  comando
+sem ele nao capturar antes, poderiamos ateh escrever um programa que manda-se os
+comandos direto  pro kernel,  mas daria  muito trabalho,  podemos ver  isso numa
+proxima oportunidades, ou alguem da  comunidade poderia se expressar e  fazer. O
+Sebek funciona com modulos que sao carregados paralelos ao kernel, ele possui  2
+modulos  principais, o  primeiro eh  o Sebek  em si,  o outro  tem por  objetivo
+esconder o  primeiro modulo  (sebek) das  listagens de  modulos (ex.:  'lsmod').
+Vamos  nos  basear nessas  caracteristicas  para tentarmos  detecta-lo  na nossa
+maquina alvo.
+
+
+***************************************
+7.2 - Metodos para deteccao do Sebek.  *
+***************************************
+
+Todos os metodos sao indiscutivelmente simples, com facil utilizacao em sistemas
+Linux.  Para colocarmos  em pratica  o primeiro  metodo vamos  precisar de   uma
+ferramenta  chamada  'chkrootkit'  que  eh  de  autoria  de  brasileiros,   essa
+ferramentas procura por alteracoes feitas no kernel (ex.: via lkm).
+
+
+**************************
+7.2.1. - chkrootkit (*). *
+**************************
+
+Jah vimos que o Sebek tem  por caracteristica carregar alguns modulos quando  eh
+iniciado, esses  modulos sao  carregados no  kernel do  sistemas operacional.  O
+utilitario  'chkrootkit'  tem  por objetivo  checar  algumas  caracteristicas de
+ferramentas muito conhecidas que fazem  mudancas no kernel, e assim  detectalas.
+Apos baixar e descompactar o  'chkrootkit', proceda assim: - Entre  no diretorio
+do  chkrootkit  -  Execute  o  script:  
+
+#  ./chkrootkit  ...  'lkm'...Sebek  LKM installed! ...
+
+Se voce percebeu o chkrootkit  fez varias checagens atras de  alguma modificacao
+no kernel, ao  checar a entrada  dos lkm's ele  achou de cara  o Sebek, duh! Mas
+serah que eh  tao facil assim?  Bom pessoal, todo  principio sao flores...  - Em
+alguns casos: 
+
+# ./chkrootkit ... 'lkm'...not detected ...
+
+Infelizmente em algumas maquinas o  script do chkrootkit nao nos  retornou nada,
+mas  por  que isso  aconteceu?  Bom depois  de  algumas horas  ou  ateh dias  de
+pesquisas, resolvi dar um jeitinho simples, observe e tente entender. De  inicio
+se lembre que o 'chkrootkit' eh um script, ele pode ser lido por nos na  integra
+( nao eh  um byte-code) daih  usamos um pouquinho  da inteligencia que  Deus nos
+deu, assim:
+
+	# grep Sebek chkrootkit echo "Warning: Sebek LKM Installed!"
+
+Bom  com  isso estamos  tentando  saber como  o  script do  chkrootkit  consegui
+detectar o Sebek no primeiro caso, ao fazer uma busca dentro do chkrootkit  pela
+string  'Sebek', que  era a  String que  ele nos  retornou quando  achou o  lkm,
+achamos a linha acima, agora se voce abrir o script do chkrootkit num editor  de
+texto da sua  preferecia e procurar  pela string 'Sebek'  dentro do texto  limpo
+voce vai chagar nas linhas:
+
+	### sebek LKM (Adore based)  [ -r /proc/ksyms ] &&  \ if `${egrep} -i sebek  <
+	/proc/ksyms >/dev/null 2>&1`; then echo "Warning: Sebek LKM installed" fi
+
+OPA! Tah aih, quando vi isso fiquei meio confuso, mas logo as coisas comecaram a
+clarear, e daih  pensei em arrumar  a minha solucao,  sempre a nossa  solucao eh
+mais facil e util. Note que nessa  parte do script o chkrootkit apenas checa  os
+simbolos(chamemos  de strings)  que o  kernel estah  exportando e  quandoa  acha
+alguma  string  semelhante  a  que  ele  procura  ele  denuncia  logo,  isso  eh
+relativamente MUITO simples, podemos fazer isso na mao mesmo, assim:
+
+	#  grep  sebek  /proc/ksyms  c7a53000   __insmod_teste_O/usr/ferramentas/sebek
+	linux- 2.1.7/teste.o_M40D837C0_V132118 [teste]
+
+Bingo.  Se  lembramos da  explanacao  sobre as  caracteristicas  do sebek  vamos
+perceber que junto  com seu modulo  principal o administrador  tambem levanta um
+modulo pra esconder o modulo principal das listagens dos modulos, mas nesse caso
+que acabamos de ver mesmo com esse modulo de ocultacao ativo nos conseguimos ver
+o sebek dentro dos simbolos que o kernel estah exportando, isso eh meio  confuso
+nao  posso  discordar  disso, mas  um  modulo  com nome  estranho  dentro  de um
+diretorio chamado  'sebek-linux-2.1.7' nao  pode ser  um presente  do papai noel
+neh? Eh  claro que  o nosso  amado 'sebek',  de troca  ainda ganhamos  o nome do
+modulo que  eh o  sebek eh  carregado (teste.o).  Mas voltando  a nossa  questao
+principal, no segundo exemplo o  chkrootkit nao conseguiu detectar o  sebek pois
+concerteza o administrador tem  um pouco mais de  conhecimento e mudou tambem  o
+nome do modulo para tentar enganar os hacker, mas como os hacker sempre  estaona
+frente deles...temos ainda outro metodo para detectarmos nosso amigo sebek.
+
+
+
+*********************************** 
+7.2.2. - Modulos no boot X lsmod.   *
+***********************************
+
+Sabemos que  todos os   dispositivos de  hardware no  computador tem   um modulo
+especifico  que   eh  carregado  durante   o  boot  da  maquina  para  haver  um
+funcionamento correto dos dispositivos. Usualmente quando os administradores  de
+redes instalam o  Sebek em um  host, eles fazem  com que o  seu modulo principal
+(sebek.o) e tambem o modulo que o esconde das listagens (cleaner.o) sejam  ambos
+carregados durante o boot, eles talvez jah facam isso pensando na  possibilidade
+de um  hacker usar  o metodo  passado para  se livrar  do Sebek, mas mesmo assim
+podemos 'arrancar' o Sebek  do nosso caminho, esse  metodo eh um pouco  estranho
+mais o que importa eh que tambem funciona. ;)
+
+De inicio podemos  logo pensar por  um caminho bem  intuitivo, se levantarmos  o
+modulo do sebek  (sebek.o) e depois  o cleaner (cleaner.o)  nao poderemos ver  o
+modulo do sebek quando perguntarmos ao kernel por meio de um lsmod, isso por que
+essa listagem de modulos  eh encadeada, o cleaner  engana o lsmod e  faz com que
+ele de um 'jump' ou um pulo para  o proximo item da lista, ela eh uma  lista que
+segue uma  sequencia (1,2,3,4...)  por isso  o cleaner  consegue fazer isso. Com
+base nisso podemos fazer uma compracao entre os modulos ativos e os modulos  que
+foram carregados na inicializacao, para isso podemos seguir assim:
+
+root@rapadura:/etc/rc.d# dmesg >saida.txt
+
+O comando dmesg mostra tudo que  foi iniciado na maquina durante o  ultimo boot,
+com isso  jah sabemos  que o  nosso amiguinho  Sebek estah  nessa lista, soh nao
+sabemos quem ele eh,  mas ele estah lah,  daih mandamos o comando  dmesg jogar a
+saida dentro de um arquivo texto  para facilitar nossa futura busca pelo  modulo
+do 
+Sebek. Continuamos assim...:
+
+root@rapadura:/etc/rc.d# lsmod >saida1.txt
+
+Agora tambem temos uma lista dos modulos atuais, os modulos que estao no  kernel
+nesse momento, daih jah  sabemos que o Sebek  NAO estah nessa segunda  listagem,
+pois  o cleaner  fez o  favor de  apagalo dessa  listagem com  lsmod, outra  vez
+mandamos o comando  jogar a saida  dentro de um  arquivo texto para  facilitar a
+busca.
+
+Comecemos nosso busca  em si, jah  temos duas listas  para analise, mas  por que
+duas? Simples,  se voce  prestou atencao  no que  leu pode  perceber que o Sebek
+concerteza estah presente dentro da primeira e NAO estah na segunda  lista,  com
+isso podemos chegar a um ponto em comum, façamos aqui uma representação das 
+duas listas:
+
+
+	DMESG		LSMOD
+	  1		  1
+	  2		  2
+	  3		  3	
+	  4		  4
+	  5		  5
+	  6		  7
+	  7		  8
+	  8		  9
+	  9		 10
+	 10
+
+Puxa, ateh meu sobrinho de  4 anos pode ver que  essa lista tem algo de  errado,
+com olhos um pouco mais malicioso vemos  que existe um modulo (n°5) que faz  com
+que  o  seu  seguinte(n°6)  nao  seja  mostrado  pelo  lsmod,  nao  seria  muita
+coincidencia? Que nada, eh ele mesmo, o proprio o modulo do Sebek que  estavamos
+procurando!  Entao,  agora voce  tem  duas possibilidades,  primeiro:  remover o
+modulo do kernel(rmmod  5), ou melhorar  as coisas..., procurar  pelo arquivo do
+modulo, chegar as  suas configuracoes, ver  se ele estah  mandando os logs  para
+outra maquina e hackear  essa maquina tambem, nao  vou me aprofundar mais  nisso
+por que serai muita materia,  poderemos deixar para uma proxima  oportunidade. A
+solucao mais pratica e  viavel seria tirar o  modulo do kernel, depois  apagar a
+entrada que o  levanta a cada  reboot, e assim  reiniciar a maquina,  quando ela
+voltar vai estar limpinha,  sem Sebek no seu,  e assim voce pode  partir para um
+bom hacking!!! 
+
+
+
+************
+8 - HoneyD *
+************
+
+No quesito  construcao completa  de honeypots  a ferramenta  HoneyD se  destaca,
+tanto pela sua grande facilidade  de operacao, quanto pela utilidade  nas vistas
+dos administradores de  honeynets para se  criar maquinas e  servicos falsos. Ao
+contrario do Sebek, que  soh guardava logs, o  HoneyD tem a capacidade  de criar
+maquinas  falsas  dentro  de  uma  faixa de  IP  nao  usada  e  determinada pelo
+administrador, por isso ele conta tambem  com um sistema de log para  captura de
+logins e logs de comandos e do sistema.
+
+***********************************
+8.1  - Caracteristicasdo  HoneyD. *
+***********************************
+
+Como todo e bom fucador devemos olhar as coisas de um jeito mais  investigativo,
+sempre se perguntar sobre  possibilidades e por que  as coisas funcionam de  uma
+determinada maneira. Todos nos sabemos que para se mandar comandos para o kernel
+do linux eh necessario se ter uma shell, um interpretador de comandos, mas  isso
+como  jah  foi mostrado  por  muitos fucadores  nao  eh necessariamente  valido,
+comandos podem ser executados  dentro de uma shell  propria por assim dizer,  no
+lugar de usarmos o  bash ou sh podemos  criar um shellcode para  mandar comandos
+direto  para  o kernel,  gostaria  de frizar  que  por nao  dominar  tecnicas de
+construcao dessas ferramentas vou apenas abrir um caminho para outros  fucadores
+dispostos  a  implementarpossam  fazer  pois  isso  eh  muito  util  nas  nossas
+investidas. O HoneyD usa esse tipo de tecnica para capturar informacoes dadas  a
+maquina alvo, quando alguem (fucador) manda um comando para o alvo (honeypot)  o
+HoneyD se apodera do conteudo do comando quando ele passado para a shell,  sendo
+assim pode-se mandar  os comandos com  uma shell propria  conforme falado acima.
+Peco desculpas por nao pormenorizar essas questoes, mas ao saber disso voce pode
+jah comecar a aumentar seu horizonte e 
+se aperceber de novas coisas. ;)
+
+
+************************************
+9 - Causas do uso de um Honeypot.  *
+************************************
+
+Sabemos que tudo que  colocamos as vistas da  internet e de outras  redes jah eh
+por si  soh inseguro,  e tambem  altamente exploitavel,  os honeypots  entao nao
+fogem da regra,  assim como todas  as outras ferramentas  de seguranca tem  seus
+'buracos', e tambem  as causas para  aqueles que os  usam. Dentre as  principais
+causas estao: Altos  Gastos e Impossibilidade  de escondelo dentro  da rede, vou
+explicar melhor 
+e com detalhes.
+
+************
+9.1 - DMZ. *
+************
+
+DMZ = Zona Desmilitarizada, ou um lugar sem acesso ou perigo. 
+Percebi em  muitas listas  de discussao  sobre honeynets  que sempre eh abordado
+esse ponto, "posso esconder o meu honeypot de minha rede interna?", segundos  os
+desenvolvedores das ferramentas podem sim, eles afirmam que conjuntos de  regras
+de  firewalls  e politicas  de  seguranca um  pouco  estranhas fazem  com  que o
+honeypot nao seja visto de outras  partes da rede corporativa, mas como  isso eh
+possivel?  Novamente  devemos olhar  com  olhos maliciosos  a  essas afirmacoes.
+Existem N maneiras de se 'enchergar' uma maquina dentro de uma rede, uma vez  um
+host estando ligado ao HUB ou SWITCH ele eh visivel de uma maneira ou de  outra,
+ataques  de cache  poison e  arp spoof  podem se  amplamente desenrolados   para
+solucionar esse problema :) , quando temos uma maquina ligada fisicamente dentro
+de um  SWITCH ele  passa a  se tornar  tambem uma  ramificacao do  SWITCH, entao
+novamente procure colocar sua mente pra rodar e pensar em enessimas maneiras de 
+se fazer isso.
+
+*********************
+9.2 - Altos Gastos. *
+*********************
+
+Impresas de Seguranca da Informacao na atualidade gastao MILHOES, senao  BILHOES
+em solucoes para melhorar a vida e a privacidade de seus clientes, e os clientes
+por  continuidade pagam  precos exorbitantes  pela seguranca  da informacao  tao
+sonhada em nossos dias. Mas mesmo milhoes nao tem sido suficientes para trazer a
+'solucao'.  Imagine:  Uma  rede  com 5  maquinas,  1  SWITCH,  Link, manutencao,
+suporte, instalacao  e encargos,  voce acha  que manter  isso sai  barato? Outra
+coisa, essa eh uma configuracao  basica de uma honeynet de  Alta Interatividade,
+pior ainda, lembrando que essa honeynet  soh recebe 30 acessos por semana,  pois
+eh, essa eh  a situacao que  os honeypots nos  mostram, pessoas (adm.  de redes)
+gastam MUITO dinheiro  com equipamento desncessarios,  visto que estes  como jah
+foi mostrado  durante todo  o conteudo  desse texto  nao servem  para aumentar a
+seguranca de suas corporacoes. Serah que nao sairia mais barato o adm. de  redes
+estudar um pouco mais pra poder melhorar suas ideias de segurancas? 
+Hehehe Pensem nisso.
+                   
+
+**************
+10 - Perigos *
+**************
+
+Jah vimos que existem consequencias  ao se implementar um honeypot,  mas perigos
+sao ainda piores! Veja.
+
+*************************
+10.1 - Comprometimento. *
+*************************
+
+Apos um  honeypot ser  comprometido ele  pode ser  usados para  muitos fins,  um
+cracker com  certeza usaria  disso para  se beneficiar,  ele logo imaginaria uma
+maneira de  sair no  lucro com  esse comprometimento,  isso poderia acarretar em
+crimes reais como: se o honeypot fosse usado para hospedar pornografia infantil,
+ataques a rede de bancos e  redes do governo, analisemos esses ultimos  com mais
+detalhes. Suponhamos que um fucador acabe de conquistar um honeypot, isso depois
+de bastente trabalho, mas ele conseguiu, daih ao ver uma nova porta a sua frente
+ele parte para novos desafios , como um fucador ele quer se superar mais  ainda,
+daih ele parte para ataques mais sofisticados possivelmente a redes .gov ou .mil
+(governo, militares), ao comecar suas investidas  a essas redes ele nota que  eh
+possivel ganhar acesso a  uma maquina X dentro  da rede do governo  de seu pais,
+passado alguns  dias ele  consegue acesso  e tem  total poder  dessa maquina  X,
+lembrando que  o fucador  partiu os  ataques a  maquina X  de dentro do honeypot
+comprometido por  ele a  alguns dias  atras, passado  mais alguns  dias ele  nao
+consegue mais acessar  a maquina X, ele se percebe que seu acesso nao-autorizado
+foi  descoberto e  parado. Concerteza  as autoridades  do Governo  Federal iram
+entrar em comissao para apurar a origem  do ataque a maquina X, ao terminar  uma
+serie de auditorias na maquina X  os tecnicos do governo descobrem que  o ataque
+se originou de uma maquina Y (honeypot), BOMBA, daih o que voce que acontece  no
+fim da historinha? Exatamente quem se 
+lasca eh o administrador do honeypot.
+Mas por que o administrador do Honeypots? Eh simples, como sempre diz meu grande
+amigo  NashLeon:"A  Lei  eh  Dura  mais  eh  Lei",  analisemos  um  pedacinho da
+constituicao Brasileira:
+
+*	Art. 186. Aquele que, por ação ou omissão voluntária, negligência ou
+imprudência, violar direito e causar dano a outrem, ainda que
+exclusivamente moral, comete ato ilícito.
+
+*	Art. 187. Também comete ato ilícito o titular de um direito que, ao
+exercê-lo, excede manifestamente os limites impostos pelo seu fim
+econômico ou social, pela boa-fé ou pelos bons costumes.
+
+Se voce  eh uma  pessoa bem  perceptiva, e  concereteza eh,  notou que se houver
+neglicencia no  administracao de  um servico  (digo internet)  o responsavel por
+algum  dano  causado por  meio  dele eh  o  responsavel, imaginem  agora,  o Dr.
+Administrador do Honeypots  que atualmente se  acham muito bonitoes  deixam seus
+honeypost  a  margem  de  qualquer  atacante,  daih  um  amigo  Hacker   resolve
+comprometer o mesmo,  sendo assim se  ele partir dalih  qualquer ataque a  redes
+privadas (org, mil) quem leva o `fumo` eh o Dr. Bonitao ! Puxa quem sabe  alguem
+agora se convenca do perigo de usar essas coisas. Ah sim eh interessante o final
+do Art. 187 que menciona 'boa-fe', pois eh isso quer dizer que se o Dr.  Bonitao
+deixar lah a honeynet a merce de tudo e todos ele estah achando que ninguem  vai
+fazer mal nenhum, que nao vao prejudicar ninguem, 
+mas mesmo assim ele eh punido caso ocorra algo ilicito alih. DUH!
+
+Eu recomendo a leitura de um texto que se encontra na pagina do Escritorio Opice
+Blum Advogados Associados, eh de leitura extremamente essencial! Parabens para o 
+Opice Blum (Escritorio em Geral).
+
+A responsabilidade civil dos profissionais da informação - 07/10/2003
+Autor: Roberto Leibholz Costa
+http://www.opiceblum.com.br/
+
+
+**********************
+10.2 - Ataques Ddos. *
+**********************
+
+Esse  eh um  caso interessante  e extramamente  simples, como  os passados.   Ao
+dominar  toda uma  honeynet o  atacante pode  muito bem  como jah  citado  tomar
+atitudes mais  direcionadas, como  penetrar em  redes .gov  & .mil,  daih muitas
+vezes esses  ataques exigem  esforcos mais  especificos, nem  sempre invadir uma
+rede eh facil, ou  quase nunca. Levantemos a  possibilidade de o atacante  quere
+provocar um Denial Of Service em uma das maquinas da rede alvo, por exemplo  ele
+quer derrubar um servidor de dhcp para depois ao servidor retornar ele conseguir
+um IP valido  dentro da rede  (mero exemplo). Daih  para facilitar sua  vida ele
+lembra que ele tem nao soh 1 maquina para realizar este ataque, mais VARIAS, ele
+a dias atras ou horas, dominou todo uma honeynet, daih com o poder das  maquinas
+da honeynet ele pode fazer o  que quiser, uma das possibilidades eh  incrementar
+seu ataque e partir para um Ddos (distribuid denial of service) assim ele  terah
+muito mais chance de seu ataque ser bem sucedido, pois ele tem VARIAS maquinas, 
+nao soh 1.
+
+O atacante pode usar varias  ferramentas publicas disponiveis para esse  tipo de
+ataque (trinoo)  assim basta  ele instalar  essas ferramentas  na honeynet,  que
+serah sua rede  escrava, e pronto  dirigir o ataque  para seu alvo  especifico !
+Assim dentro de pouco tempo seu ataque serah concerteza muito bem sucedido. E 
+com uma forcinha da honeynet, afinal ela estah se tornando amiga do hacker!
+
+Um exemplo do ataque pode ser visto em:
+
+http://www.skynet45.motdlabs.org/honeys/ddos.jpg
+
+
+***********************************
+10.3 - Fornecimento de recursos. *
+***********************************
+
+Apos termos  levantado N  possibilidades para  colocarmos os  honeypots a  nosso
+favor e tambem de tira-los do nosso caminho ficou ainda um ponto muito  peculiar
+e interessante. Depois de refletir um  pouco mais sobre a possibilidade do  Ddos
+eu tambem  percebi que  podemos usar  a honeynet  para quebrar  senhas, usando o
+djohn-the-ripper (metodo  distribuido), mas  nao entrarei  em detalhes  quanto a
+isso, voce mesmo pode criar possiblidades  tanto quanto ao Ddos quanto a  quebra
+de senhas, mas o que me incentica a comentar eh a grande sacada da jogada. Tanto
+no  momento que  o Ddos  estah sendo  executado, quanto  na quebra  de senhas  o
+atacantes estah usando RECURSOS da honeynet, recursos tais como: tempo, energia,
+link,  processamento e  etc. Assim  dah vontade  ateh de  rir nao  acham? O  Dr.
+Bonitao (adm.  da honeynet)  que se  acha muito  esperto e  quer aprender com os
+hacker acaba de fornecer todos os recursos necessarios para realizarmos  ataques
+das mais  infinitas possibilidades,  lembrando que  quando menciono  recursos eu
+quero dizer GRANA, dinheiro, dunfunfa, ticket, cash, especime. Sendo assim  eles
+soh perdendo, e continuo dizendo eles estao nos 
+tornando nossos amigos. (quem sabe!)
+
+
+*************************
+11 - Aspectos Juridicos *
+*************************
+
+Voltemos um  pouco para  a parte  judicial, somente  mais algumas  comparacoes e
+analises internacionais da coisa.
+
+**************************************
+11.1 - Constituicoes fora do Brasil. *
+**************************************
+
+Eh interessante que ferramentas semelhantes, senao tambem os honeypots podem ser
+incluidos, em muito paises  tem seu uso bem  restriro e limitado, muitos  paises
+nao permitem  o uso  legal de  honeypots uma  vez que  os mesmo  sao usados para
+capturar dados de terceiros sem permissao verbal ou escrita da pessoa. Isso  nao
+ocorre caso a presenca  das ferramentas de log  seja indicada loga no  inicio da
+`conversacao` entre as maquinas, pode ser  feito por meio de banner e  mensagens
+visuais, que concerteza irao chamar atencao de 
+quem as ler.
+
+Entre  os  paises  que  nao  permitem  essas  ferramentas  estao:  Reino  Unido,
+Australia, Canada, EUA, Uniao Europeia. Os links para as constituicoes de leis 
+dos paises estao abaixo:
+
+http://www.skynet45.motdlabs.org/honeys/Canada-6_4.pdf
+http://www.skynet45.motdlabs.org/honeys/Uniao_Europei_data_legals.doc
+http://www.skynet45.motdlabs.org/honeys/honeys_legal_UK.doc
+http://www.skynet45.motdlabs.org/honeys/legals_data_EUA_CANADA_AUSTRALIA_UK.doc
+
+
+Por favor, leiam e tirem suas proprias conclusoes.
+
+******************************
+11.3 - Logs  Contraversivos. *
+******************************
+
+Este aspecto foi  me chamado atencao  por alguns amigos,  eh bem interessante  a
+forma  de olharmos  para essa  aba do  conceito dos  honeypots. Bom,  facam  uma
+forcinha e depois fechem os olhos  e imaginem: "Um Honeynet toda preparada  para
+logar  todas  as acoes  suspeitas  nas suas  maquina  e prontamente  gerar  logs
+inteligiveis ao ser humano, mas derepente um novo worm (ou velho mesmo) entra na
+rede, isso  eh mais  comum que  nos pensamos,  daih ele  comeca a  gerar trafego
+dentro da honeynet, muito trafego por sinal, e daih comecam os registros de logs
+por parte das  ferramentas do honeypot,  comeca assim: 100  linhas, 1000 linhas,
+10000 linhas, 100000 linhas, 1000000 linhas, 100000, 1000000, 10000000, e  assim
+vai...Agora nao existe ser humano capaz de analisar 1000000000 de linhas de um 
+log, ou seja o log se torna inutil! 
+
+Vejamos por outro  lado ainda, ao  analisar pessoalmente um  log de um  honeypot
+mantido  por  um  brasileiro  e  que  por  sinal  faz  muito  sucesso  com  suas
+apresentacoes da mesma ferramenta  brasil a fora, eu  pude perceber que eh  meio
+esquizito mesmo, em 1 mes ele tem 3 registros de tentativas de conexao no  http,
+sux! Ou seja, serah que em 1 ano ele pega umas 4 tentivas de defacers num  http?
+hehehehe, eh pra rir mesmo. 
+Mas ter um sistema em que nem scriptkiddie tah caindo mais eh de morrer. Nao 
+serve para nada.
+
+
+***************************
+11.4 - Inducao ao ataque. *
+***************************
+
+Agoramos podemos analisar um jeitinho `brasileiro` de passar pela coisa. Imagine
+um fucador ser pego por penetrar em uma rede e daih ao se fazerem  investigacoes
+sobre o ataque  os peritos chegam  a maquina honeypot  da qual o  fucador partiu
+todos os ataques. Ao fazerem a pericia eles podem quere usar os logs do honeypot
+(caso funcione) contra  o fucador, isso  judicialmente, daih na  cabeca dos mais
+espertos pode surgir uma ideia, visto  a justica ter seus furos: O  fucador pode
+declarar inocencia!  Isso mesmo,  inocente, mas  por que?  Simples, em juizo ele
+pode afirmar  que foi  induzido a  praticar o  ataque, induzido  pelo fato  de a
+maquina honeypot estar  sem protecao nenhuma  e jah preparada  para se invadida,
+uma  vez que  o adm.  do honeypot  jah deixou  ela ligada  a internet  para  ser
+invadida e  comprometida, sendo  assim o  fucador se  sintiu motivado a praticar
+essas coisas, pois a  maquina estava alih e  ele daki jah com  vontade aih casou
+tudo! Viram  como eh  simples? Isso  nao quer  dizer que  iremos fazer isso, mas
+tambem eh um motivo a mais para nao implementarem honeypots como ferramentas  de
+seguranca.
+
+
+*******************************
+12  -  Serah que  tem  jeito? *
+*******************************
+
+Ao terminar  de levantar  algumas questoes  que demonstram  a inutilidade desses
+sistemas o que pode-se ser feito jah que eles nao servem?
+
+********************************
+12.1 -  Eh possivel  melhorar? *
+********************************
+
+Eh pessoal, eh  possivel sim, tudo  dah pra melhorar,  tudo mesmo, ateh  pessoas
+mudam, por que nao programas de computador?! Entao basta iniciativas para  expor
+erros  e  falhas  de conceito,  talvez  se  as pessoas  se  preocupasem  mais em
+desenvolver solucoes nao  seguras, mas com  base na opiniao  de todos as  coisas
+melhora-sem, eu  vejo jah  por muito  tempo amigos  reportando Bugs  em sistemas
+diversos, mas muitas vezes isso passa por alto na comunidade, alguns nao  ligam,
+outros nao  querem saber  soh por  que sao  brasileiros que  estao reportando os
+bugs, mas  afinal brasileiro  tambem eh  gente. Se  os muitos  que ficam por aih
+fazendo  milhoes  de desenhos  lindos,  programas bonitos  e  codigos enormes  e
+complicados, parassem  e observasem  o que  os que  estao de  fora pensam talvez
+melhora-se sim. Estou dizendo isso por que todos os desenvolvedores de honeypots
+sao quase que  fechados a falhas  de conceitos, eles  soh sabem dizer:  "Sim, eh
+seguro usar honeypots..", "Nao tem risco de enchergarem os honeypots..", isso eh
+besteira, como todos jah sabem: Tudo que o homem faz tem erros, os programas de 
+computador nao fogem a regra. 
+
+Lembro que o que mais  me chamou a atencao ao  iniciar meus estudos a fundo  nos
+honeypots, foi que  eles sempre dizem  que querem aprender  com seu inimigo.  Se
+eles realmente  querem aprender,  por que  nao estudam  mais um  pouco? Se  eles
+aprendem com hacker, os hackers aprendem com quem? Jah dizia o sabi Rei Salomao:
+"O Sabio aprende com  o Tolo, mas o  Tolo aprende com seu  proprio erro". Entao,
+eles poderiam gastar algumas noites sem dormir e experimentar VER erros em  seus
+sistemas, e aceitar falhas. Somente isso.
+
+**********************************************
+12.2 -  Sem honeypot....nao sem seguranca!!! *
+**********************************************
+
+A Seguranca hoje rende milhoes! Ao ler um texto na web lembro bem que dizia  que
+os Chefes de Seguranca da informacao estao ganhando melhor que os  Administrador
+que lidam com o dinheiro da empresa. 
+
+Pois eh, por ser  um campo vasto alguns  tentam colaborar do jeito  que podem, a
+minha colaboracao para o aumento da seguranca  foi essa, a Motd Guide em si  jah
+eh  mais  do que  uma  colaboracao. Para  melhorar  esquemas de  segurancas  soh
+concertanto erros jah percebidos. Quando sabemos se um carro eh blindado ou nao?
+Quando os tiros nao passam. Entao fazer testes com as mais variadas  ferramentas
+pode ser de ajuda, e de grande ajuda, por mais inuteis que elas possam ser  elas
+ajudam. E estar sempre alertas a falhas, e aceitar e remediar de imediato toda e 
+qualquer falha. Isso sim eh buscar seguranca.
+
+******************
+Ultimas Palavras *
+******************
+
+Eh, chegamos  ao final  de mais  um artigo,  por mais  simples que esse material
+seja, ele  custou bastante  pra se  desenvolvido, meses  se passar  desde que eu
+inicie a pesquisa e posteiror escrita  desse texto. Tudo que foi citado  aqui eh
+altamente simples, eh com talvez uma facil didatica tentando assim alcancar  uma
+forma de  transmissao de  informacao util,  nada aqui  eh novidade, materias nao
+foram  copiados, me  inspirei principalmente  na Phrack  Fake 62,63,  onde eles
+meteram o pau nos honeypots, tambem a iniciativa desse texto foi primariamente a
+apresentacao na  Hacker 2  Hacker Conference  onde eu  daria uma  palestra sobre
+honyepots (Detonando Honeypots) mas infelizmente  a H2HC foi adiada para  meados
+de  Novembro,  mas  mesmo assim  espero  expor  as ideias  do  material  lah, se
+possivel, e  se eles  ainda quiserem.  Jah por  muito tempo  a nao confianca nos
+sistemas de honeypots  vem sendo discutida,  meu parceiro nahsleon  ao saber que
+meu topic seria honeypots logo me deu uma forca nos materiais e foi quem mais me
+deu ajuda desde  que comecei em  tudo, tenho certeza  que a principal  pesso que
+devo citar por  nome e agradecer  eh a ele,  abrigado NashLeon. Nao  soh eu mais
+quase  todo a  comunidade fucadora  do Brasil  tem muito  a agradecer  a ele,  e
+sabemos que apesar de seus constante sumicos (hehehe) ele nunca vai sair de cena
+e deixar de ter um `coracao de leao`. 
+
+Mencionar  todos  do Motd  Labs  tamen eh  fundamental,  pessoas que  apesar  de
+completamente distantes fisicamentes, se acham  no meio de todo o  emaranhado do
+scene brasileira  e tem  procurado ajuda  todos que  podem. Sabemos que recentes
+acontecimentos na  scene do  Motd Labs  abalaram a  estrutura, mas  soh temos  a
+agradecer ao nosso amigo Inferninh0 que tambem soh temos o que agradecer e tirar
+o chapeu para ele, pois  o Motd Labs nunca teria  nascido sem esse cara ;).  Mas
+com o lancamento do numero 3 da Motd Guide queremos concerteza concretizar nosso
+trabalho e trazer  novidades para a  scene com novos  trabalhos e cada  vez mais
+aumentando o nivel do conhecimento da galera e fortalecendo o underground! Quero
+agradecer a todos que  colaboraram, TODOS do Motd  que me deram ideias  e dicas.
+Abracos para: Nightwolf, Assuero, hallz, IP_FIX, ano_nymous, Vampira, e todos do
+#motd #mercenaries 
+(freenode.net) que nao lembro agora.
+
+Ao  fim, nao  quero criar  discussoes sobre  a materia  apresentada aqui  nesse
+material. Se voce se sentiu ofendido  por algo dito aqui, minhas desculpas,  mas
+eu acho que posso ateh ter falado besteira, mas mentir eu nao menti.
+
+
+
+P.S: "Uma Palavra Quando Branda, faz acalmar o Furor"
+
+
+SkyNet45 vulgo Rapadura_com_Farinha
+

@@ -1,0 +1,888 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[03]-=[Tutorial Sockets/Winsock - Parte I]=-|Gustavo Moreira|=-=-=-=-=-=-=-=-
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+mi!enar.net                                                    [www.milenar.net]
+
+
+
+
+  "Temos mantido em segredo a nossa morte para tornar nossa vida possível"
+
+--
+
++-----------------------------------+
+|Tutorial Sockets/Winsock - Parte I |
++-----------------------------------+
+|0.  Introdução.....................|
+|1.  Definição de sockets...........|
+|2.  Protocolos.....................|
+|   2.1. Aplicação..................|
+|   2.2. Transporte.................|
+|   2.3. Roteamento.................|
+|   2.4. Físico.....................|
+|   2.5. Simulação..................|
+|3.  Visão geral....................|
+|4.  Headers........................|
+|5.  Estruturas.....................|
+|6.  Abrindo um socket..............|
+|7.  Conectando.....................|
+|8.  Funções úteis..................|
+|9.  Fechando e encerrando..........|
+|10. Scanner de portas..............|
++-----------------------------------+
+
+
+                                                                      [Página 0]
+
+Essa é a segunda edição do meu tutorial de sockets/ winsock.
+
+O  intuito desse  texto é introduzir o programador nos fascinantes system  calls
+(Linux) e API(Windows) dos sockets. Não pretendemos partir para coisas mais com-
+plexas, como a programação de sockets brutos (raw sockets).
+
+Ao concluir a leitura deste texto você estará apto a criar ferramentas  clientes
+que se comunicam com serviços e servidores que recebem conexões.
+
+Pré-requisitos  para a  leitura desse texto:  um  conhecimento, mesmo que básico
+sobre a linguagem C; além disso, algum  conhecimento na pilha TCP/IP é importan-
+te; conceito sobre o modelo OSI.
+
+
+
+--=[ 1. Definição de sockets
+
+O Socket fornece uma interface de comunicação para que dois ou mais computadores
+possam trocar informações.
+
+  ENDEREÇO_IP + PORTA_COMUNICAÇÃO = SOCKET
+
+O Winsock, por sua vez, é uma versão do socket portada para ambiente  windows  e
+desenvolvida pela Microsoft.
+
+
+
+--=[ 2. Protocolos
+
+Como você deve  saber,  o TCP/IP não é um protocolo,  e sim uma pilha deles.  Os
+mais importantes são, obviamente, o TCP e o IP, que deram nome à arquitetura.
+
+Na arquitetura TCP/IP, assim como no modelo OSI, existe uma hierarquia;essa hie-
+rarquia define que protocolos da camada inferior prestem serviços à camada supe-
+rior. Porém, ao invés de termos sete camadas como no modelo OSI, no TCP/IP temos
+apenas quatro. Vamos a elas:
+
+  APLICAÇÃO
+  TRANSPORTE
+  REDE, Inter-rede ou Internet (mas gosto de chamar de roteamento)
+  FÍSICO, ou acesso à rede.
+
+É importante destacar que as  camadas citadas  acima podem ser representadas  de
+forma diferente, dependendo do autor.Existe, por exemplo, bons autores que afir-
+mam que o modelo TCP/IP tem cinco camadas. Fiquem atentos. Mas para nosso  tuto-
+rial assumiremos quatro camadas. Contudo, mais do que decorar quantas camadas ou
+quais  os seus nomes, aprenda conceitualmente qual a importância de cada uma de-
+las e suas funções.
+
+
+--=--=[ 2.1. Aplicação
+
+Essa é a camada mais acessível ao ser humano. De certa forma, nós podemos  mani-
+pular facilmente os protocolos deste nível. Aqui encontramos serviços  prestados
+ao usuário final: FTP, HTTP, SMTP, POP3, telnet, etc.  Os protocolos das camadas
+inferiores prestam serviços às camadas superiores para que o usuário final possa
+realizar suas tarefas. Esta é a última camada: o serviço.
+
+
+--=--=[ 2.2. Transporte
+
+Essa camada é responsável pelo transporte dos dados. Nela temos os protocolos TCP
+e UDP. É aqui que teremos o controle de erros, endereçamento de portas para  di-
+ferenciar no destino qual processo deve receber os dados,seqüenciamento de paco-
+tes para que esses sejam remontados com sucesso no destinatário,controle de flu-
+xo, dentre outros.  Lembrando que, por padrão, o protocolo UDP não faz  checagem
+de erro, embora seja possível implementar isto.
+
+
+--=--=[ 2.3. Roteamento
+
+Aqui, além de encontrarmos o pop-star IP,  também  encontraremos o protocolo  de
+controle ICMP que, apesar de usar os serviços do IP, é considerado um  protocolo
+de mesmo nível.
+
+É nessa camada que os  pacotes receberão o endereçamento IP, possibilitando  que
+os roteadores possam manipular esses pacotes e redirecioná-los adequadamente.Te-
+remos o campo tempo de vida, que serve para que os pacotes não trafeguem eterna-
+mente pela rede, dentre outras. Em suma, aqui teremos o roteamento (palavra  fa-
+mosa) dos pacotes através de endereçamento lógico (IP).
+
+
+--=--=[ 2.4. Físico
+
+Aqui encontraremos a arquitetura da rede.  Dentre as muitas  encontraremos,  por
+exemplo, o PPP, a Ethernet, Token Ring, FDDI entre tantas outras.
+
+Notem que aqui uma quinta camada faria sentido.A quarta seria o enlace e a quin-
+ta a física.  Na camada de enlace teríamos os protocolos de enlace tratando  dos
+endereçamentos físicos (Ethernet, PPP, como no exemplo acima) e na quinta  cada-
+ma, físico, teremos apenas os bits, isto é,sinais elétricos puros e conexões me-
+cânicas, como conectores RJ11, RJ45 e as linhas (cabeamento ou ondas de rádio).
+
+Contudo, como não manipularemos protocolos de nível tão baixo, preferi manter as
+quatro camadas apenas. Além do mais geraria polêmica com outros autores.
+
+
+--=--=[ 2.5. Simulação
+
+Simularemos agora o envio de um e-mail para tornar toda essa teoria algo  corri-
+queiro.
+
+Você redige um e-mail e clica em enviar. A maioria dos usuário acha que a situa-
+ção está resolvida aqui, mas é justamente nesse ponto que nossa brincadeira fica
+excitante.
+
+No nível de aplicação, ainda, o seu cliente de e-mail cria o cabeçalho do mesmo.
+Esse cabeçalho segue especificação do protocolo SMTP. Agora entra em cena o TCP,
+que fará um cálculo denominado checksum, que é um controle de  erros para os da-
+dos. Também nessa camada o TCP insere a porta destino, 25, padrão para os servi-
+dores SMTP. Agora surge o roteamento. Surge o IP, que vai inserir IP de origem e
+IP destino (lembra-se quando você configurou o servidor SMTP?), o campo tempo de
+vida cujo valor varia de sistema operacional para sistema operacional. Além dis-
+so,na camada do IP existe um campo que armazena qual protocolo está sendo trans-
+portado; nesse caso é o TCP.  Agora todo esse pacote de protocolos é encaminhado
+para a interface de rede. No caso de um e-mail  pode ser o PPP.  Quando o quadro
+chegar ao servidor, o modem deste "desembrulha" o pacote da "casca" PPP e  envia
+o conteúdo para o kernel do sistema, que analisará o restante.
+
+Todo esse processo é denominado encapsulamento. Note que o protocolo SMTP, apli-
+cação, foi inserido dentro do TCP. O TCP, transporte, foi inserido dentro do IP.
+O IP, roteamento, foi inserido dentro do PPP, físico (ou enlace, com cinco cama-
+das).
+
+
+       +------+ +-----+ +-----+       +-----+
+       |Telnet| | FTP | | DNS |  ...  |     |  Aplicação
+       +------+ +-----+ +-----+       +-----+
+             |   |         |             |
+            +-----+     +-----+       +-----+
+            | TCP |     | UDP |  ...  |     |  Transporte
+            +-----+     +-----+       +-----+
+               |           |             |
+            +-------------------------------+
+            |           IP & ICMP           |  Roteamento
+            +-------------------------------+
+                           |
+              +---------------------------+
+              |   PPP, Ethernet, etc      |    Físico
+              +---------------------------+
+
+Obs.: desenho retirado da RFC do protocolo TCP.
+
+Imagine  quatro caixas de papelão, cada uma delas ligeiramente  menor que as ou-
+tras. Na menor das caixas coloque um presente para alguém. Feche esta caixa e na
+capa escreva: "Presente para alguém especial". Coloque esta caixa com o presente
+dentro da segunda menor caixa. Escreva na capa algo como peso e tamanho. Coloque
+esta caixa dentro da terceira menor caixa. Também proceda como anteriormente,es-
+crevendo informações na capa da caixa para controle.
+
+Faça isso até que todas as caixas estejam uma dentro da outra.  Na capa de  cada
+caixa existe uma informação.  Pois bem, o presente representa o dado que se quer
+transmitir; cada uma das caixas é um protocolo de seu respectivo nível; cada in-
+formação na capa das caixas são os cabeçalhos de cada um dos protocolos.
+
+É exatamente assim que funciona. Cada protocolo é encapsulado dentro de outro  e
+são inseridos cabeçalhos, com informações de controle.
+
+Esse tipo de  padronização,  como o modelo OSI,  é feito para facilitar o enten-
+dimento dos protocolos  e minimizar o tempo  levado para  detecção e correção de
+erros. Saber tudo isto não é apenas útil, é imprescindível. Supondo que você te-
+nha entendido a hierarquia dos protocolos e que cada um tem uma função específi-
+ca, sempre fornecendo serviços aos protocolos que se seguem, partiremos aos  so-
+ckets.
+
+Eu insisto muito nesse conceito de camadas,  por isso  quero que entendam  muito
+bem.
+
+   Remetente            Roteador                     Destinatário
+
+  +----------+                                       +----------+
+  | Aplicação|                                       | Aplicação|
+  +----------+                                       +----------+
+       |                                                  ^
+       V                                                  |
+  +----------+                                       +----------+
+  |Transporte|                                       |Transporte|
+  +----------+                                       +----------+
+       |                                                  ^
+       V                                                  |
+  +----------+         +----------+                  +----------+
+  |Roteamento|         |Roteamento| ------> +        |Roteamento|
+  +----------+         +----------+         |        +----------+
+       |                    ^               |             ^
+       V                    |               |             |
+  +----------+         +----------+         |        +----------+ 
+  |  Físico  | ------> |  Físico  |         +------> |  Físico  |
+  +----------+         +----------+                  +----------+
+
+
+
+--=[ 3. Visão geral
+
+Como  dito no início do tutorial, usaremos como  base a linguagem C.  Seguiremos
+mostrando as funções mais usadas nos sockets:
+
+accept
+socket
+bind
+*closesocket
+connect
+getpeername
+getsockname
+getsockopt
+htonl
+htons
+inet_addr
+inet_ntoa
+ioctlsocket
+listen
+ntohl
+ntohs
+recv
+recvfrom
+select
+send
+sendto
+setsockopt
+shutdown
+gethostname
+gethostbyaddr
+gethostbyname
+getprotobyname
+getprotobynumber
+getservbyname
+getservbyport
+
+Você poderá usar todas elas tanto em UNIX quanto em Windows.Na API Winsock exis-
+tem diversas funções que não serão tratadas nesse texto.  Pense que,  se você a-
+prender a sintaxe e dominar o funcionamento das mais  importantes funções  cita-
+das, você já poderá criar algumas ferramentas interessantes.
+
+  * Apenas algumas diferenças. A função closesocket() é utilizada apenas no win-
+    dows. Essa função pára imediatamente o recebimento  ou o envio de dados pelo
+    socket especificado e o fecha. Num unix-like basta utilizar o close().
+
+
+
+--=[ 4. Headers
+
+Obviamente temos que acrescentar os headers:
+
+  #include <sys/types.h>
+  #include <sys/socket.h> // em UNIX
+
+  #include <winsock2.h>   // para windows
+
+Algumas ressalvas. A versão 2 do winsock só está disponível do Win 98 para cima.
+Versões abaixo necessitarão de uma atualização para  o correto funcionamento  do
+seu código. Se você quiser utilize apenas a versão 1, pois para nossos exemplos,
+basta.
+
+Agora vamos declarar o socket:
+
+  int meu_socket // para UNIX
+  SOCKET meu_socket // Para Windows
+
+Essa é outra diferença.Em sistemas unix nós declararíamos um socket como do tipo
+INT (inteiro), mas no Windows declaramos como um SOCKET socket. Se você der  uma
+fuçada no winsock.h, encontrará coisa do tipo:
+
+  typedef unsigned int u_int;
+
+em seguida encontrarão isto:
+
+  typedef u_int SOCKET;
+
+Eles só inverteram o nome do tipo de dado. Em outras palavras, tanto em unix-li-
+ke quanto no Windows um socket é do tipo inteiro (int). Inclusive,  se você qui-
+ser, poderá utilizar o tipo INT também no Windows.
+
+
+
+--=[ 5. Estruturas
+
+Vou iniciar mostrando uma estrutura que você utilizará em praticamente todas  as
+implementações com sockets. Nela, você escolherá o destino de seus pacotes, por-
+ta e a arquitetura. A estrutura utilizada para isto é a sockaddr_in e  tem o se-
+guinte formato:
+
+  struct sockaddr_in {
+     short int sin_family;        // tipo de arquitetura a ser utilizada
+     unsigned short int sin_port; // a porta, claro
+     struct in_addr sin_addr;     // endereço no formato IP
+     unsigned char sin_zero[8];   // zera o restante da estrutura
+     };
+
+  AF_INET (ARPA protocolos inernet).
+
+A AF_INET é a mais usada. Quando tratamos  de AF_INET e/ou ARPA, estamos nos re-
+ferindo à arquitetura  TCP/IP.  Existem mais arquiteturas  disponíveis,  leia  o
+winsock.h ou o sockets.h, mas é quase certo que você  jamais precise das outras.
+Vamos tomar um exemplo:
+
+----------------------------------exemplo.c-------------------------------------
+
+  #include <winsock2.h>
+
+  main() {
+  SOCKET meu_socket; /* declarando o socket */
+
+  struct sockaddr_in host_destino; 
+  /* declarando estrutura, onde  
+     teremos arquitetura, IP e porta */
+
+  host_destino.sin_family=AF_INET;
+  host_destino.sin_port=80;
+  /* Porta destino e arquitetura. Aqui vai dar erro, mas paciência, 
+     já vou falar sobre isso.*/
+
+  host_destino.sin_addr.s_addr=200.100.100.100;
+  /* Endereço destino, aqui também vai dar erro, 
+     mas agüenta firme!! */
+
+  for(cont=0;cont<=8;cont++) {
+     vitima.sin_zero[cont]=0;
+     }
+
+----------------------------------exemplo.c-------------------------------------
+
+Nesse último parâmetro zeramos todo o restante da estrutura. Falaremos sobre is-
+so mais abaixo, achei que ficaria mais fácil entender. Eu usei um for,  mas você
+verá códigos que usam a função memset() e a grande maioria usa a função bzero().
+Isso é questão de gosto. Eu usei o for porque torna o código mais didático.
+
+Agora já temos nosso "alvo".
+
+
+
+--=[ 6. Abrindo um socket
+
+Esta  função será a responsável  por criar o socket e deixá-lo pronto  para efe-
+tuar ou receber uma conexão. Sua sintaxe é a seguinte:
+
+  socket(int ARQUITETURA,int TIPO_PROTOCOLO,int PROTOCOLO)
+
+Quanto à arquitetura já sabemos qual utilizar, será o AF_INET. No tipo de proto-
+colo nós temos cinco, mas nos contentaremos com apenas dois, os mais  utilizados
+comumente: SOCK_DGRAM e SOCK_STREAM.  Para simplificar ao máximo,  o sock_stream
+utiliza o protocolo TCP, ou seja, ele tenta criar uma conexão com o destino pra-
+ticando o handshake. Dizemos, então, que  o sock stream é orientado a conexão. O
+sock_dgram  utiliza o  protocolo UDP.  Como você deve ter aprendido no seu curso
+de redes  ou em alguma  apostila,  o protocolo UDP não faz controle de erros.Ele
+também não executa o handshake.  Quando você cria um socket  desse tipo,  você o
+deixa pronto para o envio/recebimento de dados, mas jamais será estabelecida uma
+conexão de dados entre remetente e destinatário. Em outras palavras,o dado é jo-
+gado na rede e sabe-se lá quando e como vai chegar. Exatamente por isso o proto-
+colo UDP é mais veloz que o TCP, utilizado principalmente para  aplicações  como
+vídeo-conferência e jogos. Imagine um sistema de vídeo-conferência que faça con-
+trole de erros e pede retransmissão a cada pacote incorreto!  Vamos tomar outro
+exemplo:
+
+----------------------------------exemplo.c-------------------------------------
+
+  #include <winsock2.h> // não se esqueça q unix é diferente
+
+  main() {
+  SOCKET meu_socket; // não se esqueça q no unix é do tipo INT.
+
+  struct sockaddr_in host_destino;
+
+  meu_socket=socket(2,1,0); 
+  /*  criando um socket.  Todos os parâmetros 
+      são do tipo INT.  */
+
+----------------------------------exemplo.c-------------------------------------
+
+Como  citado  anteriormente,  o último  parâmetro se refere ao  protocolo.  Você
+pode tanto optar por usar assim:
+
+  socket(AF_INET,SOCK_STREAM,IPPROTO_IP);
+
+como usar suas respectivas numerações.  Há uma relação  mais abaixo  sobre isso.
+Assim como o IPPROTO_IP, eu  poderia colocar outros, mas para nosso tutorial  u-
+saremos apenas esse.O socket está criado.Definimos a arquitetura (2 ou AF_INET),
+o protocolo de transporte (1 ou SOCK_STREAM) e o protocolo que vai roteá-lo,  no
+caso, o 0 ou IPPROTO_IP. A função retorna -1 em caso de erro. Vamos às relações,
+conforme prometi:
+
+Tipos de protocolos:
+
+#define SOCK_STREAM_____ 1 // com protocolo TCP
+#define SOCK_DGRAM______ 2 // com protocolo UDP
+#define SOCK_RAW________ 3 /* ao terminar esse texto, estudar
+                              bastante e, por fim, dominar os sockets,
+                              deve ser seu proximo passo: raw sockets.
+                           */
+#define SOCK_RDM________ 4
+#define SOCK_SEQPACKET__ 5
+
+Arquiteturas:
+
+#define AF_UNSPEC_____ 0
+#define AF_UNIX_______ 1
+#define AF_INET_______ 2 // olha a nossa aqui!
+#define AF_IMPLINK____ 3
+#define AF_PUP________ 4
+#define AF_CHAOS______ 5
+#define AF_IPX________ 6
+#define AF_NS_________ 6
+#define AF_ISO________ 7
+#define AF_OSI___ AF_ISO
+#define AF_ECMA_______ 8
+#define AF_DATAKIT____ 9
+#define AF_CCITT______ 10
+#define AF_SNA________ 11
+#define AF_DECnet_____ 12
+#define AF_DLI________ 13
+#define AF_LAT________ 14
+#define AF_HYLINK_____ 15
+#define AF_APPLETALK__ 16
+#define AF_NETBIOS____ 17
+#define AF_VOICEVIEW__ 18
+
+Protocolos:
+
+#define IPPROTO_IP____ 0 // Veja aqui!
+#define IPPROTO_ICMP__ 1
+#define IPPROTO_GGP___ 2
+#define IPPROTO_TCP___ 6
+#define IPPROTO_PUP___ 12
+#define IPPROTO_UDP___ 17
+#define IPPROTO_IDP___ 22
+#define IPPROTO_ND____ 77
+#define IPPROTO_RAW___ 255
+#define IPPROTO_MAX___ 256
+
+
+
+--=[ 7. Conectando
+
+Agora que o socket está criado,  poderemos nos conectar.  A função para isto é a
+connect(). Aqui vai seu formato:
+
+  connect(SOCKET,const struct sockaddr*,int);
+
+ou
+
+  connect(socket,estrutura_com_enderco_e_porta,tamanho_da_estrutura);
+
+Aqui é um exemplo prático.
+
+  connect(s1,(struct sockaddr *)&host_destino,sizeof(host_destino));
+
+A princípio pode parecer meio confuso, mas tente ver além desse monte de  letri-
+nhas. É o socket, (vírgula) a estrutura com informações do destinatário  (vírgu-
+la) e o tamanho dessa estrutura, nada mais...
+
+A função connect retorna 0 em caso de sucesso e -1 em caso de erro.
+
+Como os mais atentos devem ter notado nos exemplos que incluí,  declarei uma es-
+trutura do tipo sockaddr_in, mas na hora da conexão, chamei a sockaddr, por quê?
+Veja isto:
+
+  struct sockaddr {
+     u_short sa_family;
+     char sa_data[14];
+     };
+
+Na opção sa_family, colocaríamos os AFs (AF_XXX), no nosso caso o  AF_INET  e no
+sa_data, colocaríamos o endereço do destinatário e a sua porta. Mas isso é  "es-
+quisitérrimo".  Logo os programadores sentiram necessidade de criar  essa estru-
+tura  manualmente.  Inventaram a estrutura  sockaddr_in, onde  o 'in'  significa
+"internet". Então, quando zeramos aquela estrutura com for, memset() ou bzero(),
+estamos acomodando aquela estrutura nessa, o sockaddr. É por isso que ao usarmos
+a função connect chamamos a estrutura  sockaddr,pois é essa que tem "intimidade"
+com o socket.
+
+
+
+--=[ 8. Funções
+
+Após  este capítulo  estaremos aptos a fazer muitas coisas interessantes, já vou
+passar o código de um scanner de portas simples. Na verdade, acho que todo mundo
+que começa com sockets faz um, siga a tradição!!
+
+  struct hostent *gethostbyname(const char *name);
+
+A função gethostbyname() converte um nome de host para um endereço IP.  Como pu-
+deram ver, é retornado um ponteiro para uma estrutura, vamos a ela:
+
+  struct  hostent {
+      char *h_name;       // Nome do host
+      char **h_aliases;   // Lista dos "aliases"
+      short h_addrtype;   // Tipo de endereço do host 
+      short h_length;     // Tamanho do endereço 
+      char **h_addr_list; // Lista de endereços do servidor de nomes
+  #define h_addr h_addr_list[0]
+      }
+
+Em sistemas UNIX, para utilizar essa função adicione isto: 
+
+  #include <netdb.h>
+
+Vamos a um exemplo prático, vai. O programinha abaixo  resolve o endereço IP da-
+do um nome de host.
+
+-----------------------------exemplos.c----------------------------------
+<++> sockets/resolver.c
+  #include <netdb.h>
+
+  int main(int argc, char *argv[])
+    {
+
+    struct hostent *host;
+
+    host=gethostbyname(argv[1]);
+    if(host==NULL) { 
+       printf("Host desconhecido!"); 
+    // note q gethostbyname retorna NULL em caso de falha.
+       exit(1);
+       }
+
+    printf ("Nome do Host: %s\n",host->h_name);
+    printf ("Endereço IP: %s\n",
+             inet_ntoa(*((struct in_addr *)host->h_addr)));
+
+    return 0;
+
+    }
+<--> sockets/resolver.c
+-----------------------------exemplos.c----------------------------------
+
+Apenas um programinha de utilidade duvidosa, mas é um bom exemplo.  Vamos expli-
+car o que é inet_ntoa() e a estrutura in_addr. Apesar de conhecermos o  endereço
+IP como x.x.x.x,esse é apenas um  formato que torna fácil seu reconhecimento por
+parte dos humanos. Então, existem duas, na verdade três funções que convertem  o
+formato real  do IP em formato ASCII (q podemos ler) e o formato ASCII  (que nós
+definimos) para o formato IP, pois é esse formato que os sockets precisam.
+
+inet_ntoa()  (ntoa significa network to ascii) - essa função converte  o formato
+IP das máquinas para ASCII, para que nós, seres humanos, consigamos ler.
+Formato: char *inet_ntoa(struct in_addr inaddr);
+Note que essa função precisa da estrutura in_addr, por isso a convertemos.
+
+Bom, temos duas outras funções. Essas duas servem para converter nosso ASCII pa-
+ra o IP das máquinas.
+
+inet_addr() - essa é a mais comum de todas, você verá sempre.
+Formato: unsigned long inet_addr(const char *ptr);
+Só um exemplo: inet_addr("127.0.0.1"); // simples, não?
+
+Ainda  existe o inet_aton() (aton significa ascii to network). Viram? As funções
+se auto-explicam. Essa função não é  muito utilizada, pois, por algum motivo que
+sinceramente desconheço, todos preferem o inet_addr.
+
+UNIX, para usar  as funções inet_aton(), inet_addr() e inet_ntoa, acrescente:
+
+  #include <sys/types.h>
+  #include <sys/socket.h>
+  #include <netinet/in.h>
+  #include <arpa/inet.h>
+
+Isso, todos. Nesse ponto, programar no Windows é mais fácil.  Adicionando o win-
+sock.h temos tudo que precisamos.
+
+Network Byte Order é o modo como nosso hardware guarda os dados.  Nesse sistema,
+também conhecido como NBO, os bytes menos significativos são guardados primeiro.
+Não é diferente do caso anterior, do IP. Nós lemos o dado de uma forma, o compu-
+tador de outra. Para enviar os dados pela rede, temos que respeitar  os sistemas
+utilizados, nesse caso o NBO. Então, para garantir que nossos  programas respei-
+tem  esse sistema, existem algumas funções.
+
+  u_long htonl(u_long hostlong)    - Host TO Network Long
+  u_short htons(u_short hostshort) - Host TO Network Short
+  u_long ntohl(u_long netlong)     - Net TO Host Long
+  u_short ntohs(u_short netshort)  - Net TO Host Short 
+
+Notem as letras maiúsculas, são os nomes das funções.
+
+Pensem sempre em  como as funções são  formadas:  htons (host to network short).
+Ela está dizendo o que faz: converte um dado de um host (seu computador)  para a
+rede (q pode ser a internet). Sempre pense assim e não terá nenhuma dificuldade.
+
+Sem dúvida, a função que você mais verá é a htons().
+
+Desenvolvedor em ambiente UNIX, quando quiser usar uma dessas funções,  adicione
+o header:
+
+  #include <arpa/inet.h>
+
+ou
+
+  #include <netinet/in.h>
+
+getservbyport() - Essa função retorna informações sobre determinada porta 
+de um host.
+
+Formato: struct servent* getservbyport(int,const char*);
+
+UNIX, para usar essa função: #include <netdb.h>
+
+Como pode ver, a função retorna a seguinte estrutura.
+
+  struct  servent {
+      char   *s_name;     // nome do servico
+      char   **s_aliases; // nomes alternativos para o servico
+      short  s_port;      // porta padrao utilizada por este servico
+      char   *s_proto;    // protocolo usado por este servico
+      };
+
+Agora vamos ver outro exemplo para fixar bem.
+
+-----------------------------exemplos.c----------------------------------
+
+#include <netdb.h> // ser for UNIX, adicione esse header.
+
+int main() {
+  struct servent *servico;
+
+  servico=getservbyport(htons(80),"tcp");
+
+  /* queremos o protocolo tcp, tbem poderíamos 
+     escolher o udp.*/
+
+  printf("Na porta 80 temos o servico %s",servico->s_name);
+  }
+
+-----------------------------exemplos.c----------------------------------
+
+Simples, não? Notem que nesse caso não precisamos nem criar um socket.
+
+Mas temos que fazer uma pergunta.  Onde diabos estão armazenadas  essas informa-
+ções sobre os serviços?
+
+  No Windows NT/2000 ->
+                        WINNT\system32\drivers\etc\services
+
+  UNIX ->
+          etc/services
+
+Abra o arquivo e bingo! Vocês podem modificar esses arquivos, e lembrem-se:  mu-
+dando esse arquivo, fatalmente o resultado do nosso último exemplo também  muda-
+rá.
+
+ATENÇÃO: se você está usando Windows  para acompanhar esse tutorial,  leia  esse
+capítulo. Se você nunca pretende  programar sockets em Windows, pode pular  essa
+parte e vá ao capítulo 9 (Fechando e encerrando).  Para quem vai pular, até mais
+embaixo: FALOW!
+
+
+Olá users Windows.
+
+O  fato é o seguinte, existe uma função específica  para inicializar a  API win-
+sock. Em outras palavras, se você não inicializar a  API, nenhuma aplicação  com
+sockets vai funcionar.
+
+A função para inicializar é:
+
+  int WSAStartup(WORD,LPWSADATA);
+
+onde o WORD é um unsigned short.  O LPWSADATA é um ponteiro para a  seguinte es-
+trutura:
+
+  typedef struct WSAData {
+	WORD	wVersion;
+	WORD	wHighVersion;
+	char	szDescription[WSADESCRIPTION_LEN+1];
+	char	szSystemStatus[WSASYS_STATUS_LEN+1];
+	unsigned short	iMaxSockets;
+	unsigned short	iMaxUdpDg;
+	char * 	lpVendorInfo;
+  } WSADATA;
+
+Exemplo prático para inicializar a API Winsock:
+
+  WORD Versao;   // variável
+  WSADATA Start; // variável
+  Versao=MAKEWORD(2,0);
+/* aki exigimos ao Win uma versão da API. Nesse caso será a versão 2.0.*/
+
+  if(WSAStartup(Versao,&Start)!=0) {
+     printf("Versao 2.0 da API winsock requerida");
+     exit();
+     }
+
+A  função retorna 0 em caso de sucesso. Para encerrar o Winsock, usamos a função
+WSACleanup(). Desse jeito mesmo. Quando não quisermos mais usar o Winsock, basta
+utilizar esta função.Então, relembrando,  para criar e usar o socket  temos  que
+inicializar a API winsock, quando não quisermos mais usá-la, executamos a função
+WSACleanup().
+
+Nota importante: se você estiver usando o Dev-C++ para acompanhar este tutorial,
+gostará de saber que há um procedimento adicional a ser realizado.  Para inserir
+referência à  API Winsock na sua  aplicação, clique em "Projects",  "Project Op-
+tions",clique num botão chamado "Load Object Files" e referencie um arquivo cha-
+mado "libwsock32.a".  Na pasta onde o Dev  está instalado,  localize o diretório
+"Lib" e lá encontrará a biblioteca específica dos sockets ("libwsock32.a").
+
+
+
+--=[ 9. Fechando e encerrando
+
+Neste capítulo estudaremos funções de fechamento de sockets.
+
+Como já foi mencionado uma vez neste tutorial, há uma função que fecha o socket.
+Trata-se da função close() para unix-like e closesocket() para o Windows. O úni-
+co argumento para esta função é o socket que  desejamos encerrar.
+
+   int s1;
+   s1=socket(2,1,0);
+   closesocket(s1);
+   /*
+   close(s1);
+   unix-like
+   */
+
+Em algum momento, em seu programa,você pode querer parar o recebimento ou o  en-
+vio de dados ou mesmo os dois. Para isso existe uma função específica, o
+shutdown(). Seu formato e sintaxe são idênticos  no Windows ou em qualquer unix-
+like:
+
+  int shutdown(socket int, mode int);
+
+Onde 'mode' seria uma das três possibilidades:
+
+  /* shutdown() how types */
+  #define SD_RECEIVE      0x00
+  #define SD_SEND         0x01
+  #define SD_BOTH         0x02
+
+SD_RECEIVE = aborta o recebimento de dados.
+SD_SEND = aborta o envio de dados.
+SD_BOTH = aborta ambos.
+
+Exemplo:
+
+  int s1;
+  s1=socket(2,1,0);
+  shutdown(s1,SD_BOTH);
+
+Essa função não teria utilidade para nós, já que ainda não vimos como receber  e
+enviar dados, mas logo terá.
+
+
+
+--=[ 10. Scanner de portas
+
+Vamos direto ao exemplo:
+
+------------------------------codigo.c-----------------------------------
+<++> sockets/scanner.c
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+
+int main(int argc, char *argv[])
+{
+  int mysocket;
+  struct sockaddr_in pc_remoto;
+  struct servent *serv;
+  int i,conexao,porta,p_inicial,p_final;
+
+  if(argc!=4) {
+     printf("\n");
+     printf("*********************************************\n");
+     printf("*Scanner de portas usando a funcao connect()*\n");
+     printf("**by mi!en@r [gustavo FuckSpam milenar net]**\n");
+     printf("*********************************************\n\n");
+     printf("Uso: [x.x.x.x] [Porta inicial] [Porta final]");
+     printf("\n");
+     exit(0);
+     }
+
+  p_inicial=atoi(argv[2]);
+  p_final=atoi(argv[3]);
+
+  for(porta=p_inicial;porta<=p_final;porta++) {
+  // aqui é lógica pura, entendam.
+     mysocket=socket(AF_INET,SOCK_STREAM,IPPROTO_IP); 
+    // cria socket
+
+     if(mysocket==-1) {                               
+     // se deu -1, sinal q houve algum erro.
+        printf("Nao foi possivel criar socket\n");
+        close(mysocket);
+        exit(1);
+        }
+
+     pc_remoto.sin_family=AF_INET; 
+     // arquitetura AF_INET, se lembra pq?
+
+     pc_remoto.sin_port=htons(porta); 
+     // veja o detalhe. Convertemos a NBO para funcionar.
+
+     pc_remoto.sin_addr.s_addr=inet_addr(argv[1]); 
+     /* endereço convertido de ASCII, 
+        q o user digitou na linha de comando, para um IP. */
+
+      
+     memset(&(pc_remoto.sin_zero),'\0',8);
+     // zera a estrutura para acomodar no sockaddr.
+
+     if(conexao=connect(mysocket,(struct sockaddr *)&pc_remoto,sizeof(pc_remoto))==-1) {
+       /* deu -1, sinal q nao houve conexao, entao, 
+          pressupomos q a porta estah fechada. */
+        printf(".\n");
+        close(mysocket); 
+       // fechamos o socket e deixamos o laço "for" trabalhar
+
+        }
+     else {
+        serv=getservbyport(htons(porta),"tcp");
+        printf("Porta %d aberta. Servico [%s]\n",porta,serv->s_name);
+/* informa q a porta estah aberta 
+   e mostra qual o serviço disponível. */
+        close(mysocket); 
+        // fecha o socket e deixar o "for" trabalhar
+
+        }
+	  /* user win, já sabe o q deve estar aqui, certo? 
+     Não queremos mais usar o socket */
+     }
+  return 0;   
+  }
+<--> sockets/scanner.c
+------------------------------codigo.c-----------------------------------
+
+A lógica é muito simples.Tentamos nos conectar a determinada porta usando a fun-
+ção connect, caso haja falha na conexão,  pressupomos que aquela porta  está fe-
+chada. Caso nosso  programinha consiga a conexão, significa  que a porta está a-
+berta. Leia o código-fonte inteiro, já estamos aptos a entendê-lo.  Além disso,
+comentei o código todo, tornando sua compreensão mais fácil ainda.
+
+Gostaria que vocês compilassem e testassem todos os exemplo que incluí, mesmo os
+mais banais.Além disso, quero que desenvolvam e testem suas próprias aplicações.
+É verdade que com este tutorial pouco se pode fazer,mas com o pouco conhecimento
+que já tem, botem a criatividade para funcionar, testem as idéias que aparecerem
+e certamente dúvidas inteligentes surgirão.
+
+Nunca é demais lembrar que este scanner de portas tenta estabelecer conexão  com
+o host alvo, isto significa que qualquer firewall meia-boca poderia  detectá-lo.
+Por isto, tome cuidado onde for executá-lo.  Empresas de segurança  contabilizam
+scanneamento de portas como tentativas de invasão. Cuidado.
+
+Em relação aos headers para UNIX, pode  variar  muito, por isso veja com as  man
+pages, elas ajudam barbaridades! Usei como base para  a escrita desse tutorial o
+FreeBSD 5.1 e o Windows 2000 Professional.
+
+Por  hoje é só. Estudem esse texto aí em cima, e estejam preparados. Veja que a-
+penas nos conectamos a um servidor;  no próximo tutorial vamos ver como  receber
+conexões e como enviar/receber dados.
+
+Abraços!
+
+
+_EOF_

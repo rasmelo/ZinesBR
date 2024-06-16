@@ -1,0 +1,329 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=-[02]-=[Programas no FreeBSD (Ports e Packages)]-=|hallz|=-=-=-=-=-=-=-=-=-=-=
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=              
+              
+
+==[ Introdução ]===============================================================
+
+No FreeBSD, softwares podem ser  instalados basicamente de duas formas.  Através
+de  pacotes (packages)  ou como  portas (ports).  Pacotes já  estão compilados,
+bastando  um  comando para  instalá-lo  e poder  usar  o programa.  Já  os ports
+precisam antes serem compilados. Aqui pretendo demonstrar o uso básico de ambos.
+Lembrando que geralmente é necessário ser root para instalar programas. Acesso à
+internet também é necessário.
+
+
+==[ Package X Port ]===========================================================
+
+Vantagens dos pacotes:
+
+--> Pacotes ocupam menos espaço. Ele só ocupa  espaço para o programa em si.
+--> Pacotes são instalados mais rapidamente. Como já estão na forma binária,
+não precisam ser compilados primeiro.
+
+Vantagens dos ports:
+
+--> Você pode ativar algumas características do programa, antes de compilá-lo.
+--> A coleção  de ports  te dá  informações sobre  os programas  que você  pode
+instalar; o  que ele  faz, se  existe uma  versão mais  recente e  onde ele será
+instalado.
+--> Alguns  programas  só  estão  disponíveis  como  ports;  por  precisarem de
+informações suas ou por restrições de seus criadores.
+--> O sistema de ports gerencia melhor as dependências, inclusive, ele obtém
+automaticamente tudo que é necessário para o programa funcionar.
+
+
+==[ Instalando pacotes ]=======================================================
+
+Pode-se instalar pacotes usando o sysinstall:
+
+$ su
+Password:
+# /stand/sysinstall
+
+No menu que aparece, selecione "Do a post-install configuration of FreeBSD". 
+[Enter], depois, "Install pre-packaged software for FreeBSD" [Enter]
+Escolha de onde quer instalar o software e divirta-se :-)
+
+
+Você também pode instalar o software "na mão", com o comando
+# pkg_add <nome_do_pacote.tgz>
+
+E pronto, o programa já pode ser utilizado.
+
+
+==[ Instalando a coleção de ports ]============================================
+
+Para poder instalar ports, você precisa ter instalado a coleção de ports  (ports
+collection), que são arquivos que dizem ao FreeBSD como instalar cada  programa,
+através do código fonte (source code).
+
+Para acessar a coleção de ports, digite:
+
+# cd /usr/ports
+
+Se receber uma  mensagem  dizendo que  o diretório não  existe "No such  file or
+directory" então a coleção não está instalada. Para instalar, logue como root  e
+rode o sysinstall.
+
+# /stand/sysinstall
+
+Siga a sequência:
+
+1. Acesse "Configure: Do post Install configuration of FreeBSD" [enter]
+2. Acesse "Distributions: Install additional distribution sets" [enter]
+3. Selecione (c/ a barra de espaço) "ports: The FreeBSD ports collection" [ok]
+4. Escolha a mídia de onde quer instalar os ports, ao acabar, selecione 
+"X Exit Install".
+
+
+Também pode-se baixar a coleção de ports do site http://www.freebsd.com/ports/ ,
+arquivo ports.tgz. Depois do término do download, mova o arquivo ports.tgz  para
+/usr e descompacte-o com:
+
+/usr# tar xzf ports.tar.gz
+
+Pronto, a coleção de ports já está instalada!
+
+
+==[ Usando os ports ]==========================================================
+
+Localizar um programa na coleção de ports deveria ser uma tarefa difícil, já que
+ela conta com mais de 6.000 programas. No entanto, podemos localizar  facilmente
+um programa, usando o recurso de busca da coleção. Vamos procurar pelo  programa
+nmap, um conhecido port scanner.
+
+# cd /usr/ports
+# make search name=nmap
+
+Teremos uma lista de ports contendo 'nmap' em seu nome:
+
+Port:	nmap-3.00
+Path: 	/usr/ports/security/nmap
+Info:	Port scanning utility for large networks
+Maint:	d.marks@student.umist.ac.uk
+Index:	security
+B-deps:
+R-deps:
+
+
+Port:	nmapfe-3.00
+Path:	/usr/ports/security/nmapfe
+Info:	GUI frontend for the nmap scanning utility
+Maint:	d.marks@student.umist.ac.uk
+Index:	security
+B-deps:	XFree86-libraries-4.3.0_1 expat-1.95.6_1 fontconfig-2.1_6 
+freetype2-2.1.3_1 gettext-0.11.5_1 glib-1.2.10_8 gtk-1.2.10_9 imake-4.3.0
+libiconv-1.8_2 pkgconfig-0.15.0
+R-deps:	XFree86-libraries-4.3.0_1 expat-1.95.6_1 fontconfig-2.1_6
+freetype2-2.1.3_1 gettext-0.11.5_1 glib-1.2.10_8 gtk-1.2.10_9 imake-4.3.0
+libiconv-1.8_2 pkgconfig-0.15.0
+
+
+No resultado da  nossa busca podemos  ver o nome  do port e  sua versão, o local
+onde ele  está localizado  (path), uma  pequena descrição  do propósito  de cada
+programa, o endereço de contato caso tenha problemas com o port, e o que o  port
+precisa para ser compilado (B-deps) e o que precisa para ser executado (R-deps).
+Vamos "fuçar" um pouco mais o nmap antes de instalá-lo.
+
+# cd /usr/ports/security/nmap
+
+O arquivo pkg-desc contém uma descrição de algumas linhas sobre o programa.
+Podemos vê-la com o comando cat.
+
+# cat pkg-descr
+nmap is a utility for port  scanning large networks, although it works  fine for
+single  hosts. The  guiding philosophy  for the  creation of  nmap was  TMTOWTDI
+(There's More Than One Way To Do It). Sometimes you need speed, other times  you
+may need stealth.  In some cases,  bypassing firewalls may  be required. Not  to
+mention  the fact  that you  may want  to scan  different protocols  (UDP, TCP,
+ICMP,etc.).  You  just can't  do  all this  with  one scanning  mode.  Thus nmap
+incorporates virtually every scanning technique known of.
+
+WWW: http://www.insecure.org/nmap/index.html
+
+See the webpage and  the Phrack Magazine article  (Volume 7, Issue 51  September
+01, 1997, article 11 of 17) http://www.insecure.org/nmap/p51-11.txt
+
+-- David
+   obrien@cs.ucdavis.edu
+
+
+Já o  arquivo pkg-plist  contém uma  lista de  arquivos que  o port instala, e o
+destino de cada um.
+
+#cat pkg-plist
+@comment $FreeBSD: ports/security/nmap/pkg-plist,v 1.11 2001/04/15 01:04:33 
+obrien Exp $
+bin/nmap
+share/nmap/nmap-os-fingerprints
+share/nmap/nmap-protocols
+share/nmap/nmap-services
+share/nmap/nmap-rpc
+@dirrm share/nmap
+
+
+==[ Instalando um port ]=======================================================
+
+Para instalar um  port é necessário  estar conectado à  internet e estar  logado
+como root. Vamos instalar o nmap:
+
+# cd /usr/ports/security/nmap
+# make install
+
+Você verá o progresso da instalação em sua tela, ao termino do processo, se tudo
+ocorreu bem, o programa já pode ser utilizado. :)
+
+Para economizar espaço pode-se remover os arquivos criados durante a instalação,
+com o comando make clean
+
+# make clean
+===> Cleaning for nmap-3.00
+
+Para economizar mais espaço, podemos  remover manualmente os arquivos que  foram
+baixados. Eles ficam no diretório /usr/ports/distfiles
+
+
+==[ Obtendo informações sobre programas instalados ]===========================
+
+O  FreeBSD  mantém  em /var/db/pkg  um  registro  de todos  os  ports  e pacotes
+instalados no sistema. Neste diretório  podemos obter dados sobre os  programas,
+com o comando pkg_info
+
+# cd /var/db/pkg
+# pkg_info -v nmap-3.00/ | more
+
+Serão exibidos dados como a descrição do programa,  o diretório de instalação e 
+os arquivos criados.
+Caso não saiba o nome completo do diretório, use TAB. Exemplo:
+
+# pkg_info -v nmap (e pressione TAB) - o FreeBSD vai completar o nome para você.
+Esperto, não?
+
+
+==[ Removendo Ports ou pacotes ]===============================================
+
+Para apagar um programa, tudo que precisamos saber é o nome do pacote (ou port).
+
+# cd /var/db/pkg
+# ls -d nmap*
+nmap-3.00
+
+# pkg_delete nmap-3.00
+
+Pronto, programa removido :-)
+
+
+==[ Atualizando a coleção de ports ]===========================================
+
+"O  tempo  passa,  o  tempo  voa"  e  a  sua  coleção  de  ports  um  dia ficará
+ultrapassada. Para atualizá-la, usamos o cvsup, localizado em /usr/local/bin/
+
+Caso o cvsup não esteja instalado, rode o /stand/sysinstall (Configure->Packages->
+"Midia a ser usada"->Net->cvsup)
+
+Antes de poder atualizar a coleção de ports, devemos editar os supfiles, que são
+arquivos com instruções que o cvsup usa para atualizar conjuntos de ports. Vamos
+criar um supfile que atualize a coleção inteira.
+
+# cd /usr/share/examples/cvsup
+# cp ports-supfile bkp_ports-supfile
+
+Agora abra o arquivo ports-supfile e mude a linha:
+
+*default host=CHANGE_THIS.FreeBSD.org
+
+para:
+
+*default host=cvsup.br.FreeBSD.org
+(ou outro servidor listado em http://www.freebsd.org/doc/handbook/cvsup.html)
+
+
+Caso não queira atualizar a coleção  inteira, basta comentar (adicionar um #  no
+começo da linha) a linha ports-all, e "descomentar" as linhas que se referem  ao
+que você quer atualizar.
+
+Para atualizar a coleção, basta executarmos: (Lembre-se que é necessário estar 
+conectado à internet.)
+
+# cvsup -g -L2 ports-supfile
+
+O -g serve para desativar a interface gráfica ( no terminal é mais 'leet' :P  ),
+e o -L2 mostra o andamento da atualização.
+
+Se tudo correr bem,  após algum tempo (varia  de acordo com a  velocidade da sua
+conexão) você verá a mensagem "Finished successfully" na tela.
+
+Pronto, a sua coleção de ports está atualizada ;-)
+
+Mas... e se você já tiver  uma versão antiga de algum programa  instalado? Vamos
+atualizá-lo!
+
+# pkg_version -v |grep nmap
+nmap-3.00 < needs updating (port has 3.48_1)
+
+Certo, aí vemos que o nosso todo-poderoso nmap precisa de atualização. Então,
+mãos à obra! 
+
+O  comando  'pkg_version  -c |grep  nmap'  nos  mostra o  comando  que  deve ser
+executado  para  realizar a  atualização,  contudo prefiro  usar  outro caminho;
+primeiro compilo a nova versão. Se não ocorrerem erros, apago a versão antiga  e
+instalo a  nova. Usaremos  o pkg_version  apenas para  ver onde  se localiza  os
+arquivos do programa que deve ser atualizado.
+
+# pkg_version -c |grep nmap
+# nmap
+cd /usr/ports/security/nmap
+make clean && make && pkg_delete -f nmap-3.00
+
+# cd /usr/ports/security/nmap
+# make all
+===> Extracting for nmap-3.48_1
+...
+(Muitas linhas depois... Muitas mesmo! :P )
+Compiling nmap
+rm -f nmap
+#
+
+Vemos que compilou sem problemas, entao removemos a versão antiga:
+
+# ls -d /var/db/pkg/nmap*
+/var/db/pkg/nmap-3.00
+# pkg_delete -f /var/db/pkg/nmap-3.00
+
+E instalamos a nova:
+
+# make install
+===> Installing for nmap-3.48_1
+...
+For more  information, and  contact details  about the  security status  of this
+software, see the following webpage: http://www.insecure.org/nmap/
+
+Agora  removemos  os arquivos  gerados  durante o  processo,  que não  são  mais
+necessários:
+
+# make clean
+===> Cleaning for libtool-1.4.3_2
+===> Cleaning for pcre-4.4
+===> Cleaning for nmap-3.48_1
+
+# /usr/local/bin/nmap --version
+
+nmap version 3.48 ( http://www.insecure.org/nmap/ )
+
+Pronto, Nmap atualizado :)
+
+
+==[ Finalizando ]==============================================================
+
+Vimos  aqui que  instalar/atualizar/remover programas  no FreeBSD  não é  nenhum
+"bicho de sete cabeças", e que suas ferramentas são bastante versáteis. Para mais 
+informações, consulte as manpages; a melhor forma de aprender é fuçar, sempre ;-)
+
+Links úteis:
+http://www.primeirospassos.org/
+http://www.freebsd.org/doc/handbook/
+http://www.myfreebsd.com.br/
+http://www.linuxbsd.com.br/
+
+===[ EOF ]======================================================================
